@@ -222,3 +222,7 @@ and frame-verified, hit-vs-bounce separated by outgoing shadow speed.
 Still $0 total for the milestone. The event sequence IS proto-charting:
 hit(f2) → bounce → hit ... is one shot-by-shot rally description. M3 turns
 that into notation.
+- Rendered the M2 devlog artifacts: `event_map.png` (all 13 events placed
+  on the court, far-bounce uncertainty drawn honestly as hollow markers)
+  and `events_demo.mp4` (side-by-side with HIT/BOUNCE flashes and event
+  marks accumulating on the court panel).
