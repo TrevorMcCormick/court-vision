@@ -90,3 +90,15 @@ password gate back with a minimal "Court Vision — Coming Soon" card. Building
 in public, but launching when the M0 writeup is actually on the site — a
 coming-soon devlog with one post felt premature. Gate is `src/theme/Root.js`
 in the website repo; same password as before the reboot.
+
+## 2026-07-09 — M0 writeup on the (still gated) site
+
+- Wrote devlog #2 from this log: "M0: Can SAM 3 Hold Onto a Tennis Ball?" —
+  chronological runs 1–4, ball-only scope owned explicitly (players carried
+  forward as unfinished business), ~$0.60 cost line, all four artifacts
+  embedded.
+- Site got its first "sets" plumbing: a post can declare `video:` frontmatter
+  (or drop `{slug}-hero.mp4` in img/blog) and the blog feed tile + post hero
+  play the clip muted/looping — first step toward the disneyplus-style
+  browse-rows vision. The M0 tracked-rally clip (trimmed to frames 0–290,
+  570KB) is the first tile. Gate still up; launch is a separate decision.
