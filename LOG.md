@@ -257,3 +257,70 @@ Hand-rolled the fullest MCP-style chart the M2 events can support
      into points across broadcast cuts.
 - M3 is a different shape than M1/M2: multiple sessions, back to clip
   sourcing, and player tracking first. Scoped; not started.
+
+## 2026-07-09 — M3 experiment 1: the players, at last
+
+**Run 1 — two box prompts, one call.**
+- Prompted both players on frame 240 (boxes drawn by eye, render-verified:
+  `prompt_boxes_240.png`; the red-shirted line judge behind Gasquet kept
+  deliberately OUTSIDE Gasquet's box). One `video-rle` call, two
+  `box_prompts`.
+- The response merged them: `boxes` is ONE box per frame — the UNION of
+  both players... plus that line judge, whom nobody prompted. M0's union
+  lesson again, now for visual prompts: **multiple box prompts in one call
+  come back as one concept-blob, not per-object tracks.** (Whether the
+  endpoint merges per-object masks at serialization or treats two boxes as
+  exemplars of one concept, the per-object structure is gone either way.)
+- **The mask still knows what the box forgot.** Decoded the RLE (format:
+  space-separated start/run pairs over the row-major 1280×720 frame) and
+  took connected components: three clean, spatially disjoint blobs —
+  Zverev, Gasquet, judge — at every frame spot-checked. Baseline rally;
+  nobody crosses anybody in image space.
+
+**Run 2 — component split; the line judge erases himself.**
+- Static-pixel filter before splitting: any pixel on in >85% of frames is
+  scenery. That's exactly the judge (x 770–807, y 61–106, never moves).
+  Players never stand that still for 16 seconds. **The mask's only
+  impostor filtered himself out by never moving.**
+- Near/far assignment by which half the component's bottom edge sits in:
+  **480/480 frames for BOTH players, zero gaps** — the ball only managed
+  470. Player-sized objects are easy mode for SAM 3.
+- Two brief far-track glitches (~f390, ~f425), both AFTER the rally ends
+  (~f300): the component jumps to another far-side figure between points.
+  Outside charting scope; on the record.
+- **Feet are on the ground plane.** Box bottom-center through the M1
+  homography is exact — the airborne-ball caveat doesn't apply to feet.
+  The pipeline's most trustworthy positions are now the players', not the
+  ball's.
+
+**Run 3 — striker + contact side → the letters. 7/7.**
+- Striker by proximity (ball-to-box distance at the hit frame) agrees 7/7
+  with M2's court-y heuristic and preserves the emergent far/near
+  alternation. Three independent answers, same rally.
+- Contact side: ball x minus striker center x, MIRRORED for the far player
+  (he faces the camera — his right is image-left). Right-handed assumption
+  for both (true for Zverev and Gasquet) — **handedness is assumed, not
+  detected**; on the record, and it's M3 requirement #4's problem anyway.
+- Letters: f f f b f f b. Frame-verified all seven with zoomed contact
+  strips (`m3_verify_shots.py`). Shot 3's dx was −1.5 px — dead-center
+  contact, coin-flip territory — and the video still says forehand (low
+  pickup off the right shoe), so the letter stands but the signal was
+  luck. Contact-side dx needs a confidence threshold before it meets a
+  rally it wasn't tuned on.
+- Shot 7 is Gasquet's rally-ending one-handed backhand, takeback coiled
+  high in the strip. If you have to eyeball-verify a backhand, make it
+  Gasquet's.
+
+**Chart v2:** `??2?1?1?2?2?2???` → `?f2f1f1b2f2f2b??`. rallyCount 7
+(+ unseen serve). Striker positions now in the chart: Zverev struck from
+0–1.3 m behind his baseline, Gasquet from 3.1–3.6 m behind his — very
+Gasquet, but far-side foot pixels are meters-per-pixel territory, so far
+depths stay soft.
+- Session cost: $0.15 (one video-rle call). Project total: ~$0.75.
+- Rendered: `shots_demo.mp4` (player boxes + FOREHAND/BACKHAND flashes +
+  live court dots + the pseudo-MCP string typing itself along the bottom)
+  and `shot_map.png` (every shot as a striker→landing arrow, dashed where
+  the landing is far-side ±meters).
+- Remaining '?'s unchanged and unbluffed: serve, shot-7 landing, ending
+  codes, direction-zone semantics, rally segmentation — all gated on
+  **full-point clips. Clip sourcing round 2 is the next session.**
