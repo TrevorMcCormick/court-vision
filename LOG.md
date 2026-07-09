@@ -226,3 +226,34 @@ that into notation.
   on the court, far-bounce uncertainty drawn honestly as hollow markers)
   and `events_demo.mp4` (side-by-side with HIT/BOUNCE flashes and event
   marks accumulating on the court panel).
+
+## 2026-07-09 — M3 scoping: the proto-chart and its question marks
+
+Hand-rolled the fullest MCP-style chart the M2 events can support
+(`m3_proto_chart.py`). Result for the rally:
+
+    # striker dir depth landing
+    1 far      2    8    18.7m   <- directions + depths: derivable NOW
+    2 near     1    9   -10.8m   <- far-bounce position error, visible in chart form
+    ...
+    7 far      ?    ?       ?    <- rally end unresolved
+
+    pseudo-MCP: ??2?1?1?2?2?2???  rallyCount 7 (+ unseen serve)
+
+- Free validation: the striker column alternates far/near/far/near…
+  perfectly — never enforced, pure emergent consistency of the detections.
+- Every '?' is an M3 requirement, now concrete:
+  1. **Player tracking** — shot type f/b needs the striker's position and
+     contact side. M0's unfinished business is now on the critical path.
+  2. **Full-point clips** — serves and point endings aren't in a
+     mid-rally highlight clip. Clip sourcing round 2: full-match VOD,
+     multiple complete points, camera-cut handling.
+  3. **In/out + endings** — */@/# codes need trustworthy far-bounce
+     positions (shot 2 "landed" at -10.8m and the rally continued —
+     that's the error bar talking, and it's meters).
+  4. **Player identity/handedness** — MCP direction zones are defined
+     relative to the receiver; needs to know who's who.
+  5. **Rally segmentation** — point/game context requires slicing a match
+     into points across broadcast cuts.
+- M3 is a different shape than M1/M2: multiple sessions, back to clip
+  sourcing, and player tracking first. Scoped; not started.
