@@ -82,3 +82,11 @@ automating (candidate: text-prompt all balls, pick the one that MOVES).
 **Artifacts:** `outputs/m0/` — overlay video, box-render videos
 (`boxes_ballfix.mp4` is the keeper), trajectory plots (flat-plateau failure
 + `trajectory_ballfix.png` money chart), raw JSON responses.
+
+## 2026-07-09 — Site gated behind Coming Soon
+
+Launched the rebooted trmccormick.com public for a few hours, then put the
+password gate back with a minimal "Court Vision — Coming Soon" card. Building
+in public, but launching when the M0 writeup is actually on the site — a
+coming-soon devlog with one post felt premature. Gate is `src/theme/Root.js`
+in the website repo; same password as before the reboot.
