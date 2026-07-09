@@ -67,6 +67,13 @@ REFINE = 14                   # frames each side of the cusp to hunt contact
 # ~0.6 of body height, plus slack for 1 frame of ball flight
 LETTER_GATE = lambda h_px: 0.6 * h_px + 30
 HOLE_FRAMES = 8               # ball-track gap that can hide a missed hit
+# Per-match handedness. The letter logic reads which side of the
+# striker's body the ball is on in image x and calls right-side 'f' —
+# true only for right-handers; a lefty's call flips. Both dev-reel
+# players (Zverev, Gasquet) are right-handed, so no flip here. A
+# mixed-handedness match needs player-identity-per-END via changeover
+# parity — future work.
+LEFTY = {"near": False, "far": False}
 
 
 def moving_average(x, k):
@@ -327,7 +334,8 @@ def chart_clip(stem, Hm, serves):
         if best and not sh["synth"] and best[0] <= LETTER_GATE(best[3]):
             dxp = best[2] - best[4]
             right = dxp > 0 if sh["striker"] == "near" else dxp < 0
-            sh["letter"] = "f" if right else "b"
+            forehand = right != LEFTY[sh["striker"]]
+            sh["letter"] = "f" if forehand else "b"
         else:
             sh["letter"] = "?"
 

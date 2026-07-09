@@ -49,7 +49,8 @@ def main():
         if len(cands) == 1:
             m = cands[0]
             rec.update(mcp_pt=m["Pt"], svr=m["Svr"], first=m["1st"],
-                       second=m["2nd"], winner=m["PtWinner"], status="matched")
+                       second=m["2nd"], winner=m["PtWinner"], status="matched",
+                       gms=f"{m['Gm1']}-{m['Gm2']}", pts=m["Pts"])
         elif cands:
             rec.update(mcp_pt="|".join(c["Pt"] for c in cands), svr=cands[0]["Svr"],
                        first="", second="", winner="", status="ambiguous")

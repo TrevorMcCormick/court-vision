@@ -728,3 +728,52 @@ both).
 - Test-set discipline held: zero constants changed between dev and the
   scorecard. Every number above is out-of-sample.
 - Session cost: $0.85. Project total: ~$3.65 of $9.
+
+## 2026-07-09 — T1 freeze #2: one config line does what the mirror promised; the other fix wasn't needed
+
+**Handedness is a per-match config now, and the mirror flipped on cue.**
+`LEFTY = {"near": True, "far": True}` — one constant in the chart loop;
+a lefty striker's f/b call inverts. Both t1 players are left-handed,
+which is the easy case: both ends flip all match, so changeover
+end-swaps don't matter. (A mixed-handedness match needs player identity
+per END via changeover parity — written down as future work, not
+attempted.) The same mechanism went into the dev-reel script with both
+False; re-ran three dev clips and diffed the charts byte-for-byte
+identical — a verified no-op for right-handers.
+
+**Scorecard, before → after (same 11 points, same charts, same eval):**
+    server end     7/11  →  7/11
+    rally len ±1   7/11  →  7/11
+    serve zone     1/2   →  1/2
+    letters exact  2/11  →  9/11
+    letters MIRROR 9/11  →  2/11
+The mirror inverted exactly — and the two letters that were "right"
+under the wrong-handed logic (point_01's f, point_04's shot 2) are now
+the two misses. They were contact-side misreads all along, wearing two
+sign errors that cancelled. No new information, just the correct
+attribution.
+
+**The fault-serve re-windowing fix died at the evidence stage: the
+faults are not in the clips.** The plan from last entry — detect a
+serve-like restart (second event cluster at the server's end after a
+≥2s dead gap) and re-window past the fault. Four tracked clips have a
+fault first serve in MCP (02, 06, 08, 14). Their clips run 4.5–6.8 s of
+CONTIGUOUS court view, and a pro's between-serve routine runs 10–25 s —
+during which the broadcast cuts away, and a broadcast cut is exactly
+what ENDS a segment. Fault and played point cannot share a clip by
+construction. The receipt, point_14 (worst over-count, 5 shots vs
+MCP's 3): events run continuously f29→f176 (0.97 s→5.87 s at 30 fps),
+max inter-event gap 33 frames (1.1 s) — no dead gap, no restart,
+nothing to re-window. And point_06 carries a fault in MCP with rally
+length EXACTLY right (3/3). The real rally-length failures are the old
+enemies: thin tracks under-counting (03: 2/5; 08: 1/3 behind two
+30-frame holes) and phantom cusps over-counting (14: 5/3). Last entry's
+"clips contain fault serves the detector charts as play" was a story I
+told myself without opening the event streams. Zero lines of windowing
+code written; this paragraph is the fix.
+- Freeze discipline held: this is freeze #2, and the handedness config
+  is the ONLY pipeline diff between the two scorecards above. The
+  align script also gained Gm/Pts context columns on matched rows
+  (future disambiguation fuel) — data plumbing, 23/25 matches
+  unchanged, zero effect on the eval.
+- Session cost: $0.00. Project total: ~$3.65 of $9.
