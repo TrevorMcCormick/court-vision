@@ -13,7 +13,7 @@ Progress is documented in public at [trmccormick.com](https://trmccormick.com).
 ## Milestones
 
 - **M0** — Track ball and players through one rally with SAM 3 *(done — ball tracked via box prompt; players carried forward)*
-- **M1** — Court keypoints → homography → real court coordinates *(in progress)*
+- **M1** — Court keypoints → homography → real court coordinates *(done — clean plate + Hough + four corners, sub-pixel on held-out lines)*
 - **M2** — Detect hits and bounces from ball trajectory
 - **M3** — Rally segmentation → shot sequences → MCP notation
 - **M4** — Validate against a human-charted MCP match
