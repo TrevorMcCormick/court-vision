@@ -650,3 +650,32 @@ lines as untouched validators — **service line 0.8 px, near baseline
   wrong answer; a rendered overlay cannot. Every geometric fit gets an
   eyeball artifact from here on.
 - Session cost: $0.00.
+
+## 2026-07-09 — T1 staging: 25 clips, and the answer key is wired in
+
+**Segmentation transferred cleanly** — the one stage that fought
+hardest on the dev reel needed only paths and the new homography: the
+geometry probe's blue check holds at night (court H≈112 under lights),
+and 25 court-view segments fell out of the 8:21 reel (3–23 s each,
+~230 s of chartable play). No threshold touched.
+
+**The score bug is the join key, and it worked.** One contact sheet
+per clip (mid-clip frame + enlarged bug), scores transcribed by eye
+into `data/mcp/t1_clip_alignment.csv`, joined to MCP rows by
+(sets, games, points). One trap: **MCP's Pts column is server-first,
+the bug is Nadal-first** — 17/25 matched before that transform, 23/25
+after. The two leftovers are honest ambiguity, not failure: point_10
+is a 40-AD that happened twice in the same game (two deuce cycles),
+and point_16 is deuce in THE long game of set 3 — ten deuces, ten
+candidate rows. Rally content will disambiguate both at eval time.
+Bonus finds: points 21/22 both map to MCP Pt 210 (the reel replayed
+the break point), and the marker-read for point_06 was wrong — the
+MCP join corrected my eyeball (Shapovalov served that game).
+
+The reel spans the whole match — first point of the night to the 6-6
+tiebreak, ending on Nadal serving at 4-6: match point, the point that
+made Shapovalov. 25 clips, 23 with ground-truth strings attached
+(`t1_mcp_map.csv`). What remains before the scorecard: plates/players/
+serve/ball stages on the t1 clips (pipeline frozen), then chart vs MCP.
+- Session cost: $0.00 so far; t1 ball tracking will be the next spend
+  (~25 clips × ~200 frames at 30 fps ≈ $1.6).

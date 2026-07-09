@@ -1,0 +1,26 @@
+clip,note,mcp_pt,svr,first,second,winner,status
+t1_point_01,,2,1,6s28f+3r3h^2*,,1,matched
+t1_point_02,,14,1,6w,6f37*,2,matched
+t1_point_03,pts blank on bug = game start,18,2,6f28f3f3f3*,,2,matched
+t1_point_04,,39,2,5b17b3*,,2,matched
+t1_point_05,,40,2,5b17b2b1f3f2f1*,,2,matched
+t1_point_06,marker misread as Nadal; MCP says Svr2,48,2,6n,4f37f+1*,2,matched
+t1_point_07,marker read ambiguous,49,2,6f39f3f1b2d#,,1,matched
+t1_point_08,,53,1,6d,6b27f3*,1,matched
+t1_point_09,set 2 start,54,2,5b18b2f+3r3v^1*,,1,matched
+t1_point_10,ad receiver; two deuce cycles in MCP,66|68,1,,,,ambiguous
+t1_point_11,,83,1,6w,5b17b1b+3*,2,matched
+t1_point_12,,88,1,6b17b+;^3r-1z1o3*,,2,matched
+t1_point_13,,119,1,4b17b3f+3*,,2,matched
+t1_point_14,,120,1,4n,6b37f1d#,2,matched
+t1_point_15,,132,1,6b37*,,2,matched
+t1_point_16,deuce,143|145|147|149|151|153|155|157|159|161,2,,,,ambiguous
+t1_point_17,,163,1,6n,5f28f3r1f3f;3f3f3f3f1*,2,matched
+t1_point_18,,165,1,4d,4b28f1b1f1b1b1b+3f3h!#,1,matched
+t1_point_19,,175,2,6f38f+1s1z3f+1*,,1,matched
+t1_point_20,,202,1,4n,5f29f2f2f2f3f3f1b2f1b1b3f3r3i^3f-2z1*,1,matched
+t1_point_21,same state as 22 - replay?,210,2,6d,4b18b3f3f3f1s1s1b1b1s3f+1b1*,2,matched
+t1_point_22,same state as 21 - replay?,210,2,6d,4b18b3f3f3f1s1s1b1b1s3f+1b1*,2,matched
+t1_point_23,tiebreak,216,1,6n,6b38f2b2f3f2f2f1b1b2f3*,1,matched
+t1_point_24,tiebreak,223,2,6f29f1b1f3*,,2,matched
+t1_point_25,tiebreak - match point,225,1,4b29f1b3f2b2f3f3f3f+1*,,2,matched

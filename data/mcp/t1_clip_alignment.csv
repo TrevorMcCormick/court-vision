@@ -1,0 +1,26 @@
+clip,set1,set2,gm1,gm2,pts,server_bug,note
+t1_point_01,0,0,0,0,0-15,1,
+t1_point_02,0,0,1,1,15-15,1,
+t1_point_03,0,0,2,1,0-0,2,pts blank on bug = game start
+t1_point_04,0,0,3,2,0-30,2,
+t1_point_05,0,0,3,2,0-40,2,
+t1_point_06,0,0,4,3,40-0,2,marker misread as Nadal; MCP says Svr2
+t1_point_07,0,0,4,3,40-15,?,marker read ambiguous
+t1_point_08,0,0,5,3,40-0,1,
+t1_point_09,1,0,0,0,0-0,?,set 2 start
+t1_point_10,1,0,0,1,40-AD,1,ad receiver; two deuce cycles in MCP
+t1_point_11,1,0,1,4,0-0,1,
+t1_point_12,1,0,1,4,40-30,1,
+t1_point_13,1,0,4,5,30-30,1,
+t1_point_14,1,0,4,5,30-40,1,
+t1_point_15,1,1,0,1,30-15,1,
+t1_point_16,1,1,1,1,40-40,?,deuce
+t1_point_17,1,1,1,2,0-0,1,
+t1_point_18,1,1,1,2,15-15,1,
+t1_point_19,1,1,2,2,30-30,2,
+t1_point_20,1,1,4,5,0-0,1,
+t1_point_21,1,1,5,5,15-40,2,same state as 22 - replay?
+t1_point_22,1,1,5,5,15-40,2,same state as 21 - replay?
+t1_point_23,1,1,6,6,1-0,1,tiebreak
+t1_point_24,1,1,6,6,4-4,2,tiebreak
+t1_point_25,1,1,6,6,4-6,1,tiebreak - match point
