@@ -86,7 +86,13 @@ def small_components(mask, area_rng):
 
 
 def toss_bootstrap(stem, serve, players, shifts, plate, clip_path):
-    """Small blob above the server's head shortly before contact."""
+    """Small blob above the server's head shortly before contact.
+
+    Full-reel dry-run lessons: the window must scale with APPARENT player
+    size — a fixed 130 px reach above a 55 px far server lands in the
+    crowd, which is wall-to-wall small moving blobs. And the blob must be
+    ball-SHAPED: racquet-head arc segments are elongated, the toss ball is
+    round and small."""
     sf = int(serve["serve_frame"])
     side = serve["server"]
     frames = read_frames(clip_path, max(0, sf - 18), sf + 1)
@@ -95,13 +101,18 @@ def toss_bootstrap(stem, serve, players, shifts, plate, clip_path):
             continue
         p = players[fi][side]
         cx = float(p["cx"]) * 1280
+        h_px = float(p["h"]) * 720
         head_y = (float(p["cy"]) - float(p["h"]) / 2) * 720
         m = stabilized_diff(frames[fi], shifts.get(fi, (0, 0)), plate)
-        x1 = int(max(0, cx - 90)); x2 = int(min(1280, cx + 90))
-        y1 = int(max(0, head_y - 130)); y2 = int(max(1, head_y + 6))
+        x_win = max(35, 0.7 * h_px)
+        y_up = max(45, 1.0 * h_px)
+        x1 = int(max(0, cx - x_win)); x2 = int(min(1280, cx + x_win))
+        y1 = int(max(0, head_y - y_up)); y2 = int(max(1, head_y + 6))
         sub = np.zeros_like(m)
         sub[y1:y2, x1:x2] = m[y1:y2, x1:x2]
-        cands = small_components(sub, BALL_AREA)
+        cands = [c for c in small_components(sub, (6, 120))
+                 if c[2] < 18 and c[3] < 18
+                 and max(c[2], c[3]) / max(min(c[2], c[3]), 1) <= 2.2]
         if 1 <= len(cands) <= 3:
             # nearest to straight above the head center wins
             x, y, w, h, _ = min(cands, key=lambda c: abs(c[0] + c[2] / 2 - cx))
@@ -267,6 +278,11 @@ def main():
             rows.append({"frame": i,
                          "cx_raw": cx, "cy_raw": cy, "w": w, "h": h,
                          "x_stab": cx * 1280 - dx, "y_stab": cy * 720 - dy})
+        if not rows:
+            # every box giant/stuck: SAM never had the ball (point_02's
+            # dribble gamble). Don't crash the batch over one dud.
+            print(f"{stem}: SAM lost it — 0 usable boxes, {dropped} dropped")
+            continue
         with open(BALL_DIR / f"ball_{stem}.csv", "w", newline="") as f:
             wr = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
             wr.writeheader()

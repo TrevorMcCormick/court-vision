@@ -491,3 +491,68 @@ on the pilot.
   text — the series plugin supplies each post's `videoUrl` but the
   homepage card only ever rendered images. Tiles now play the hero
   video, same as the feed rows.
+
+## 2026-07-09 — M3 experiment 8: charting loop v2, then the reel
+
+**Proximity died twice.** v1 picked the striker by whoever was closest
+at the event frame; frame checks showed the cusp catches the ball
+mid-air between players. The first replacement — ball DIRECTION after
+the hit, sign of court-y velocity — died on contact with the data:
+post-hit vcy reads negative for BOTH ends. The homography assumes the
+ball is ON the ground plane, so an airborne ball's "court velocity" is
+dominated by its vertical motion in image space. **The homography lies
+about airborne balls.** (It's been quietly lying since M1 — landings
+are fine because bounces happen on the plane; anything mid-flight is
+fiction.)
+
+**What replaced it: alternation as the constraint, votes as the
+evidence.** A rally has exactly two striker assignments — plus one
+parity flip wherever a hit could hide inside a ball-track HOLE (holes
+are observable; SAM losing the ball f54–78 of point_53 is exactly where
+a far hit vanished — the flipped chain NFFN is frame-verified). Votes,
+strongest first: touch (3) — the ball reached exactly one player's box
+in the contact window; serve call (2) — a PRIOR, not an anchor; landing
+half (1) — far-half bounces say the near player struck (the collapse
+detector is far-half-only by construction, one-sided but honest).
+Making the serve outvotable paid off immediately: **point_59's
+SERVER-OVERRIDE** — the gated serve call said near, the ball said far,
+the frames say the ball was right.
+
+**Letters gated on evidence.** Contact refines to the frame the ball is
+nearest the ASSIGNED striker (proximity is safe once the striker is
+known), and the f/b letter is committed only if the ball actually
+reached the box — gate scaled by apparent player height (a fixed pixel
+gate rejects every far-end letter; the far player is 55 px tall).
+Player boxes go rogue at the worst moments — a "far" box on a
+spectator by the Perrier cooler, a "near" box on a court shadow — so
+those letters stay '?'. Committed letters frame-verified: 3/3 on
+point_16, plus point_24 spot-check. Box quality is the next free win.
+
+**The reel run was won at the dry-run.** Montage-grid review of all 54
+prompt boxes killed 25 of 29 mover bootstraps — glare, shadow edges,
+line junctions, the net band, a FedEx cooler, a ballkid. The ballistic
+3-point chain isn't enough during camera pans; static features form
+fake chains. Toss bootstrap fixes (free, one iteration): the above-head
+window now scales with APPARENT height — 130 px above a 55 px far
+server was searching the crowd — and a ball-shape filter drops
+elongated racquet-arc blobs. Recovered 7 far-end tosses the fixed
+window had thrown into the stands.
+
+**Sent 23, got 18.** SAM lost 5 outright (giant stuck boxes — including
+every "weak accept" I talked myself into; the eyeball grade was the
+ground truth). Two API lessons: an all-dropped result crashed the batch
+(now a graceful skip), and fal chunks long videos — clips past ~490
+frames throw "No prompts available for this video chunk". point_55
+worked trimmed to 450; **point_58 (893 frames, the 49-shot point) is
+parked** until multi-prompt or split-and-stitch.
+
+**21 points charted, up from 5.** Six far serves finally in the strings
+(s5/s6 — serve_zone() is actually CALLED now; v1 defined it and coded
+serves by full-court thirds). point_24 reads a complete `s5f3b3?`.
+Every string still ends '?' — endings aren't coded. The conflicts
+column is the honesty metric: votes that lost the argument, kept on the
+record.
+- Bootstrap scorecard, on the record: toss 18/25 tracked (72%), mover
+  3/29 credible at dry-run (10%) — the toss IS the bootstrap; the mover
+  fallback needs rethinking, not tuning.
+- Session cost: ~$1.50. Project total: ~$2.80 of a $9 budget.
