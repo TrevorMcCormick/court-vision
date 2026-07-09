@@ -1,0 +1,19 @@
+# Video and generated artifacts — never commit media
+clips/
+outputs/
+*.mp4
+*.webm
+*.mov
+*.mkv
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.python-version
+
+# Secrets
+.env
+
+# macOS
+.DS_Store
