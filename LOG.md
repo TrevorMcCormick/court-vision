@@ -556,3 +556,50 @@ record.
   3/29 credible at dry-run (10%) — the toss IS the bootstrap; the mover
   fallback needs rethinking, not tuning.
 - Session cost: ~$1.50. Project total: ~$2.80 of a $9 budget.
+
+## 2026-07-09 — M3: the test set exists, and it has answers in the back
+
+**The reel graduates to dev set.** Everything tuned so far — diff
+thresholds, swing gates, serve anatomy, vote weights — was tuned on the
+Zverev–Gasquet reel, with my own frame-checks as the only ground truth.
+That's a training set with a human in the loop, and it stops being
+evidence the moment the same eyes that tuned it also grade it. Best
+practice from here: **freeze the pipeline before it touches a test
+match, and test on matches somebody ELSE charted.**
+
+**The Match Charting Project has the answer key.** Sackmann's MCP has
+7,500+ men's matches hand-charted point by point — the exact notation
+this project has been converging on. Our match isn't in it (checked:
+only the Halle and Montpellier 2017 Gasquet–Zverevs are charted). But
+**Canada Masters 2017 is** — same tournament, same court, same
+broadcast package:
+
+- **Test 1: Nadal–Shapovalov R16** (20170810, 225 charted points).
+  Night session under lights, and BOTH players left-handed — the two
+  assumptions the dev reel can't test (every letter call assumes a
+  right-hander; every diff threshold was tuned in daylight). Same court
+  and overlays, so failures attribute cleanly to what changed.
+  Footage: the 8:21 TennisTV highlights, 720p60 (30,053 frames — fps
+  is already a parameter, but SAM cost scales with frames, so
+  downsample before any send).
+- **Test 2 (reserve): Federer–Haase SF** (20170812, 128 points). Day,
+  both right-handed — the nearest-transfer control. If the pipeline
+  fails HERE, the problem isn't lefties or lights.
+
+Ground truth committed under `data/mcp/` (CC BY-NC-SA, attributed).
+The score bug is the alignment key: every clip's bug shows the score,
+every MCP row carries the score at point start — read the bug, look up
+the row, compare strings.
+
+**Eval protocol, declared before running it:** constants frozen at
+[006e6d5]-plus-this-commit; segmentation may be re-tuned for the new
+reel's cuts (finding points isn't the hypothesis — charting them is).
+Metrics per aligned point: server end, serve direction (4/5/6), rally
+length, letter accuracy over COMMITTED letters only (coverage reported
+beside accuracy, no silent cherry-picking), endings once coded. Dev-set
+work (box quality, endings, point_58) continues separately; the test
+matches stay untouched until the next freeze.
+- Sourcing note: no full-match VOD of either test match on YouTube;
+  extended highlights only for Nadal–Shapovalov. Fewer complete points
+  than the dev reel's 60 — the price of labels.
+- Session cost: $0.00 (ground truth is a curl away).
