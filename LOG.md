@@ -386,3 +386,64 @@ wall to wall).
   and charting becomes a loop over 60 inputs. Next session: point
   anatomy — serve detection inside a segment — plus the fps parameter
   cleanup.
+
+## 2026-07-09 — M3 experiment 4–5: $0 player tracking and point anatomy v1
+
+**The pitch.** SAM player tracking works but costs ~$0.15/clip — $9 for
+the 60 points, forever, every rerun. M1 gave the alternative away free:
+the temporal median erases players, so frame-minus-plate IS a player
+detector. Getting bg-sub to actually work surfaced three findings that
+matter beyond the savings.
+
+**Finding 1 — the "static" camera pans.** ECC alignment of every frame
+to frame 0: up to **32 px of real mid-point camera movement** (the
+operator follows play), slow ~9 px drift over the 60 s rally, plus a
+transient nudge mid-rally. Invisible to the eye; fatal to a median plate;
+meters of error at the far baseline. M1's "one homography per rally"
+survived because the M0 clip was 16 seconds — at 60 s the assumption
+quietly dies. Fix: translation-only ECC stabilization of every frame
+before plate, subtraction, or homography. (`camera_pan.png` is the
+receipt.)
+
+**Finding 2 — short clips bake the far player into the plate.** He's
+small and stands nearly still between shots; the per-clip median keeps a
+ghost of him and his diff goes ~zero. Near player 100% coverage, far
+~35%. Fix: subtract a **deep plate** — median of the clip's own plate
+and its 4 neighbors' (ECC-aligned); players stand in different spots
+point to point, so ghosts wash out. Far coverage: 35% → **96% median**
+(near stays 100%).
+
+**Finding 3 — the far corners hide ballkids.** First serve-detection run
+produced "far players" at court x = 13.5 m and −3 m — OUTSIDE the court.
+The crouching far-corner ballkids sit ~2.5 m outside the doubles lines,
+inside the generous tracking region, and out-diff the motionless
+pre-serve far player. Fix: per-half regions (tight far, generous near).
+Impostor lesson #3, same shape as the line judges: **everyone near a
+tennis court looks like a tennis player to a difference image.**
+
+**Point anatomy v1 → v2.** Server = whoever hugs the center mark early;
+toss = the blob-height peak (a toss stretches the silhouette); side of
+the mark = deuce/ad for free. v1 (nearest-to-center wins, no gates) was
+seduced by cold opens, zoom-tail garbage, and RECEIVERS who stand near
+the center hash — frame strips put it near a coin flip. v2 gates every
+claim (early coverage ≥60%, ≤2 m from the mark, ≤~3 m from the own
+baseline, height peak ≥1.12× median) and refuses to guess otherwise:
+**40/60 clips yield a confident serve; 20 are explicit, reasoned
+rejections** (the reel's cold open, mid-point rejoins, two long clips
+with sparse early far tracks — including the 49-shot point).
+- Frame-verified sample of the confident calls: **6/8 correct server
+  end, 5/8 usable serve moments.** Failure modes, on the record: a
+  returner 1 m off the center hash whose return swing reads as a "toss"
+  (point_40), and servers whose 4-second window catches ball-bouncing
+  routine instead of the toss (point_10). Geometry-only anatomy tops out
+  here; **the ball adjudicates** — serve = first ball launch — when ball
+  tracking runs over these clips.
+- fps is a parameter everywhere new (`CAP_PROP_FPS`, never assumed);
+  M2's hardcoded `* 30.0` stays in the M2 scripts as history and gets
+  parameterized when the detector graduates into the charting loop.
+- Session cost: **$0.00.** Project total: still ~$0.75. The $9 SAM
+  charting loop decision is now genuinely optional for players — SAM is
+  needed for the BALL only.
+- Artifacts: `serve_gallery.mp4` (all 40 confident serves, called),
+  `camera_pan.png`, verified serve strips (`serve_checks/`),
+  per-clip plates + tracks (`plates/`, `players/`).
