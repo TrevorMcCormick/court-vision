@@ -447,3 +447,47 @@ with sparse early far tracks — including the 49-shot point).
 - Artifacts: `serve_gallery.mp4` (all 40 confident serves, called),
   `camera_pan.png`, verified serve strips (`serve_checks/`),
   per-clip plates + tracks (`plates/`, `players/`).
+
+## 2026-07-09 — M3 experiment 6–7: the charting loop, pilot run
+
+**The toss is the bootstrap.** M0's open problem — one manual ball-click
+per clip — closes itself: in the frames before contact, the toss ball is
+a small, isolated diff blob directly above the server's head. Box it,
+prompt SAM, done. 5/8 pilot clips bootstrapped off the toss. Fallback for
+the rest: fastest small mover — which promptly locked onto **the score
+bug's flip animation and a vibrating net sign** (broadcast overlays are
+fast small movers too). Fixed with overlay masks + a 3-point ballistic
+chain requirement (consistent direction and step). Two clips still
+bootstrap onto line-junction glare during camera pans; parked, not
+bluffed.
+
+**Pilot: 6 clips through SAM, $0.55.** (The first send bounced for free —
+`box_prompts` coordinates must be integers.) Ball coverage 73–93% per
+clip; dropped frames are mostly post-point dead time.
+
+**v4 detector, finally fps-parameterized** — swing thresholds and gap
+windows scale by 30/fps, physical m/s thresholds don't. And a new
+failure mode the M0 rally could never show: **the pre-serve dribble is
+real hits and real bounces.** The server bouncing the ball reads as
+play. Fix: window events from the confident serve frame.
+
+**First end-to-end charts, asterisks included.**
+    point_16: s2b?b1f1f2b3b?b3?   (serve ✓, 8 shots, rally-shaped)
+    point_31: s?f??               (short point: serve, return, over)
+Frame-checking point_16: the serve call is right, the structure is
+right, but the striker column breaks alternation wherever the detected
+event frame catches the ball mid-air BETWEEN players — proximity is the
+wrong striker signal at apex frames. point_43's mover bootstrap tracked
+something that wasn't the ball. Letters not yet trustworthy; structure
+~70%.
+
+**Decision: the full 54-clip run ($5) is deferred.** Every known fix —
+alternation-constrained striker assignment, contact-frame refinement,
+sparse-track handling — is free to iterate on the six tracks already
+paid for. The rest of the reel's budget waits until the letters earn it
+on the pilot.
+- Session cost: $0.55. Project total: ~$1.30 of a $9 budget.
+- Site fix, same session: homepage Devlog tiles were falling back to
+  text — the series plugin supplies each post's `videoUrl` but the
+  homepage card only ever rendered images. Tiles now play the hero
+  video, same as the feed rows.
