@@ -102,3 +102,57 @@ in the website repo; same password as before the reboot.
   play the clip muted/looping — first step toward the disneyplus-style
   browse-rows vision. The M0 tracked-rally clip (trimmed to frames 0–290,
   570KB) is the first tile. Gate still up; launch is a separate decision.
+
+## 2026-07-09 — M1 experiment 1: the clean plate
+
+**Run 1 — static-camera check via temporal median.**
+- Per-pixel median over 96 sampled frames (`m1_clean_plate.py`): the players
+  and ball VANISH, court lines stay razor sharp. Edge IoU frame0-vs-median
+  0.831, Laplacian variance ratio 0.90 → camera is static for the rally.
+  **One homography can serve all 480 frames.**
+- Lesson: **the temporal median frame is free player removal.** No
+  segmentation, no inpainting — just `np.median` — and line detection gets
+  an empty court to work with. (Faint ghosts of line judges remain; they
+  barely move. Broadcast text overlays survive too, of course.)
+
+**Run 2 — Hough on the clean plate, masked to white-inside-blue.**
+- Blue-court mask (largest blue contour, 26.5% of frame) → white mask
+  restricted to its dilated hull → HoughLinesP: 48 segments covering every
+  court line. The white mask is basically a line drawing of the court.
+- Two details for the fit step: the **net tape reads as a horizontal line**
+  (and it sags — curved, and wider than the court), and faint "ATP WORLD
+  TOUR" text ghosts survive on the net band. Plan: fit from the four outer
+  doubles corners (extremes only — the net can't be topmost or bottommost),
+  validate against the held-out service/singles lines.
+
+**Run 3 — homography from four corners. Sub-pixel on held-out lines.**
+- Clustered segments (5 horizontal families incl. the net at y≈244 — safely
+  mid-pack, never an extreme; 5 vertical), merged extremes into the two
+  baselines + two doubles sidelines, intersected → four corners →
+  `getPerspectiveTransform` against the court model (10.97 × 23.77 m).
+- Validation held out everything else: reprojected singles sidelines,
+  service lines, and center line land **0.0–0.8 px mean** from the detected
+  white pixels. Four corners was enough; no refinement needed.
+- Detail worth keeping: the model's "net line" is the net's *ground plane*
+  projection — dead straight — while the real net tape sags visibly above
+  it in the overlay. The court is geometry; the net is physics.
+
+**Run 4 — M0 track mapped to court coordinates. M1 ACHIEVED.**
+- Applied img→court H to the M0 trajectory (290 points) and drew it on a
+  to-scale court (`track_on_court.png`). The shadow track reads correctly:
+  crossings at the net, clusters near the baselines where the ball is low.
+- The caveat is the finding: **a homography maps the ground plane, and the
+  ball is airborne most of the rally.** Points project up to 18 m beyond
+  the far baseline when the ball is high — not a fit error (held-out lines
+  are sub-pixel), just physics. The shadow is exact at bounces, which is
+  the hand-off to M2: find the bounces, and the mapped positions become
+  chartable.
+
+**M1 verdict:** achieved, and — unlike M0 — with **zero manual input**. The
+clean plate, the line detection, the corner fit: all automatic. Total cost:
+$0.00 (no API calls; the whole milestone is numpy + OpenCV on one frame).
+Contrast with M0's one-manual-click bootstrap noted for the writeup.
+
+**Artifacts:** `outputs/m1/` — clean_plate.png, white_mask.png,
+lines_overlay.png, model_reprojection.png (the alignment proof),
+track_on_court.png (money chart), track_court.csv, H matrices (.npy).
