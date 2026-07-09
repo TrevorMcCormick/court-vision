@@ -156,3 +156,6 @@ Contrast with M0's one-manual-click bootstrap noted for the writeup.
 **Artifacts:** `outputs/m1/` — clean_plate.png, white_mask.png,
 lines_overlay.png, model_reprojection.png (the alignment proof),
 track_on_court.png (money chart), track_court.csv, H matrices (.npy).
+- Rendered the M1 demo video for the devlog: broadcast + box on the left,
+  top-down shadow track drawing itself on the right (`sidebyside.mp4`,
+  `m1_render_sidebyside.py`). Pixels in, meters out, one clip.
