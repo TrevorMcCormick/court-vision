@@ -324,3 +324,65 @@ depths stay soft.
 - Remaining '?'s unchanged and unbluffed: serve, shot-7 landing, ending
   codes, direction-zone semantics, rally segmentation — all gated on
   **full-point clips. Clip sourcing round 2 is the next session.**
+
+## 2026-07-09 — M3 experiment 3: clip sourcing round 2 — the cutting room
+
+**Sourcing.** The M0 rally turns out to be a slice of a famous point — the
+49-shot rally from the Zverev–Gasquet Montreal R2 match (that 5–6 30-40
+score bug was match-point context all along). Better: a **24-minute
+extended-highlights reel of the same match** exists. Same broadcast, same
+court, same framing → M1's homography should transfer. Downloaded at
+720p: 36,234 frames. One wrinkle for later: **the reel is 25 fps where
+rally.mp4 was 30** — M2's velocity thresholds are secretly per-frame;
+fps must become a parameter before charting these points.
+
+**Run 1 — color classifier; noon breaks what evening tuned.**
+- Per-frame features: blue-court fraction (M1's HSV range), largest-blue-
+  contour centroid, green-apron fraction. Evening-tuned rule → ~43%
+  court view.
+- Eyeball check: all sampled court-view frames correct — and six obvious
+  broadcast frames in the reject pile, ALL daytime. Diagnosis: in daylight
+  the shaded stadium seats read blue and MERGE with the court into one
+  50%-of-frame blob, while the sunlit apron washes out below the green
+  saturation threshold (S=38 vs 40). **Evening-tuned color rules break at
+  noon.** This match starts in hard sun and ends under lights.
+
+**Run 2 — geometry probes; the homography is a camera fingerprint.**
+- M1's court quad lands pixel-perfect on reel frames from both ends of
+  the match (`framing_check.png`) — same framing as rally.mp4. So stop
+  classifying colors and probe geometry: 50 interior court points must
+  read court-blue, 17 apron points just outside the doubles lines must
+  not. Sun and shade both keep the court blue enough (S 113–128); the
+  washed apron isn't blue either way. **The homography doubles as a
+  camera-pose fingerprint.**
+- 50.5% of frames court-view → 60 segments ≥3 s (gaps ≤0.6 s merged),
+  725 s of chartable play.
+- Verified by eye: all 60 segment starts are true broadcast views, most
+  opening on a serve toss — **highlight editors cut to the point just
+  before the serve, so the serve comes free with the cut.** Sampled ends:
+  dead ball before every cut. Editors deliver complete points.
+- Audited all 21 inter-segment gaps >15 s: 20 are genuine cutaways —
+  including sideline and net-cam REPLAYS, which the probes correctly
+  reject (replays would double-chart points and carry the wrong
+  homography). One real loss: **a 131-second early-set-1 block where the
+  broadcast ran a slightly tighter zoom** — interior probes still hit
+  court, but the bigger in-frame court swallows the apron probes
+  (apron_hit 0.35–0.41). The "fixed broadcast framing" assumption is only
+  mostly true: framing drifted early, then settled. Known hole, on the
+  record; auto-refitting H per block (M1's fit is already zero-manual) is
+  the fix if a future match needs it.
+
+**Extraction.** 60 frame-accurate point clips → `clips/points/`
+(gitignored as ever). `point_51` = 59.6 s of continuous court view =
+**the 49-shot rally in full, serve included, found by the segmenter on
+its own** — the pipeline has been charting a 16-second excerpt of a
+49-shot novel; now it has the whole book. Artifacts:
+`point_timeline.png` (24 minutes → 60 green bars + one honest orange
+hole), `points_montage.mp4` / `points_flash.mp4` (every point start,
+wall to wall).
+- Session cost: **$0.00** — no API calls; the whole session is HSV
+  thresholds and 67 pixel probes per frame.
+- What this unblocks: serves are IN these clips, endings are IN them,
+  and charting becomes a loop over 60 inputs. Next session: point
+  anatomy — serve detection inside a segment — plus the fps parameter
+  cleanup.
