@@ -679,3 +679,52 @@ made Shapovalov. 25 clips, 23 with ground-truth strings attached
 serve/ball stages on the t1 clips (pipeline frozen), then chart vs MCP.
 - Session cost: $0.00 so far; t1 ball tracking will be the next spend
   (~25 clips × ~200 frames at 30 fps ≈ $1.6).
+
+## 2026-07-09 — T1 run: the first scorecard against a human chart
+
+**Free stages transferred with one new impostor.** Stabilization,
+plates, players ran with paths changed and nothing else — far-player
+coverage is actually BETTER at night (100% median vs 96%; floodlights
+kill the hard shadows that made dev plates lie). But t1's ballkids
+crouch at the NET POSTS, inside the far half, and the largest-component
+player pick grabs them — so serve-toss windows opened above ballkids'
+heads and one umpire chair. Fix on the record: a server stands at his
+baseline, so the bootstrap now gates each frame's player box by foot
+position in court meters. Impostor lesson #4.
+
+**Serve detection: 11/25 confident (dev: 40/60), and the answer key
+grades it.** MCP knows the server for every point, and changeover
+parity (swap after odd games, every 6 tiebreak points) maps identity to
+END once you know Nadal's starting end — which the data itself settles:
+"Nadal starts far" explains 11 of 14 calls, the alternative 3. Serve-end
+accuracy on confident calls: **11/14 (79%)** vs the dev frame-check's
+6/8. Two of the three misses were already flagged low-margin.
+
+**Ball tracking: eyeball review remains the spend-guard.** 25 dry-run
+boxes, 13 approved (9 first pass + 3 after the ballkid gate + 1 mover
+that found a real streak), 12 sent for $0.85, 11 usable. The one weak
+accept I talked myself into (point_13, "ball blur at the racquet,
+probably") died at 12 frames — the eyeball grade is still ground truth,
+now 6-for-6 across both reels.
+
+**The scorecard (11 points, frozen pipeline, vs MCP):**
+    server end     7/11
+    rally len ±1   7/11
+    serve zone     1/2
+    letters exact  2/11
+    letters MIRROR 9/11
+The headline number is the last one, and it is the best bad result on
+the project: the right-handed assumption, written down as a liability
+in M3 and left frozen on purpose, **mirrors 9 of 11 letters against two
+left-handers.** A broken contact-side detector would flip a coin; a
+mirrored one is CORRECT hardware wearing the wrong sign. One config
+line per match (player handedness) turns 2/11 into 9/11 — next freeze.
+Other honest reads: the serve-override vote that fixed point_59 on dev
+WRONGED two calls here (thin far tracks make touch votes lie harder
+than serve priors); rally length suffers because clips contain fault
+serves the detector charts as play (MCP codes the fault, then the
+played point — we window from the first confident serve and catch
+both).
+- Test-set discipline held: zero constants changed between dev and the
+  scorecard. Every number above is out-of-sample.
+- Session cost: $0.85. Project total: ~$3.65 of $9.
