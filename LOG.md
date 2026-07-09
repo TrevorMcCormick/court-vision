@@ -603,3 +603,50 @@ matches stay untouched until the next freeze.
   extended highlights only for Nadal–Shapovalov. Fewer complete points
   than the dev reel's 60 — the price of labels.
 - Session cost: $0.00 (ground truth is a curl away).
+
+## 2026-07-09 — T1 setup: the homography does not transfer, and night fights back
+
+**Footage + working copy.** Test 1 footage is the 8:21 TennisTV
+highlights of Nadal–Shapovalov (720p60 → 30 fps working copy,
+`clips/t1_nadal_shapo_30fps.mp4`; SAM cost scales with frames). First
+probe frames confirm the adversarial setup: same court, same bug, but
+floodlights and two lefties. The camera is also LOWER than the dev
+reel's — the near runback is cut off at the frame edge, which will
+matter later for near-court landings.
+
+**The dev homography misses by ~20 px** on t1 wide frames — different
+production day, remounted camera. Refit needed. Four attempts, three
+instructive corpses:
+
+1. **M1 recipe verbatim.** Under floodlights the blue→green paint
+   boundary reads (V~155, S~55) — the same signature as grazing-angle
+   real lines. The extreme-cluster fit grabbed the paint edge and
+   produced a court 15-20 px too big.
+2. **Tighter white (V>200, S<50).** Kept only the camera-facing lines
+   (center, service, near baseline at V~253) and LOST the far baseline
+   and sidelines entirely — the fit degenerated.
+3. **Guided bands around the dev-H prior.** The far-baseline band
+   locked onto ground-paint/banner whites 70 px off at far-left; a
+   sideline band silently mixed doubles pixels into a "singles" line.
+   Residuals looked fine (2.9 px!) while the center line sat 32 px off
+   its actual pixels. **Plausible-but-wrong, caught only by rendering
+   the reprojection and looking.**
+4. **Four manual corners** off gridded 6× zooms of the median plate —
+   one human input per match, the M0 ball-click precedent. Even this
+   failed twice before it worked, and the failures were the lesson:
+   the "corners" I read at the near baseline were the SINGLES corners
+   (the doubles corners sit at the frame edges, x≈74/1141, buried in
+   paint-edge blur). Two arithmetic cross-checks settled it: the
+   far-corner midpoint (603) matches the measured center line (606)
+   while my near reads gave 643; and px/m scale is linear in image y —
+   48 px/m at the far baseline through 80 at the near service line
+   extrapolates to ~100 at the near baseline, predicting a doubles
+   span of ~1095 px… exactly the white band's raw extent.
+
+Final fit: far DOUBLES corners + near SINGLES corners, tight-mask
+lines as untouched validators — **service line 0.8 px, near baseline
+1.4 px, center line 6.1 px.** The t1 chain now has its ground plane.
+- Meta-lesson, third time now: masks and residuals can agree on a
+  wrong answer; a rendered overlay cannot. Every geometric fit gets an
+  eyeball artifact from here on.
+- Session cost: $0.00.
