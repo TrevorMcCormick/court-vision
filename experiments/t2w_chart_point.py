@@ -1,4 +1,6 @@
-"""T2 — the frozen chart loop on the control match (day, both right-handed).
+"""T2 — chart loop on WASB tracks, control match (day, both right-handed).
+Freeze #3: playable-envelope gate added for dense tracks (see the HIT_CY_*
+constants block); all frozen-era constants untouched.
 
 v1 assigned striker by proximity at the detected event frame; frame-checks
 showed the cusp often catches the ball mid-air BETWEEN players (the apex),
@@ -62,6 +64,23 @@ COLLAPSE = 3.0
 W_C, L_C = 10.97, 23.77
 NET_Y = L_C / 2
 CENTER_X = W_C / 2
+# freeze #3 (WASB re-tune, the ONLY constants changed from the frozen
+# loop): dense specialist tracks outlive the point. SAM's track died
+# with the rally; WASB keeps detecting the dead ball — bouncing at the
+# near player's feet after the winner, drifting through the crowd above
+# the back fence — and the cusp detector charts the coda as extra shots
+# (t1 rally ±1 fell 7/11 -> 5/11 on identical logic). Frame-checked
+# phantoms (03 f243/f252, 04 f142, 06 f141/f158, 25 f412) ALL live
+# outside the playable envelope in court-y: >= 26.4 behind the near
+# baseline (foreground dead ball) or <= -18 behind the far one (a ball
+# in the crowd is nowhere near the ground plane the homography assumes).
+# Real rally hits across BOTH trees span -8.3 .. 25.5. Serves are
+# exempt inside SERVE_WIN of the gated serve frame: a high toss maps far
+# outside the envelope by the same distortion (04's real far serve reads
+# cy -20.3; t2's near serves swing past every magnitude cap we tried).
+HIT_CY_MIN = -12.0            # m; deepest real far-end hit observed -8.3
+HIT_CY_MAX = L_C + 2.2        # m; highest real near-end hit observed 25.5
+SERVE_WIN = 14                # frames; same window is_serve already uses
 REFINE = 14                   # frames each side of the cusp to hunt contact
 # letter gate scales with the striker's apparent size: racquet reach is
 # ~0.6 of body height, plus slack for 1 frame of ball flight
@@ -84,8 +103,10 @@ def moving_average(x, k):
     return np.convolve(xp, np.ones(k) / k, mode="valid")
 
 
-def detect_events(frames, iy, cyc, fps):
-    """M2 v4, fps-parameterized; hits carry their post-hit vcy median."""
+def detect_events(frames, iy, cyc, fps, serve_frame=None):
+    """M2 v4, fps-parameterized; hits carry their post-hit vcy median.
+    freeze #3: cusps outside the playable court-y envelope are dropped
+    (dead-ball coda on dense WASB tracks), serve window exempt."""
     min_gap = max(3, int(round(MIN_GAP_S * fps)))
     swing_near = SWING_NEAR_30 * 30.0 / fps
     swing_far = SWING_FAR_30 * 30.0 / fps
@@ -106,6 +127,11 @@ def detect_events(frames, iy, cyc, fps):
         if all(abs(int(frames[i]) - int(frames[j])) >= min_gap for j in merged):
             merged.append(i)
     merged.sort()
+    # freeze #3: the playable-envelope gate (see constants block)
+    merged = [i for i in merged
+              if HIT_CY_MIN <= cyc[i] <= HIT_CY_MAX
+              or (serve_frame is not None
+                  and abs(int(frames[i]) - serve_frame) <= SERVE_WIN)]
 
     collapse = []
     for i in range(WIN, len(frames) - WIN):
@@ -237,7 +263,11 @@ def chart_clip(stem, Hm, serves):
     cyc = court[:, 1]
     cxc = court[:, 0]
 
-    events = detect_events(frames, ys, cyc, fps)
+    s = serves.get(stem, {})
+    server = s.get("server", "?")
+    serve_frame = int(s["serve_frame"]) if server != "?" else None
+
+    events = detect_events(frames, ys, cyc, fps, serve_frame)
 
     players = {}
     with open(OUT_BASE / "players" / f"players_{stem}.csv") as f:
@@ -245,10 +275,6 @@ def chart_clip(stem, Hm, serves):
             players.setdefault(int(row["frame"]), {})[row["player"]] = row
 
     ball_exact = dict(zip(frames.tolist(), zip(xs.tolist(), ys.tolist())))
-
-    s = serves.get(stem, {})
-    server = s.get("server", "?")
-    serve_frame = int(s["serve_frame"]) if server != "?" else None
 
     if serve_frame is not None:
         events = [e for e in events if e["frame"] >= serve_frame - 3]

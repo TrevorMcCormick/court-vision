@@ -206,7 +206,7 @@ def render_sanity(clip_path, track, out_dir, stem):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("clips", nargs="+")
-    parser.add_argument("--tree", required=True, choices=["t1", "t2"])
+    parser.add_argument("--tree", required=True, choices=["t1", "t2", "m3"])
     parser.add_argument("--sanity", action="store_true",
                         help="render 3 circled frames for eyeball sign-off")
     args = parser.parse_args()
@@ -214,7 +214,9 @@ def main():
     out_base = ROOT / "outputs" / args.tree
     ball_dir = out_base / "ball_wasb"
     ball_dir.mkdir(parents=True, exist_ok=True)
-    clip_dir = ROOT / "clips" / f"points_{args.tree}"
+    # m3 is the dev reel: clips live in clips/points/ (no tree suffix)
+    clip_dir = ROOT / "clips" / ("points" if args.tree == "m3"
+                                 else f"points_{args.tree}")
 
     device = ("mps" if torch.backends.mps.is_available()
               else "cuda" if torch.cuda.is_available() else "cpu")

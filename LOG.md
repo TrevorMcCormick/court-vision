@@ -982,3 +982,75 @@ cheap and the object is large.
   ball/ → ball_wasb/ and charts/ → charts_wasb/ — the A/B is
   clip-for-clip comparable and the frozen originals are untouched.
 - Session cost: $0.00. Project total: ~$4.15 of $9.
+
+## 2026-07-10 — Freeze #3: the track outlives the point
+
+**The phantom events have a name: the dead-ball coda.** WASB's t1
+regression (rally ±1 7/11 → 5/11) was all over-counts, no under-counts.
+Dumping the event streams for the worst offenders (03: 8/5, 04: 5/3,
+06: 6/3, 25: 12/10) and frame-checking the extra "hits" settled it in
+pixels: **the point ends but the WASB track doesn't.** SAM's sparse
+track died with the rally — an accidental end-of-point detector we
+never knew we were relying on. WASB never loses the ball, so it follows
+it into the aftermath: 03 f243 is the dead ball bouncing in the bottom
+corner while both players stand around; 25 f412 is match point, ball at
+the frame's bottom edge, crowd mid-standing-ovation; 06 f141 is the
+ball drifting through the CROWD above the back fence. The frozen cusp
+detector charts all of it as rally. The control that proves the story:
+point_19 (5/6, correct) has a track that quits when the point does —
+its event stream is clean to the last frame.
+
+**One gate kills the coda: phantoms don't live on the court.** Every
+frame-checked phantom sits outside the playable envelope in court-y —
+≥ 26.4 m (behind the near baseline, dead ball in the foreground) or
+≤ −18 m (a ball in the crowd is nowhere near the ground plane the
+homography assumes). Real rally hits across BOTH trees span −8.3 to
+25.5 m. The magnitude route died first, for the record: coda bounces
+swing 109-210 px/f against real hits' 8-33 — a beautiful gap, until
+t2's serves (swings 51, 86, 152) landed inside it. High tosses swing
+past any cap, and the same ground-plane distortion maps 04's real far
+serve to cy −20.3. So the gate is positional with a serve-window
+exemption: cusps outside [−12, L_C + 2.2] are dropped unless within 14
+frames of the gated serve call. Three new constants in the *w_ twins,
+every frozen-era constant untouched, frozen scripts untouched.
+
+**Before/after, same clips, same tracks:**
+
+    t1 (11 A/B)       SAM    WASB   +gate      t2 (5 scored) SAM   WASB  +gate
+    server end        7/11   7/11   8/11       server end    2/5   2/5   2/5
+    rally len ±1      7/11   5/11   10/11      rally len ±1  1/5   4/5   4/5
+    serve zone        1/2    2/2    2/2        serve zone    1/2   1/1   1/1
+    letters (all)     9/11   13/16  13/15      letters (all) 6/13  16/19 16/19
+    letters (aligned) 1/1    0/0    2/2        letters (algn)2/2   11/14 11/14
+    ending type       3/6    1/5    3/7        ending type   0/3   2/3   2/3
+
+t2 is byte-identical before and after — the gate never fires on a rally
+that stays on the court, which is exactly the claim it makes. t1's one
+remaining rally miss is point_08 (1/3): an UNDER-count from thin far-end
+events, the old failure, not this one. Server end improved as a side
+effect (03's coda had been outvoting the serve call), and endings went
+1/5 → 3/7 — the two new misses are honest commits on charts that are
+still a shot off. Receipts in outputs/t1/charts_wasb/: the
+fixed_t1_point_{03_f243,03_f252,06_f141,25_f412}.png strips show each
+former phantom with the caption it earned, verify3_t1_point_03_* shows
+the repaired 5-shot chart. Residual on the record: 25 keeps one coda
+event at f439 (cy 6.67, inside the envelope — a track jump, not a
+position outlier) and rides on ±1.
+
+**New-coverage t1 (11 scored clips SAM never tracked): rally 6/11,
+letters 20/31, endings 3/4, server end 1/11** — endings up from 2/3,
+everything else unchanged, as it should be: those clips fail by
+UNDER-counting (no serve anchor, thin far-end cusps), and a gate that
+only removes events can't help them. Different failure, honestly
+untouched.
+
+**Dev reel migrated to WASB: all 60 clips tracked, $0.**
+wasb_track_ball.py grows --tree m3 (dev clips live in clips/points/,
+no suffix) and ran the whole reel on the laptop GPU: the 23 SAM-tracked
+points (21 of them charted) AND the 37 bootstrap rejects SAM never got
+to touch. Coverage mean 72% (min 25, max 94; 34 clips ≥ 70%, three
+under 50%: points 02, 10, 37) — well below t1/t2's 87-88%, so the dev
+footage is harder for the specialist too, just not fatally. No
+re-charting (dev has no ground truth); the tracks are on disk for
+whenever the charting loop next wants them.
+- Session cost: $0.00. Project total: ~$4.15 of $9.
