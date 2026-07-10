@@ -55,6 +55,7 @@ import cv2
 import numpy as np
 
 import events_v5
+import player_boxes
 import shot_direction
 
 # EVENT DETECTOR: "v5" = the crossing-skeleton detector (events_v5.py,
@@ -66,6 +67,11 @@ EVENTS = "v5"
 OUT_BASE = Path(__file__).resolve().parent.parent / "outputs" / "t3"
 CHART_DIR = OUT_BASE / "charts_wasb"
 ROOT = Path(__file__).resolve().parent.parent
+
+# PLAYER SOURCE: "players" = the $0 bgsub tracks (default);
+# "players_sam" = SAM-3 via fal (t3_sam_players.py, ~$0.15/clip) — the
+# buy-vs-build A/B for the letter sink. Same schema, same hygiene.
+PLAYERS_DIR = "players"
 
 SMOOTH = 3
 WIN = 6
@@ -99,6 +105,9 @@ REFINE = 14                   # frames each side of the cusp to hunt contact
 # letter gate scales with the striker's apparent size: racquet reach is
 # ~0.6 of body height, plus slack for 1 frame of ball flight
 LETTER_GATE = lambda h_px: 0.6 * h_px + 30
+# (a multi-frame letter VOTE around contact was measured and rejected:
+# t3 67 -> 66 strict at ±1 frame, -> 63 at ±3 — post-contact flight
+# frames poison the median; the single best-frame read stands)
 HOLE_FRAMES = 8               # ball-track gap that can hide a missed hit
 OUT_MARGIN = 0.25             # meters of slack before calling a ball out
 NET_ZONE_M = 1.5              # track dying this close to the net = net error
@@ -310,10 +319,12 @@ def chart_clip(stem, Hm, serves):
     else:
         events = detect_events(frames, ys, cyc, fps, serve_frame)
 
-    players = {}
-    with open(OUT_BASE / "players" / f"players_{stem}.csv") as f:
-        for row in csv.DictReader(f):
-            players.setdefault(int(row["frame"]), {})[row["player"]] = row
+    # box hygiene (player_boxes.py): depth-consistent height gate,
+    # court-half plausibility, teleport rejection, short-gap interp —
+    # the audit-measured letter sink lives in the raw boxes
+    players = player_boxes.load(
+        OUT_BASE / PLAYERS_DIR / f"players_{stem}.csv", Hm,
+        OFFSETS.get(stem, (0.0, 0.0)))
 
     ball_exact = dict(zip(frames.tolist(), zip(xs.tolist(), ys.tolist())))
 
@@ -384,6 +395,19 @@ def chart_clip(stem, Hm, serves):
                           and s.get("side") in ("deuce", "ad") else "?")
         # rally-shot directions come from shot_direction.annotate() below
 
+    # letter-gate height reference: the observed box height under-gates
+    # a legs-only partial blob (h 30 px -> gate 48 px; the ball meets the
+    # racquet ~a body-height above the legs). The clip's own full-body
+    # height per side is the 75th percentile of its boxes — partials
+    # drag the median, not the upper quartile. The gate uses
+    # max(observed, typical): rogue boxes hundreds of px away stay
+    # refused, real near-misses commit.
+    h_typ = {}
+    for side in ("near", "far"):
+        hs = [float(p[side]["h"]) * 720
+              for p in players.values() if side in p]
+        h_typ[side] = float(np.percentile(hs, 75)) if hs else 0.0
+
     # per-side contact search: nearest the ball comes to EACH player's box
     # inside the shot's window — feeds both the touch votes and the letter
     for k, sh in enumerate(shots):
@@ -425,13 +449,15 @@ def chart_clip(stem, Hm, serves):
             shots[0]["zone"] = "?"
 
     for sh in shots:
-        best = sh.get(f"touch_{sh['striker']}")
+        side = sh["striker"]
+        best = sh.get(f"touch_{side}")
         sh["contact_frame"] = best[1] if best else sh["frame"]
         sh["contact_dist_px"] = round(best[0], 1) if best else None
-        if best and not sh["synth"] and best[0] <= LETTER_GATE(best[3]):
+        gate = LETTER_GATE(max(best[3], h_typ[side])) if best else None
+        if best and not sh["synth"] and best[0] <= gate:
             dxp = best[2] - best[4]
-            right = dxp > 0 if sh["striker"] == "near" else dxp < 0
-            forehand = right != LEFTY[sh["striker"]]
+            right = dxp > 0 if side == "near" else dxp < 0
+            forehand = right != LEFTY[side]
             sh["letter"] = "f" if forehand else "b"
         else:
             sh["letter"] = "?"

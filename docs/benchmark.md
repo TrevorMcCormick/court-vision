@@ -7,7 +7,8 @@ WASB (local, free, promptless). Marginal cost per match: ~$0.
 
 Current numbers (as of 2026-07-10, event detector v5 — the crossing
 skeleton — plus shot-direction v2, the receiver-mirrored both-halves
-direction estimator; all four columns are the t*w WASB chart twins
+direction estimator, plus player-box hygiene (player_boxes.py) and the
+widened letter gate; all four columns are the t*w WASB chart twins
 scored by the t*w evals):
 
 | metric            | t1 night/lefty | t2 day ctrl | t3 clay RG | t4 grass WTA |
@@ -15,7 +16,7 @@ scored by the t*w evals):
 | server end        | 10/22 | 2/5 | 48/59 (81%) | 37/49 (76%) |
 | rally length ±1   | 13/22 | 5/5 | 36/59 (61%) | 28/49 (57%) |
 | serve zone        | 11/12 | 1/3 | 8/17 | 15/32 |
-| letters (aligned) | 9/11 | 12/12 | 65/85 (76%) | 15/28 |
+| letters (aligned) | 9/11 | 12/12 | 67/85 (79%) | 17/31 |
 | ending type       | 9/16 | 2/3 | 19/42 | 9/33 |
 | **acceptance ≤1 token edit** | 3/22 | 1/5 | 3/59 | 0/49 |
 
@@ -24,8 +25,9 @@ strings as [serve+zone][letter+direction]*[ending]; a point is accepted
 when the two need at most ONE token edit (Levenshtein over tokens,
 strict equality — a '?' matches nothing). Overall: 7/135 (5.2%), up
 from 0/135 before v5 and 3/135 before the direction model; mean token
-distance 7.18 -> 6.19. The metric is brutal by design; it is the
-distance to "a human charter would sign this," measured per point.
+distance 7.18 -> 6.19 (direction v2) -> 6.05 (box hygiene). The metric
+is brutal by design; it is the distance to "a human charter would sign
+this," measured per point.
 Implementation: experiments/mcp_accept.py, reported by every t*w eval.
 
 Matches: t1 = Nadal–Shapovalov, Canada Masters R16 2017 (hard, night,
@@ -201,5 +203,53 @@ token distance 7.18 → 6.19; effort curve ≤1/2/3/5: 2.2/6.7/14.8/41.5%
 decomposition names the next sinks as structure (2.57 edits/pt),
 letters (1.71), endings (0.70), with letters+dirs+endings-perfect at
 35.6% and all-components at 44.4%.
+
+## Letters: the box audit, box hygiene, and the SAM buy-vs-build (2026-07-10)
+
+After direction v2 the largest substitution sink was letters (1.71
+edits/pt across their two bins; 55% strict positional accuracy). The
+letter reads ball-x vs box-center-x at the refined contact frame,
+gated on the ball reaching the box — so it inherits every failure of
+the $0 bgsub player boxes. Quantified before building
+(experiments/box_letter_audit.py, on the pre-fix charts): 45% of
+aligned rally letters were read off a BAD box (implausible by
+court-half/size sanity, or absent), and those ran 39% right vs 71% on
+sane boxes. Box-quality ceiling: ~+26 strict letters if every box hit
+the sane-box rate.
+
+**Cheap fixes shipped** (player_boxes.py — court-half plausibility,
+x-only teleport rejection, short-gap interpolation — plus a letter
+gate widened to the clip's typical body height; constants tuned on t3
+only): strict letters 114/209 -> 117/209, letter edits 1.71 -> 1.59/pt,
+mean token distance 6.19 -> 6.05, acceptance unchanged at 7/135. Every
+non-letter metric byte-identical on all four scorecards. Dead ends on
+the record: a height-vs-depth gate (box size is bimodal — partials vs
+full-body — on both ends), a y-term in the teleport gate (partial-blob
+foot_y flicker fakes teleports), and a multi-frame letter vote
+(post-contact flight frames poison it). Cheap fixes plateau at ~1/8th
+of the box-condition ceiling: the far player is simply NOT IN the
+bgsub CSV at contact on the failing shots.
+
+**SAM-3 A/B, one tree (t3), authorized spend:** players re-tracked via
+fal sam-3/video-rle (experiments/t3_sam_players.py — prompts derived
+automatically from the bgsub boxes, split-and-stitch past the ~490
+frame chunk limit, per-side repair calls for the API's silent
+one-object regression; ~97 calls, ~$12 est). bgsub CSVs untouched;
+the twin switches via PLAYERS_DIR. Result, same eval, same hygiene:
+
+| t3 letters              | bgsub+hygiene | SAM-3 |
+|---|:---:|:---:|
+| strict positional (aligned) | 67/114 (59%) | 76/114 (67%) |
+| committed-aligned (eval)    | 67/85 (79%)  | 75/89 (84%)  |
+| letters (all)               | 138/174      | 162/205      |
+
++21 gains (16 far-side; 15 are refusals turned right) vs -13 losses —
+and the losses concentrate in the 6 clips whose far player bgsub NEVER
+boxed (no automatic prompt is derivable, so those segments stay
+far-less under SAM too; t3_point_33 alone returns 4). Acceptance and
+every non-letter metric unchanged — letters alone do not move the ≤1
+bar. The shipped default stays bgsub ($0); the SAM CSVs, raw masks,
+and the delta are the buy-vs-build record for the consolidation
+decision.
 
 Full history: LOG.md. Landscape context: docs/landscape-2026-07.md.

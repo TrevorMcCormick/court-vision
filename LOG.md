@@ -1778,3 +1778,108 @@ letters+dirs+endings-perfect now reading 35.6% and all-components
   v2" section. Frozen non-w trees, ground truth, and point-boundary
   outputs untouched.
 - Session cost: $0.00. Project total: ~$4.15 of $9.
+
+## 2026-07-10 — The letter sink: audit the boxes, clean the boxes, then buy better boxes for one tree
+
+**Quantified before built, per the house rule.** Letters were the
+largest substitution sink after direction v2 (1.71 edits/pt in their
+two bins; 55% strict positional on length-matched points), and the
+suspected root cause has been in this LOG since the pilot: the $0
+bgsub player boxes go rogue at exactly the wrong moments — spectators,
+net-tape ghosts, shadows, player+shadow merges — and the letter is
+ball-x vs box-center-x at the contact frame, gated on the ball
+reaching the box. experiments/box_letter_audit.py binned every aligned
+rally letter (all 4 matches, pre-fix charts) by the condition of the
+box that fed it — sane / implausible (court-half + size sanity) /
+absent:
+
+    outcome         sane   implaus  absent   total
+    right             70      31       0      101
+    wrong             17      18       0       35
+    refused (gate)    11      23       0       34
+    refused (no box)   0       0       8        8
+    total             98      72       8      178
+
+45% of aligned letters read off a bad box; 39% right there vs 71% on
+sane boxes. Box-quality ceiling ~+26 strict letters. The premise held,
+so the work proceeded — cheap fixes first.
+
+**Box hygiene (player_boxes.py, shared by all four twins; constants
+tuned on t3 ONLY, t1/t2/t4 held out), with the dead ends on the
+record.** What shipped: court-half plausibility in court coordinates
+(foot minus clip offset through H_img_to_court, generous slack — the
+serve detector's stance geometry), x-only teleport rejection (center-x
+vs the temporal-neighbor median, radius in meters converted at the
+box's own depth), linear interpolation through short dropouts, and a
+letter gate widened to max(observed, clip-typical) body height — a
+legs-only partial blob under-gates by half a body. What was BUILT,
+MEASURED, and REMOVED: a height-vs-depth gate (k = h_px x
+meters-per-pixel(foot) is depth-invariant for a standing human, but
+bgsub box size is bimodal — full-body vs legs-only — on BOTH ends, so
+every clip reference lands between the modes and the gate killed real
+boxes producing right letters at contact distance 0: t3 65 -> 62); a
+y-term in the teleport gate (partial-blob foot_y flicker projects to
+fake multi-meter far-end teleports; it deleted the far side wholesale);
+a multi-frame letter vote (±1 frame 67 -> 66, ±3 -> 63 — post-contact
+flight frames poison the median). Net: t3 strict letters 65 -> 67
+(tuned), t4 17 -> 18 (held out), t1/t2 unchanged; overall 114/209 ->
+117/209, letter edits 1.71 -> 1.59/pt, mean token distance 6.19 ->
+6.05, acceptance 7/135 unchanged. Every other metric on all four
+scorecards byte-identical (server end, rally ±1, serve zone, endings —
+the evals confirm). That is a plateau at ~1/8th of the audit ceiling,
+and the diagnosis of the residual is unambiguous: on the failing far
+shots the far player is NOT IN the bgsub CSV anywhere near contact
+(t3_point_25: six far letters refused, the "far box" hundreds of px
+from the ball on every window frame). No temporal hygiene conjures a
+player the tracker never saw. That's the gate for authorized spend.
+
+**SAM-3 on the worst box-bound tree: t3, ~$12, one tree only.** t4 is
+worse by letter RATE, but its wrong letters sit on SANE boxes (11/13)
+— striker/geometry disease, not boxes; t3 holds the box-driven mass
+(33 of 46 failures on implausible/absent boxes) and the most absolute
+misses (47). experiments/t3_sam_players.py re-ran the M3 recipe over
+the 59-clip tree: box prompts derived AUTOMATICALLY from the bgsub
+boxes (tallest hygiene-passing far box; median-height near box),
+split-and-stitch for the 8 clips past fal's ~490-frame chunk limit,
+masks split by the M3 component recipe, rows mapped back to the
+stabilized frame the ball CSV lives in. Two API landmines, receipts
+cached in outputs/t3/sam_raw/: prompts on DIFFERENT frames silently
+track one object; and even same-frame two-box calls sometimes drop one
+(the mask is empty inside the second prompt box AT the prompt frame) —
+fixed with per-side repair calls. ~97 video-rle calls ≈ $12 at the M3
+rate. Coverage: 51/59 clips ≥85% both ends; 6 clips keep a far-less
+segment because bgsub never produced ANY promptable far box there —
+the auto-prompt inherits bgsub's blindness at bootstrap, a real cost
+of the buy option. bgsub CSVs untouched in players/; SAM CSVs in
+players_sam/; the t3 twin switches via PLAYERS_DIR.
+
+**The A/B, same eval, same hygiene, same everything else:**
+
+    t3 letters                bgsub+hygiene   SAM-3
+    strict positional          67/114 (59%)   76/114 (67%)
+    committed-aligned (eval)   67/85  (79%)   75/89  (84%)
+    letters (all)             138/174        162/205
+
++21 gains / -13 losses: 16 of the gains are far-side, 15 are refusals
+turned right (t3_point_25 alone returns 7 — the far player finally
+exists at contact), and the losses concentrate in exactly the
+unpromptable far-less segments (t3_point_33 returns 4). Directions
+ride along 86 -> 89 (receiver-contact is a box consumer). Acceptance
+stays 3/59 — letters alone don't cross the ≤1-edit bar, as the
+decomposition's counterfactuals predicted (letters-perfect is worth
++6 points overall). Verdict for the consolidation decision: SAM buys
+roughly a third of the remaining letter deficit on the tree where
+boxes are the disease, at ~$0.20/clip all-in, and its failure mode is
+the same bootstrap blindness — it needs a prompt from somewhere. The
+shipped default stays bgsub at $0; the delta is now a measured number
+instead of a suspicion.
+
+- New: experiments/box_letter_audit.py (the quantification),
+  player_boxes.py (shared hygiene, dead-ends documented in-file),
+  t3_sam_players.py (auto-prompted SAM fleet + repair pass). All four
+  t*w chart twins: player_boxes.load() swap-in, widened letter gate,
+  PLAYERS_DIR config (t3). docs/benchmark.md: header letters row, a
+  "Letters" section with the audit and the A/B. Frozen non-w trees,
+  ground truth, serves.csv, and point-boundary outputs untouched.
+- Session cost: ~$12 (SAM A/B, under the one-off $30 authorization).
+  Project total: ~$16.
