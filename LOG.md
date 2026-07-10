@@ -880,3 +880,39 @@ it is a detector problem, not a charting problem.
 - Dev strings refreshed with endings for consistency (point_59 closes
   `w@`, matching its known out-wide final landing).
 - Session cost: $0.00.
+
+## 2026-07-09 — T2 run: the control catches the ball tracker
+
+Charted the 6 tracked control points (frozen loop, LEFTY both-false —
+day session, both right-handed) and scored them:
+
+    server end       2/5      (t1: 7/11)
+    rally len ±1     1/5      (t1: 7/11)
+    serve zone       1/2
+    letters (aligned) 2/2     (t1: 1/1)
+    ending type      0/3      (t1: 3/6)
+
+The control was supposed to be the EASY match — same court, daylight
+like the dev reel, no handedness trap. It scored worse, and the reason
+is upstream of everything the chart loop does: **SAM keeps losing the
+ball in daylight.** Drop rates on the six tracks: 45%, 0%, 2%, 44%,
+32%, 36% — t1's night tracks dropped far less. Night was never the
+hard test for tracking: a floodlit ball on a dark background is the
+easiest object in the frame. Day glare + white lines + long Federer
+rallies is the hard test, and rally length collapses with the track
+(6/12 and 6/9 on the two long points), taking letters, endings, and
+even server end (the override votes get bolder as tracks thin) down
+with it.
+
+What survived: **letters on length-matched clips are 2/2 with
+right-handed logic** — combined with t1's mirror, the contact-side
+hardware now has evidence on both handednesses. And the one clip with
+a clean track (point_08, 4/4 shots) matched MCP shot-for-shot on
+strikers and both committed letters.
+
+Scorecard-driven priority, now confirmed by two test matches from
+opposite directions: **ball-track continuity is the bottleneck** —
+holes and drops, not charting logic. Candidate next moves: multi-prompt
+SAM (re-prompt after holes), or a cheap diff-based ball recovery in the
+gaps using the tracked segments as anchors.
+- Session cost: $0.49 (6 t2 tracks). Project total: ~$4.15 of $9.
