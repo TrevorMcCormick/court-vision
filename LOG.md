@@ -1301,3 +1301,91 @@ change), and score identity is blind to it by construction.
   all 108 new clips (t3 82%, t4 72% coverage), $0. Frozen t1/t2/m3
   trees, scripts, and every chart constant untouched.
 - Session cost: $0.00. Project total: ~$4.15 of $9.
+
+## 2026-07-10 — Serve detection: the ball adjudicates on clay, the window slides on grass
+
+**The 4-match benchmark's weakest stage, re-baselined post-boundary-fix
+and then read from the tracks: three failure modes, none of them the
+gates' constants.** The t3 detector committed 10/59 calls (7 right);
+t4 committed 37/49 and was right on 33 — and then the chart's striker
+vote overrode 16 of those calls and got EVERY ONE wrong (server end
+7/58 and 17/49). Named from pixels and track scans:
+
+1. DEAD-AIR STANCE (both feeds). Point-boundary clips start at the
+   score-bug plateau, so the first second is the between-points
+   shuffle. The t3 near player idles at court y 28.2-28.9 — metres
+   BEHIND the baseline gate — in ~24 clips and steps up 1-3 s in; on
+   t4, 10 of the 12 no-call clips form a legal stance 0.5-9.6 s in,
+   where a window nailed to frame 0 (and a toss window capped at 4 s)
+   never looks.
+2. THE TAPE GHOST OWNS THE FAR TRACK (t3). In ~20 clips the far
+   "player" is a 100%-coverage blob frozen at court y 6-8 that never
+   visits a baseline: the net-tape ghost out-areas the motionless far
+   server. No gate can be tuned around a player the tracker never saw.
+3. TOUCH VOTES OUTVOTE THE SERVE (t4). W_TOUCH 3 vs W_SERVE 2, and
+   the white-on-white boxes feeding the touch votes are junk exactly
+   when it matters. The override that point_53 justified went 0/16
+   here.
+
+**The ball adjudicates — measured before wired.** The serve is the
+WASB track's first sustained net crossing: a monotone court-y run
+spanning > 4 m inside 0.6 s. Its direction gives the server end, its
+start frame the serve (the run opens at the toss/contact, which
+projects far beyond the server's baseline — the same ground-plane
+distortion freeze #3 exempts). Scored against parity truth BEFORE any
+wiring: t3 48/56 (86%); t4 26/49 — a coin flip, REFUTED on grass
+(white ball, white lines, 72% coverage, dead-air ball-kid throws).
+So t3's v3 leads with the ball and t4's keeps the players; the
+surfaces picked their own signals. t3's 8 ball misses are mostly
+clips whose footage starts mid-rally — no launch-shape gate separated
+them (cy0 and pre-launch speed both overlap), so the call commits and
+the miss rate is the honest price. Deuce/ad still needs a stance:
+readable on 22/56 (the ghost blinds the rest, which refuse a side and
+the chart degrades their zone to '?').
+
+**t4 v3: same gates, the window slides.** Each side's first 1-s window
+passing coverage+center+baseline, toss wanted within 4 s of SETTLING,
+ties to the side that settled first — the server's stance forms while
+the receiver is still wandering, 21/25 dual-candidate clips against
+truth vs 13/25 for v2's toward-the-center-mark rule — and simultaneous
+settles to the stronger toss (3/4). 46 commits, 38 right.
+
+**And the chart now trusts the detector it measured to be better:** a
+confident serve call LOCKS the alternation chain's first striker (flip
+slots stay in play); the serve-vs-touch vote market stays for
+everything else. Both changes in the t3w/t4w twins only.
+
+**Scorecards, same frozen chart loop, before -> after:**
+
+    t3 (clay)          before (58)  after (59*)     t4 (grass)     before (49)  after (49)
+    server end         7/58         48/59           server end     17/49        38/49
+    rally len ±1       24/58        25/59           rally len ±1   21/49        21/49
+    serve zone         1/4          9/18            serve zone     8/10         16/27
+    letters (all)      58/100       70/105          letters (all)  80/153       69/129
+    letters (aligned)  22/32        19/24           letters (algn) 10/18        7/16
+    ending type        9/30         9/30            ending type    5/19         5/19
+    (*t3_point_06 charts again: the synth serve gives its thin track a shot)
+
+Server end 12% -> 81% and 35% -> 78%, rally intact. The regressions,
+on the record: t4 serve zone's RATE fell (80% -> 59%) while its count
+doubled — the 8 wrong-end commits carry wrong sides and their zones
+pay; t4 letters (aligned) 10/18 -> 7/16 on a shrinking base — locking
+chains to truer servers reshuffled which coin-flip box letters get
+counted, and both numbers are the same coin. Receipts:
+serve3_t{3,4}_point_*.png strips in charts_wasb/ — point_29's frames
+show Ruud mid-toss at the called f14-19 with the bug's serve marker
+on RUUD; point_19's shows the far server tossing at 8.5 s, deep in
+dead air the old window never reached.
+
+**What still fails, named:** (1) rally length barely moved (t3
+undercount is missing footage, t4 overcount is the dead-ball coda
+living inside the plateau — the chart-level fix the boundary entry
+already queued). (2) endings byte-identical, same reason. (3) t3
+deuce/ad is blind wherever the tape ghost is the far track — the
+bgsub far-half cut, not the serve detector, owns that fix.
+- t3_serve_detect v3 (ball launch + sliding settle + stance-tol
+  table), t4_serve_detect v3 (sliding settle + settle-first
+  tie-break, ball refutation on the record), t3w/t4w chart twins grow
+  the serve lock + no-side zone guard. serves.csv gains src/launch_cy
+  columns. Frozen t1/t2/m3 trees, scripts, and constants untouched.
+- Session cost: $0.00. Project total: ~$4.15 of $9.

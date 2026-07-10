@@ -192,7 +192,7 @@ W_TOUCH, W_SERVE, W_LAND = 3.0, 2.0, 1.0
 FLIP_COST = 0.75
 
 
-def assign_strikers(shots, server, holes):
+def assign_strikers(shots, server, holes, lock=None):
     """Strict alternation, with a parity flip allowed at each inter-hit
     interval containing a ball-track hole (a hidden hit keeps true
     alternation but repeats the striker over DETECTED shots). The chain is
@@ -202,7 +202,13 @@ def assign_strikers(shots, server, holes):
       serve  (2)  the gated serve call — a PRIOR, not an anchor; point_53's
                   wrong-end serve call must be outvotable by the ball
       landing(1)  a far-half bounce after shot k says NEAR struck it
-                  (collapse bounces are far-half-only by construction)"""
+                  (collapse bounces are far-half-only by construction)
+    lock: when a confident serve call anchors shot 0, the chain's first
+    striker is LOCKED to it and only the flip slots stay in play —
+    measured on this staging pair, the serve detector beats the touch
+    votes (t4: all 16 chart overrides of a confident serve flipped a
+    CORRECT end to wrong; the white-on-white boxes that fed those
+    votes are the same ones the letter gate already distrusts)."""
     other = {"near": "far", "far": "near"}
 
     votes = []          # per shot: list of (side, weight)
@@ -224,7 +230,7 @@ def assign_strikers(shots, server, holes):
                          for a, b in holes)][:4]
 
     best = None
-    for first in ("near", "far"):
+    for first in (("near", "far") if lock is None else (lock,)):
         for mask in range(2 ** len(flip_slots)):
             chain, cur = [], first
             for k in range(len(shots)):
@@ -314,7 +320,10 @@ def chart_clip(stem, Hm, serves):
         sh["landing_x"] = round(lx, 2) if lx is not None else None
         sh["landing_y"] = round(landing["court_y"], 1) if landing else None
         if sh["is_serve"] and lx is not None:
-            sh["zone"] = serve_zone(lx, s.get("side") == "deuce", server)
+            # deuce/ad can be uncommitted (ball-called serves whose
+            # stance was unreadable); no side, no zone claim
+            sh["zone"] = (serve_zone(lx, s["side"] == "deuce", server)
+                          if s.get("side") in ("deuce", "ad") else "?")
         elif lx is not None:
             sh["zone"] = zone(lx)
         else:
@@ -347,7 +356,9 @@ def chart_clip(stem, Hm, serves):
 
     holes = [(int(a), int(b)) for a, b in zip(frames, frames[1:])
              if b - a > HOLE_FRAMES]
-    conflicts = assign_strikers(shots, server if server != "?" else "near", holes)
+    lock = server if (server != "?" and shots[0].get("anchor")) else None
+    conflicts = assign_strikers(shots, server if server != "?" else "near",
+                                holes, lock)
 
     # the chart can outvote the serve detector's end call; when it does,
     # the detector's deuce/ad side is suspect too, so the serve zone

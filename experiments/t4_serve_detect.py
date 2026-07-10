@@ -1,26 +1,31 @@
-"""T4 — serve detection: m3_serve_detect, t4 paths + clip-offset correction.
+"""T4 — serve detection v3: same gates, but the window slides.
 
-Consumes the $0 bg-sub player tracks (players_<clip>.csv).
+v2 (fixed early window at frame 0, toss in the first 4 s) committed
+37/49 and was RIGHT on 33 of them — the Wimbledon feed's players are
+the reliable signal here. Its misses were all one failure mode:
 
-v1 asked only "who's closer to the center mark early?" and paid for it:
-frame-checking found cold opens (reel intro starts mid-rally), garbage
-blobs (zoom-tail fragments), and receiver picks — when one side's early
-track is junk, "closer to center" degenerates to a coin toss on noise.
+  DEAD-AIR STANCE — the point-boundary clips start at the score-bug
+  plateau boundary, and Wimbledon's long between-points dead time
+  lives INSIDE the plateau. In 10 of the 12 no-call clips both
+  players DO settle into a legal serve/receive stance — just 0.5-9.6
+  seconds in, where a window nailed to frame 0 never looks (and a
+  toss at 4.7-6.6 s sits outside the old fixed 4-s toss window).
 
-v2 gates every claim and refuses to guess:
-  coverage gate — a side counts only if >=60% of early frames tracked
-  center gate   — server must stand within 2.0 m of the center mark
-  baseline gate — ...and within ~3 m of their own baseline
-  toss gate     — the blob's smoothed height must peak >=1.12x its median
-                  inside the serve window (a real toss stretches the
-                  silhouette; receivers don't)
-A clip yields either ONE candidate passing all gates (a confident serve)
-or an explicit no_confident_serve flag. Side of the center mark gives
-deuce/ad for free.
+v3 searches the whole clip for each side's first 1-s window passing
+coverage+center+baseline, then wants the toss within 4 s of settling.
+Two-candidate ties break to the side that SETTLED first (the server's
+stance forms while the receiver is still wandering — 21/25 dual-
+candidate clips against parity truth, vs 13/25 for v2's toward-the-
+center-mark rule), and simultaneous settles to the stronger toss
+(3/4; the receiver rarely fakes a real stretch).
 
-fps is read from the clip, never assumed — the reel runs 25 where
-rally.mp4 ran 30, and M2's per-frame thresholds already taught that
-lesson once.
+FOR THE RECORD — the ball does NOT adjudicate on grass: the t3 v3
+primary (first sustained net crossing of the WASB track) was measured
+against parity truth here first and scored 26/49 (53%, a coin flip).
+White ball, white lines, 72% coverage, and dead-air ball-kid throws
+bury the launch signal, so it is not wired in on t4.
+
+fps is read from the clip, never assumed.
 
 Usage:
     uv run experiments/t4_serve_detect.py
@@ -38,13 +43,34 @@ ROOT = Path(__file__).resolve().parent.parent
 
 W_C, L_C = 10.97, 23.77
 CENTER_X = W_C / 2
-EARLY_S = 1.0
-SERVE_WINDOW_S = 4.0
 SMOOTH = 5
 COVERAGE_MIN = 0.60
 CENTER_TOL_M = 2.0
 BASELINE_TOL = {"far": (-3.5, 1.0), "near": (L_C - 1.0, L_C + 3.5)}
 TOSS_RATIO = 1.12
+# v3 — sliding settle:
+SETTLE_WIN_S = 1.0
+SETTLE_STEP_S = 0.25
+SERVE_AFTER_SETTLE_S = 4.0
+
+
+def toss_peak(per_side, lo, hi):
+    """Smoothed-height peak ratio in [lo, hi): (frame, ratio) or None.
+    Keeps the t2 dissolve lesson: blobs taller than 2x the series median
+    are transition junk, dropped before peak-finding."""
+    hs = [(fi, float(per_side[fi]["h"])) for fi in sorted(per_side) if lo <= fi < hi]
+    if len(hs) < SMOOTH:
+        return None
+    h_med = float(np.median([h for _, h in hs]))
+    hs = [(fi, h) for fi, h in hs if h <= 2.0 * h_med]
+    if len(hs) < SMOOTH:
+        return None
+    fis = [f for f, _ in hs]
+    hh = np.array([h for _, h in hs])
+    pad = np.pad(hh, SMOOTH // 2, mode="edge")
+    hh = np.array([np.median(pad[j:j + SMOOTH]) for j in range(len(hh))])
+    peak = int(np.argmax(hh))
+    return fis[peak], float(hh[peak]) / float(np.median(hh))
 
 
 def main():
@@ -62,6 +88,7 @@ def main():
         stem = tpath.stem.replace("players_", "")
         cap = cv2.VideoCapture(str(ROOT / "clips/points_t4" / f"{stem}.mp4"))
         fps = cap.get(cv2.CAP_PROP_FPS) or 25.0
+        nfr = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
         per = {"near": {}, "far": {}}
         with open(tpath) as f:
@@ -76,54 +103,44 @@ def main():
             xy = cv2.perspectiveTransform(pt, Hm).reshape(2)
             return float(xy[0]), float(xy[1])
 
-        early_n = int(EARLY_S * fps)
-        win = int(SERVE_WINDOW_S * fps)
+        win = int(SETTLE_WIN_S * fps)
+        step = max(1, int(SETTLE_STEP_S * fps))
 
         candidates = []
         gate_log = []
         for side in ("near", "far"):
-            early = [per[side][fi] for fi in sorted(per[side]) if fi < early_n]
-            cov = len(early) / early_n
-            if cov < COVERAGE_MIN:
-                gate_log.append(f"{side}:coverage {cov:.0%}")
+            settle = None
+            for start in range(0, max(1, nfr - win), step):
+                rows = [per[side][fi] for fi in sorted(per[side])
+                        if start <= fi < start + win]
+                if len(rows) / win < COVERAGE_MIN:
+                    continue
+                xys = [court_xy(r) for r in rows]
+                mx = float(np.median([p[0] for p in xys]))
+                my = float(np.median([p[1] for p in xys]))
+                lo, hi = BASELINE_TOL[side]
+                if abs(mx - CENTER_X) <= CENTER_TOL_M and lo <= my <= hi:
+                    settle = (start, mx, my)
+                    break
+            if settle is None:
+                gate_log.append(f"{side}:never-settles")
                 continue
-            xys = [court_xy(r) for r in early]
-            mx = float(np.median([p[0] for p in xys]))
-            my = float(np.median([p[1] for p in xys]))
-            if abs(mx - CENTER_X) > CENTER_TOL_M:
-                gate_log.append(f"{side}:off-center {mx:.1f}m")
-                continue
-            lo, hi = BASELINE_TOL[side]
-            if not (lo <= my <= hi):
-                gate_log.append(f"{side}:off-baseline y={my:.1f}m")
-                continue
-            hs = [(fi, float(per[side][fi]["h"])) for fi in sorted(per[side]) if fi < win]
-            # t2 lesson: this reel's cuts are DISSOLVES — the first ~5
-            # frames diff against the plate as one giant blob (h~0.82 of
-            # frame vs ~0.25 for a real near player), and the toss gate's
-            # argmax grabbed it at f0 with ratio ~4x. A real toss stretch
-            # is ~1.1-1.3x: drop blobs taller than 2x the series median
-            # before peak-finding.
-            h_med = float(np.median([h for _, h in hs]))
-            hs = [(fi, h) for fi, h in hs if h <= 2.0 * h_med]
-            fis = [f for f, _ in hs]
-            hh = np.array([h for _, h in hs])
-            if len(hh) >= SMOOTH:
-                pad = np.pad(hh, SMOOTH // 2, mode="edge")
-                hh = np.array([np.median(pad[j:j + SMOOTH]) for j in range(len(hh))])
-            peak = int(np.argmax(hh))
-            ratio = float(hh[peak]) / float(np.median(hh))
-            if ratio < TOSS_RATIO:
-                gate_log.append(f"{side}:no-toss x{ratio:.2f}")
+            s0, mx, my = settle
+            tp = toss_peak(per[side], s0, s0 + int(SERVE_AFTER_SETTLE_S * fps))
+            if tp is None or tp[1] < TOSS_RATIO:
+                gate_log.append(f"{side}:no-toss"
+                                + (f" x{tp[1]:.2f}" if tp else ""))
                 continue
             candidates.append({"side": side, "mx": mx, "my": my,
-                               "serve_frame": fis[peak], "toss_ratio": ratio})
+                               "settle": s0,
+                               "serve_frame": tp[0], "toss_ratio": tp[1]})
 
         if not candidates:
-            rows_out.append({"clip": stem, "server": "?",
+            rows_out.append({"clip": stem, "server": "?", "src": "none",
                              "reason": "no_confident_serve: " + "; ".join(gate_log)})
             continue
-        best = min(candidates, key=lambda c: abs(c["mx"] - CENTER_X))
+        # earlier settle wins, stronger toss breaks the remaining tie
+        best = min(candidates, key=lambda c: (c["settle"], -c["toss_ratio"]))
         server = best["side"]
         sx = best["mx"]
         # deuce = server's right of the center mark: court x > center for a
@@ -137,25 +154,27 @@ def main():
             "serve_frame": best["serve_frame"],
             "serve_s": round(best["serve_frame"] / fps, 2),
             "toss_h_norm": round(best["toss_ratio"], 3),
+            "src": "players",
             "reason": "both_ends_passed" if len(candidates) == 2 else "",
         })
 
     out = OUT_BASE / "serves.csv"
     fields = ["clip", "server", "server_x_m", "margin_m", "side",
-              "serve_frame", "serve_s", "toss_h_norm", "reason"]
+              "serve_frame", "serve_s", "toss_h_norm", "launch_cy",
+              "src", "reason"]
     with open(out, "w", newline="") as f:
         wr = csv.DictWriter(f, fieldnames=fields)
         wr.writeheader()
         for r in rows_out:
             wr.writerow({k: r.get(k, "") for k in fields})
 
-    good = [r for r in rows_out if not r.get("reason")]
-    print(f"{len(good)}/{len(rows_out)} clips got a server + serve frame")
-    n_near = sum(1 for r in good if r["server"] == "near")
-    print(f"servers: near {n_near}, far {len(good) - n_near}")
-    tight = [r for r in good if r["margin_m"] < 1.0]
+    called = [r for r in rows_out if r["server"] != "?"]
+    print(f"{len(called)}/{len(rows_out)} clips got a server + serve frame")
+    n_near = sum(1 for r in called if r["server"] == "near")
+    print(f"servers: near {n_near}, far {len(called) - n_near}")
+    tight = [r["clip"] for r in called if r["margin_m"] < 1.0]
     if tight:
-        print(f"low-margin server calls (<1 m): {[r['clip'] for r in tight]}")
+        print(f"low-margin server calls (<1 m): {tight}")
     print(f"-> {out}")
 
 
