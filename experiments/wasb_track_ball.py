@@ -206,7 +206,8 @@ def render_sanity(clip_path, track, out_dir, stem):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("clips", nargs="+")
-    parser.add_argument("--tree", required=True, choices=["t1", "t2", "m3"])
+    parser.add_argument("--tree", required=True,
+                        choices=["t1", "t2", "t3", "t4", "m3"])
     parser.add_argument("--sanity", action="store_true",
                         help="render 3 circled frames for eyeball sign-off")
     args = parser.parse_args()

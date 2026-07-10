@@ -1054,3 +1054,128 @@ footage is harder for the specialist too, just not fatally. No
 re-charting (dev has no ground truth); the tracks are on disk for
 whenever the charting loop next wants them.
 - Session cost: $0.00. Project total: ~$4.15 of $9.
+
+## 2026-07-10 — T3/T4 staging: clay and grass vote against every Montreal assumption
+
+Two more MCP-charted matches, chosen to break things t1/t2 never
+stressed: **t3 = Roland Garros 2023 final, Djokovic–Ruud** (clay, RG
+world feed, official 34-min extended highlights, 720p50) and **t4 =
+Wimbledon 2024 final, Krejcikova–Paolini** (grass, WTA, Wimbledon feed,
+official 12-min extended highlights, 720p25). Six candidates were
+cross-referenced against the MCP match lists and yt-dlp before
+committing; the 2023 Wimbledon QF with the best footage turned out not
+to be charted, the 2025 final was a 44-minute blowout with a 7-minute
+reel, and Nadal–Djokovic footage is gorgeous but mixed-handed — the
+chart twin's single LEFTY dict can't represent a match where the flip
+depends on which player holds each end. All four chosen players are
+right-handed (looked up, not assumed — the MCP hand column claims
+Vondrousova is right-handed, so it doesn't get to be the source).
+
+**Clay homography: the M1 recipe died three new ways before it fit.**
+(1) "Blue court hull" has no blue, and the obvious clay-hue hull
+swallowed the whole frame — sunlit CROWD SKIN is H 6–8 too. Tighter
+band, largest component, filled contour instead of convex hull. (2)
+The unstabilized median plate SMEARS lines into the clay: this camera
+pans ~16 px over the fit run, and dusted white-on-orange doesn't
+survive what white-on-blue did. ECC-stabilize the plate frames first.
+(3) The far baseline is BURIED — V~200 line on V~195 clay, no mask
+finds it, and no fit can use it. Lines come from a tophat (thin-bright)
+filter now, verticals are labeled by symmetry about the center-service
+cluster (the Perrier crates and the Haier box put 20 Hough segments
+inside the clay hull; junk is asymmetric, court lines aren't), and the
+fit basis swaps the far baseline for the far service line. Fit checks:
+singles sidelines 0.4/0.5 px held out, center 0.2 px, near service
+6.3 px — a genuine lens bow the 15-intersection LS refit spreads but
+cannot remove.
+
+**Grass exposed the scorer, which is the useful kind of failure.** The
+first far-line chooser scored candidates on the singles sidelines —
+which are nearly INSENSITIVE to the horizontal labels (they
+interpolate the doubles lines in x). On t4 it picked the net band. The
+second attempt scored the LS fit's own rms — and a wrong-but-self-
+consistent triple ([175, 368, 473] as baseline/service/baseline) fit
+its own intersections to rms 1.7 px. Truth needed a different
+question: score every candidate assignment by how well ALL NINE model
+lines land on the observed line mask. The true assignment explains all
+of them; impostors strand the lines they didn't use. Winner: mask
+score 1.9 px, all line residuals <= 4.4 px mean — with the far
+baseline IN the fit on grass, because Wimbledon's wear pattern spares
+the lines and eats the grass around them (worn baseline dirt reads
+H 15–19, nearly clay; the hull band includes it on purpose).
+
+**The apron test is dead on both surfaces, long live the line probes.**
+t1/t2 court-view detection was interior-blue AND apron-not-blue. On
+clay the apron IS clay; on grass the run-off IS grass. Replacement:
+interior probes read the court color, and LINE probes read the tophat
+mask along the projected model lines — geometry a close-up can't fake.
+Then the pan problem: a fixed projection walks the line probes off the
+real lines (known court view read line_hit 0.29) and the whole 34-min
+reel yielded 68 s of play. The line read is now a max over a small
+shift grid (±24/±16 px), winning shift recorded per frame: 68 s became
+542 s in 68 segments. t4: 48 segments, 602 s of a 733-s reel. Each
+clip also gets a camera offset (median winning shift) that the serve
+and chart twins subtract — the fit camera and the clip camera are not
+the same camera on these broadcasters.
+
+**Alignment: 59/68 and 36/48 unique.** Same deuce-recurrence traps as
+t1/t2 (six t3 clips are 40-AD states that happened twice in a game),
+plus false-positive court views with no bug (a net close-up, a
+dissolve, two crowd pans). The RG bug is Djokovic-top, the Wimbledon
+bug Krejcikova-top — both player-2-top, both transcribed player-1-first
+before the server-first flip. The Wimbledon bug's green sets column
+read 1–1 in the third set, which is how the staging discovered this
+was the real 6-2 2-6 6-4 final and not the straight-setter memory
+insisted it was. Derive the structure from the data.
+
+**Players: the net tape ghosted the far player, twice.** RG jitter
+makes the high-contrast tape diff against the plate every frame,
+under the 0.90 static-erase, and the tape blob out-areas a motionless
+far player: "far player" at court y 10.8 was a box ON the net,
+frame-checked. First fix cut the far region at court y 11.0 and
+missed: the tape hangs ~1.07 m above the ground plane, so its
+back-projection lands at court y ~7–11.5, metres behind the net line.
+Second cut at 6.5 killed it (far coverage median 100%→80%, the honest
+price). And clay servers stand WIDE — Ruud serves from x = 1.4 m,
+4.1 m off the center mark, so t2's 2.0 m center gate rejected real
+serves all day; the t3 twin runs 4.3 m and lets the toss and baseline
+gates carry the discrimination. Serves: t3 14/68 (most clips are
+mid-rally fragments where no-serve is the CORRECT answer), t4 36/48.
+Changeover parity: t4 decisive — Paolini-starts-far explains 21/25
+(84%); t3 votes far 9/14 (64%), corroborated by pixels: Djokovic's red
+shirt is the NEAR player while the bug shows Ruud serving game 1.
+
+**WASB coverage: clay 82.7%, grass 72.4% — grass is the specialist's
+hardest surface yet.** White ball, white lines, white kit; t1/t2 ran
+87–88%. All 116 clips tracked, $0, no bootstrap, no permission slips.
+
+**Scorecards (frozen loop + envelope gate, LEFTY all-false):**
+
+    t3 (59 aligned)                    t4 (36 aligned)
+    server end        10/59            server end        10/36
+    rally len ±1      20/59            rally len ±1      15/36
+    serve zone         1/6             serve zone         1/4
+    letters (all)     46/75            letters (all)     70/127
+    letters (aligned) 16/25            letters (aligned) 11/22
+    ending type       11/34            ending type        1/12
+
+**The headline breakage is upstream of every metric: segment ≠ point,
+and each broadcaster breaks it in the opposite direction.** t3 charts
+3.9 shots against MCP's 8.9 (39/59 clips undercount by >1) — the RG
+editor and camera fragment long clay rallies across multiple segments,
+and four consecutive clips carrying the SAME score (30-15, game 5) are
+one rally in four pieces, some of them main-camera slow-mo replays
+that pass every geometric probe AND keep the score bug. t4 charts 8.1
+against 7.2 with 15/36 OVER-counting — Wimbledon never cuts between
+points, so a 15-second segment holds two or three points and the chart
+strings them into one 12-shot monster rally. Montreal's tidy
+cut-per-point editing was doing segmentation work we never noticed and
+never paid for. That's the next real fix: point boundaries need their
+own detector (serve-anchored splitting, replay/slow-mo rejection),
+because the reel's edit grammar can't be trusted to provide them.
+- New per-match twins: t3/t4 fit_homography (clay/grass recipes),
+  court_probe (line probes + shift search), extract_points (+ clip
+  offsets), align_mcp, bgsub_players (net-tape exclusion),
+  serve_detect (wide-stance gate), t3w/t4w chart + eval.
+  wasb_track_ball grows --tree t3/t4. Frozen t1/t2/m3 scripts and all
+  frozen-era constants untouched.
+- Session cost: $0.00. Project total: ~$4.15 of $9.

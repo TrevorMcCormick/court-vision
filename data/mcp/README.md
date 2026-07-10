@@ -10,6 +10,12 @@ for the train/dev/test discipline.
   (TennisTV highlights, 720p60).
 - `points_20170812_federer_haase.csv` — Canada Masters SF, day, both
   right-handed. Test set 2 (nearest transfer), footage TBD.
+- `points_20230611_djokovic_ruud.csv` — Roland Garros F 2023, CLAY,
+  both right-handed. Test set 3 (adversarial: surface + broadcaster).
+  Footage: official Roland-Garros extended highlights, 720p50.
+- `points_20240713_krejcikova_paolini.csv` — Wimbledon F 2024, GRASS,
+  WTA, both right-handed. Test set 4 (adversarial: surface + tour +
+  broadcaster). Footage: official Wimbledon extended highlights, 720p25.
 
 Columns: Pt, set/game scores, Pts (score at point start), Svr,
 1st/2nd (serve + rally in MCP notation), PtWinner.

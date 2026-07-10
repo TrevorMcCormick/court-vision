@@ -1,0 +1,49 @@
+clip,note,mcp_pt,svr,first,second,winner,status,gms,pts
+t4_point_01,bug Krejcikova-top; transcribed Paolini-first,5,1,6n,5f39b28b29b19f17f18f18*,2,matched,0-0,15-40
+t4_point_02,,10,1,4f28f38s29f37s28f+18r2v38m3z=17r18f38s29b28f38s29f18*,,2,matched,0-2,0-0
+t4_point_03,,12,1,5b1n#,,1,matched,0-2,0-30
+t4_point_04,,14,1,c6n,4f29b28f38b39b28f+18l2n#,1,matched,0-2,30-30
+t4_point_05,,17|21,1,,,,ambiguous,,
+t4_point_06,,16|18|20|22,1,,,,ambiguous,,
+t4_point_07,dup score of 05,17|21,1,,,,ambiguous,,
+t4_point_08,dup score of 06,16|18|20|22,1,,,,ambiguous,,
+t4_point_09,,19|23,1,,,,ambiguous,,
+t4_point_10,,28,2,c6b17f37b28b28f17f39b37s39b37b18r29f38b19*,,1,matched,1-2,40-15
+t4_point_11,,30,2,4f17f+39s37y-17l-29l19o=27b28f18f18f19f39s27f+18*,,2,matched,1-2,40-40
+t4_point_12,,38,2,6s28f+39b2v17*,,2,matched,1-4,0-0
+t4_point_13,,44,1,4w,6f38s37s+39m3o17*,2,matched,1-5,15-0
+t4_point_14,,48,1,6d,4b27b28f1w@,1,matched,1-5,40-30
+t4_point_15,,52,2,4b28f38b28f19f1n#,,2,matched,2-5,40-0
+t4_point_16,set 2 (Krejcikova won set 1),58,1,5r37#,,1,matched,0-0,40-30
+t4_point_17,,59,2,6b29f38b39b28f29f29f39b38b19f2n#,,1,matched,1-0,0-0
+t4_point_18,,60,2,4b38b38b39b3d@,,1,matched,1-0,0-15
+t4_point_19,,62,2,4b29f28f19f19f27f18f18f28b29b28f38s3n@,,1,matched,1-0,15-30
+t4_point_20,,63,2,4f28b2n@,,1,matched,1-0,15-40
+t4_point_21,,67,1,6r28f+39*,,1,matched,2-0,30-15
+t4_point_22,,70|72,1,,,,ambiguous,,
+t4_point_23,dup of 22,70|72,1,,,,ambiguous,,
+t4_point_24,,73,1,4b;1d#,,1,matched,2-0,AD-40
+t4_point_25,,77,2,4b39b28f28b29f38*,,1,matched,3-0,15-30
+t4_point_26,,84,1,6*,,1,matched,3-1,15-15
+t4_point_27,,91,2,6w,4f39*,1,matched,4-1,40-15
+t4_point_28,,93,1,6w,5f38s39f19f17f+19f2z17f-18*,1,matched,4-2,0-0
+t4_point_29,,96,1,5b29b17f+39m2o18*,,2,matched,4-2,40-0
+t4_point_30,server mark not visible; same game as 29,97,1,6x,6b18f37s29b29f28b39b29b29f1w@,1,matched,4-2,40-15
+t4_point_31,no bug: crowd shot false positive,,,,,,NO MATCH,,
+t4_point_32,set 3 (Paolini won set 2),103,1,4f39b38f29f28b29f29f28f38*,,1,matched,0-0,0-0
+t4_point_33,,106,1,4b28f+19f!3#,,1,matched,0-0,40-0
+t4_point_34,,119,2,6b28b39b38b29f19f19f39s39f39b39b28f29f28f17r!1#,,2,matched,2-1,30-0
+t4_point_35,,125,2,6b1w#,5f29b38b27s18f39b38b28f19*,2,matched,3-2,0-0
+t4_point_36,,127,2,6m37o18r2v19*,,2,matched,3-2,30-0
+t4_point_37,,132,1,5f27b+39b2v^17*,,1,matched,3-3,0-30
+t4_point_38,,135,1,4b28b29f38b28f18f38s2d@,,1,matched,3-3,30-40
+t4_point_39,,136,1,6b28f38s28f39b28f18f38b39b28f29f18f2d#,,2,matched,3-3,40-40
+t4_point_40,,144,1,4f28f+38b3z17*,,1,matched,3-5,30-0
+t4_point_41,,149,2,6f29f39b29f18f38b29b2d@,,2,matched,4-5,15-0
+t4_point_42,server mark unclear; game sequence implies Krejcikova,151,2,6f27f19f29f17r29b39b38b2d@,,1,matched,4-5,30-15
+t4_point_43,server mark unclear,153,2,4b27f+18f2z38*,,2,matched,4-5,30-40
+t4_point_44,,154|156|158|160,2,,,,ambiguous,,
+t4_point_45,dup of 44,154|156|158|160,2,,,,ambiguous,,
+t4_point_46,,157,2,5d,4b39f38b28f38*,2,matched,4-5,40-AD
+t4_point_47,no bug: crowd shot false positive,,,,,,NO MATCH,,
+t4_point_48,2nd championship point banner,155|159|161,2,,,,ambiguous,,
