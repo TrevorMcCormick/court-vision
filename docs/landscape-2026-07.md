@@ -60,3 +60,40 @@ SAM-3 ball tracking is reinventing it, worse:
 2. Effort concentrates on the charting layer: rally grammar, striker
    chains, letters, zones, endings, eval — the part nobody has built.
 3. F3Set may provide large-scale intermediate training/eval data.
+
+## Open questions the research did not settle
+1. Has anyone in the MCP community attempted assisted/automated
+   charting, and is the charter shortage documented beyond the Jan
+   2026 post? (Zero claims survived on this — absence of evidence.)
+2. Published SAM2/SAM3-vs-specialist evidence on small fast balls:
+   none found. Our A/B is potentially a first.
+3. What do Hawk-Eye/PlaySight output per-shot, and is any of it
+   individually accessible via TDI/Tennis IQ licensing?
+4. F3Set label provenance/license — is it MCP-derived, and can it be
+   intermediate training/eval data for us?
+
+## Verified sources (23 fetched; quality per research pass)
+- swing.vision/subscribe/compare; apps.apple.com SwingVision listing;
+  techinthesun.com/swingvision (review)
+- tennisviz.com; atptour.com Tennis IQ announcement; ubitennis.net
+  data-methods + ATP-data pieces (Hawk-Eye ~EUR 60-70k/court/week)
+- wingfield.io/en/products + shop.wingfield.io; baselinevision.com;
+  tennisleo.com Baseline Vision review
+- github.com/nttcom/WASB-SBDT (+MODEL_ZOO.md weights, spot-check 200);
+  arxiv.org/pdf/2311.05237 (Table 2 p.8 = the F1 numbers);
+  proceedings.bmvc2023.org/310
+- github.com/yastrebksv/{TennisProject,TrackNet,TennisCourtDetector};
+  github.com/ArtLabss/tennis-tracking; github.com/hgupt3/TRACE (404,
+  Wayback 2025-04-30) + Slimold/TRACE mirror
+- TrackNetV3: people.cs.nycu.edu.tw/~yushuen/data/TrackNetV3.pdf,
+  github.com/qaz812345/TrackNetV3 (badminton), DOI 10.1145/3595916.3626370
+- arxiv 2508.09650 (TOTNet), 2411.11922, 2511.16719, 2511.17045 (SAM-line)
+- tennisabstract.com/blog/2026/01/03/17000-matches; Sackmann MCP repo;
+  on-the-t.github.io Match-Charting-GUI (2016)
+- arxiv 2504.08222 (F3Set); github.com/HaydenFaulkner/Tennis;
+  arxiv 2207.10213
+
+Method note: claims verified by 3-vote adversarial panels (2/3 refutes
+to kill); 25/25 survived. Commercial claims lean on vendor pages, each
+corroborated by at least one independent source. Benchmark figures are
+the WASB authors' re-implementations on a single match's dataset.
