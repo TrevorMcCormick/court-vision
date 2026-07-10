@@ -1,0 +1,48 @@
+# t1 — Nadal–Shapovalov, Canada Masters R16 2017 (hard, night, both lefty)
+id: t1
+title: "t1 night/lefty"
+match: "Nadal-Shapovalov, Canada Masters R16 2017 (hard, night)"
+clips_dir: clips/points_t1
+out_dir: outputs/t1
+ball_dir: ball_wasb
+players_dir: players
+charts_dir: charts_wasb
+homography: H_img_to_court.npy
+serves: serves.csv
+clip_offsets: null            # Montreal camera holds; no per-clip shift
+
+# freeze #2's one allowed knob: BOTH t1 players are left-handed, so the
+# right-hander letter read mirrors on both ends all match
+lefty: {near: true, far: true}
+
+# staging gates measured on the t3/t4 pair stay OFF here — the t1 tree
+# is scored with the frozen pre-staging chart loop
+staging:
+  lock_serve: false
+  serve_zone_requires_side: false
+  near_ending_fill: false
+  coda_report: false
+
+# serves.csv for this tree is a frozen artifact of the pre-v3 detector
+# (fixed early window); rerunning through the package uses the v3
+# sliding-settle recipe — the forward path, see README divergence note
+serve_detect:
+  variant: stance
+  center_tol_m: 2.0
+
+players_detect:
+  near_top_m: 11.885          # court-y where the near-half region starts
+  far_bottom_m: 11.885        # court-y where the far-half region ends
+
+eval:
+  title: "lefty night match"
+  mcp_map: data/mcp/t1_mcp_map.csv
+  alignment: data/mcp/t1_clip_alignment.csv
+  mcp_points: data/mcp/points_20170810_nadal_shapovalov.csv
+  mcp_match_id: "20170810-M-Canada_Masters-R16-Rafael_Nadal-Denis_Shapovalov"
+  start_end: far              # established: Nadal began the match far-end
+  set_priors:                 # set 1 went 6-3 (9 games), set 2 4-6 (10)
+    "1,0": 9
+    "0,1": 9
+    "1,1": 19
+  tiebreak_states: any        # 6-6 game is a tiebreak in any set

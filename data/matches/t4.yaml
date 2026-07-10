@@ -1,0 +1,40 @@
+# t4 — Krejcikova–Paolini, Wimbledon F 2024 (grass, WTA)
+id: t4
+title: "t4 grass WTA"
+match: "Krejcikova-Paolini, Wimbledon F 2024 (grass, WTA)"
+clips_dir: clips/points_t4
+out_dir: outputs/t4
+ball_dir: ball_wasb
+players_dir: players
+charts_dir: charts_wasb
+homography: H_img_to_court.npy
+serves: serves.csv
+clip_offsets: clip_offsets.csv   # Wimbledon camera wanders between points
+
+lefty: {near: false, far: false}   # Krejcikova, Paolini — looked up
+
+staging:
+  lock_serve: true
+  serve_zone_requires_side: true
+  near_ending_fill: true
+  coda_report: true           # in-plateau dead-ball coda: report v5's cuts
+
+serve_detect:
+  variant: stance             # ball does NOT adjudicate on grass (26/49)
+  center_tol_m: 2.0
+
+players_detect:
+  near_top_m: 11.885
+  far_bottom_m: 11.885
+
+eval:
+  title: "t4: grass, WTA, Wimbledon feed"
+  mcp_map: data/mcp/t4_mcp_map.csv
+  alignment: data/mcp/t4_clip_alignment.csv
+  mcp_points: data/mcp/points_20240713_krejcikova_paolini.csv
+  mcp_match_id: "20240713-W-Wimbledon-F-Jasmine_Paolini-Barbora_Krejcikova"
+  start_end: far              # parity vote 21/25 over near 4/25 — decisive
+  set_priors:                 # set 1 = 8 games, set 2 = 8 games
+    "0,1": 8
+    "1,1": 16
+  tiebreak_states: []         # no tiebreaks in this final

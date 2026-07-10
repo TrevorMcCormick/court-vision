@@ -1,0 +1,42 @@
+# t3 — Djokovic–Ruud, Roland Garros F 2023 (clay, wandering world feed)
+id: t3
+title: "t3 clay RG"
+match: "Djokovic-Ruud, Roland Garros F 2023 (clay)"
+clips_dir: clips/points_t3
+out_dir: outputs/t3
+ball_dir: ball_wasb
+# the $0 bgsub tracks; switch to players_sam for the SAM-3 A/B letters
+# (same schema, same hygiene — the buy-vs-build record in the LOG)
+players_dir: players
+charts_dir: charts_wasb
+homography: H_img_to_court.npy
+serves: serves.csv
+clip_offsets: clip_offsets.csv   # RG camera wanders between points
+
+lefty: {near: false, far: false}   # Djokovic, Ruud — looked up, not assumed
+
+staging:
+  lock_serve: true
+  serve_zone_requires_side: true
+  near_ending_fill: true
+  coda_report: false          # coda pass measured net NEGATIVE on clay
+
+serve_detect:
+  variant: ball               # v3: the WASB launch adjudicates (48/56)
+  center_tol_m: 4.3           # clay servers stand WIDE (Ruud at x=1.4)
+
+players_detect:
+  near_top_m: 12.8            # net-tape ghost exclusion: tape back-projects
+  far_bottom_m: 6.5           # to court-y ~7-11.5, so both halves stop short
+
+eval:
+  title: "t3: clay, RG world feed"
+  mcp_map: data/mcp/t3_mcp_map.csv
+  alignment: data/mcp/t3_clip_alignment.csv
+  mcp_points: data/mcp/points_20230611_djokovic_ruud.csv
+  mcp_match_id: "20230611-M-Roland_Garros-F-Casper_Ruud-Novak_Djokovic"
+  start_end: far              # parity vote 9/14; Djokovic near in game 1
+  set_priors:                 # set 1 = 12 games + TB (13 units), set 2 = 9
+    "*,1": 13
+    "*,2": 22
+  tiebreak_states: ["0,0"]    # only the first set reached 6-6

@@ -1,0 +1,42 @@
+# t2 — Federer–Haase, Canada Masters SF 2017 (hard, day) — the control
+id: t2
+title: "t2 day ctrl"
+match: "Federer-Haase, Canada Masters SF 2017 (hard, day)"
+clips_dir: clips/points_t2
+out_dir: outputs/t2
+ball_dir: ball_wasb
+players_dir: players
+charts_dir: charts_wasb
+homography: H_img_to_court.npy
+serves: serves.csv
+clip_offsets: null            # Montreal camera holds; no per-clip shift
+
+lefty: {near: false, far: false}
+
+staging:
+  lock_serve: false
+  serve_zone_requires_side: false
+  near_ending_fill: false
+  coda_report: false
+
+# serves.csv frozen from the pre-v3 detector; see README divergence note
+serve_detect:
+  variant: stance
+  center_tol_m: 2.0
+
+players_detect:
+  near_top_m: 11.885
+  far_bottom_m: 11.885
+
+eval:
+  title: "control: day, right-handed"
+  mcp_map: data/mcp/t2_mcp_map.csv
+  alignment: data/mcp/t2_clip_alignment.csv
+  mcp_points: data/mcp/points_20170812_federer_haase.csv
+  mcp_match_id: "20170812-M-Canada_Masters-SF-Roger_Federer-Robin_Haase"
+  start_end: near             # established by parity vote 5-1 at staging
+  set_priors:                 # set 1 went 6-3 (9 games)
+    "1,0": 9
+    "0,1": 9
+    "1,1": 9
+  tiebreak_states: any
