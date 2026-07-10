@@ -1389,3 +1389,101 @@ bgsub far-half cut, not the serve detector, owns that fix.
   the serve lock + no-side zone guard. serves.csv gains src/launch_cy
   columns. Frozen t1/t2/m3 trees, scripts, and constants untouched.
 - Session cost: $0.00. Project total: ~$4.15 of $9.
+
+## 2026-07-10 — The dead-ball coda: the point's spine is the net-crossing sequence
+
+**The queued chart-level fix, taken from pixels first.** Six
+over-counting t4 clips rendered at their trailing events
+(coda_t4_point_*.png in charts_wasb/) tell one story: after the true
+final shot the ball KEEPS GOING — bouncing at the near player's feet
+while she collects it (48, an ace charted as six shots), drifting past
+the far baseline to the kids (28, 01, 24), circling the net after a
+net death (05), swatted back across between points (45) — and both
+players break rally posture and walk. Wimbledon never cuts, so all of
+it lives inside the point's own score-bug plateau and inside freeze
+#3's playable envelope. Named mechanism: the in-plateau dead-ball coda.
+
+**Everything per-event was measured and refuted before the rule was
+chosen, and the refutations are the finding.** Landing positions:
+LIVE rally shots read 5-45 m deep out (the collapse position is
+projection garbage on a rising ball) — an out-landing trigger
+truncated 15 correct clips. Player walking speed: the coda boxes go
+rogue and read FASTER than live walking (coda p90 up to 26 px/f vs
+live 5-8). Post-anchor track coverage: 0.74-0.94 both classes.
+Static-lock runs: 11 frames both classes. point_28's true coda and
+point_20's blind-track live rally are byte-similar in every feature
+we can compute. There is no per-event tell.
+
+**What holds is sequence-level tennis: a live rally sends the ball
+across the net every shot.** The track's net crossings — smoothed
+court-y monotone runs, >= 4 samples, span 5-40 m (real deep-lob
+flights project to 32 m; track teleports onto the crowd run 43-53 m,
+and the span cap is what separates them), 4-90 m/s, no 6 m/frame
+step — are the point's spine. Two truncation rules in the t4 twin:
+(1) DEAD-GAP: a shot followed by > 3.0 s with no crossing inside the
+gap ended the point (longest live inter-shot gap on the reel: 2.5 s;
+codas idle 3.1+). Not applied at a synth serve — that gap is the
+between-points shuffle the serve entry already charted. (2) ANCHOR:
+shots more than 0.6 s after the LAST crossing's start didn't launch
+it; the first within 1.2 s of its end is kept (the receiving shot — a
+net error never crosses); the rest are coda. 24 of 49 clips truncate,
+53 phantom shots drop.
+
+**t4-only, by measurement:** the same pass on t3 scores 25/59 ->
+23/59 — clay's failure mode is undercounting (the RG editor cuts into
+rallies), and the anchor charges a crossings-recall tax t3's
+fragmented footage can't pay. The t3 twin doesn't grow it.
+
+**Endings, part two: re-derived free, then extended to the near half.**
+With the coda gone the "last shot" is the true last shot and its
+landing is the real final bounce: t4 endings 5/19 -> 10/31 without
+touching the ending code. Then the investigation the boundary entry
+queued: near-half landings are invisible to the collapse detector by
+construction, but the dense WASB track holds the bounce as an image-y
+V-cusp below the net line — and AT the cusp the ball is ON the ground
+plane, so the projection is honest exactly there. The trap is the
+second bounce: winners' late cusps read cy 25.6-30 (freeze #3's own
+boundary — the dead ball at the collector's feet starts at 26.4) and
+miscode deep. The true first bounce arrives within flight time, so
+the fill searches 1.2 s and no further: at 2.0 s it commits 6 and
+misses 3; at 1.2 s it commits 3 and misses 0 (t4_point_23 w@ at
+cy 14.6 x -3.4, t4_point_24 d@ at cy 26.6, t3_point_08 d@ at 26.2 —
+all against MCP truth). Fill-only: it never overrides a far-half
+landing or a net death. Also refuted on the way: re-reading far-half
+landings at the cusp frame instead of the post-bounce median made
+endings WORSE (10/31 -> 7/29) — winners' far-half bounces read -2.7
+to -38.6 m deep at either sample point; far-half in/out is not
+recoverable from this homography, which is why ending v1 was 5/19.
+
+**Scorecards, before -> after:**
+
+    t3 (clay)          before (59)  after (59)      t4 (grass)     before (49)  after (49)
+    server end         48/59        48/59           server end     38/49        38/49
+    rally len ±1       25/59        25/59           rally len ±1   21/49        26/49
+    serve zone         9/18         9/18            serve zone     16/27        16/27
+    letters (all)      70/105       70/105          letters (all)  69/129       67/123
+    letters (aligned)  19/24        19/24           letters (algn) 7/16         16/32
+    ending type        9/30         10/31           ending type    5/19         12/33
+
+t4 over-counting >1 fell 17 clips -> 9, rally ±1 43% -> 53%, letters
+(aligned) doubled its base at a higher rate (44% -> 50%), endings 26%
+-> 36% on nearly double the commits. The regressions, on the record:
+t4 points 12, 18, 20 were rally-correct and now aren't — long rallies
+whose late track wanders the far run-off with no crossings, which is
+exactly what point_28's true coda looks like; three separators were
+tried and all three refuted, so the pass eats them and says so.
+letters (all) lost two matches with the coda letters it deleted
+(69/129 -> 67/123 — a higher rate on an honest base). t4_point_23
+still charts long (19 shots against 5): the 28-second 40-40 plateau is
+one pixel-point holding a replayed let, and score identity stays blind
+to it by construction.
+- t4w_chart_point grows net_crossings + truncate_coda (constants
+  documented in-file: DEAD_GAP_S 3.0, LAUNCH_SLACK_S 0.6, RECV_S 1.2,
+  CROSS_* gates) and the near-half ending fill; t3w_chart_point grows
+  the near-half fill only (NEAR_BOUNCE_WIN_S 1.2, NEAR_DEEP_M 0.5,
+  NEAR_CY_CEIL 8.0). match_chart_v2.csv gains n_coda/coda_why.
+  Receipts: coda_t4_point_{01,05,24,28,45,48}.png strips in
+  charts_wasb/. Frozen t1/t2/m3 trees, scripts, and constants
+  untouched; ground truth and point-boundary outputs consumed, not
+  regenerated.
+- Session cost: $0.00. Project total: ~$4.15 of $9.

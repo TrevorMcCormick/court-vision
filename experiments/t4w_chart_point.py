@@ -91,6 +91,65 @@ LETTER_GATE = lambda h_px: 0.6 * h_px + 30
 HOLE_FRAMES = 8               # ball-track gap that can hide a missed hit
 OUT_MARGIN = 0.25             # meters of slack before calling a ball out
 NET_ZONE_M = 1.5              # track dying this close to the net = net error
+# t4 coda truncation — the in-plateau dead-ball coda. Wimbledon never
+# cuts after points, so the ball's aftermath (bouncing at the near
+# player's feet, drifting past the far baseline to the kids, swatted
+# back across between points) lives inside the same score-bug plateau
+# AND inside the playable court-y envelope; freeze #3 can't see it and
+# the cusp detector charted it as extra shots (21/49 rally ±1, 17 clips
+# over by >1). Pixel-diagnosed on points 01/05/24/28/45/48: after the
+# true final shot BOTH players break rally posture and walk while the
+# ball keeps moving — and per-event geometry (landing positions, vcy,
+# player speed, track coverage, static-lock runs) does NOT separate
+# coda events from live ones (all measured, all refuted; landings read
+# 5-45 m deep on LIVE rally shots because the collapse position is
+# projection garbage on a rising ball). What DOES hold: a live rally
+# sends the ball across the net every shot, so the point's spine is the
+# track's net-crossing sequence. Two sequence-level rules:
+#   dead-gap  a shot followed by > DEAD_GAP_S with no crossing inside
+#             the gap ended the point (longest live inter-shot gap
+#             observed 2.5 s; codas idle 3.1-3.8 s). Not applied at a
+#             synth serve — dead air after a stance-gated serve frame
+#             is the between-points shuffle, not a coda.
+#   anchor    shots more than LAUNCH_SLACK_S after the LAST crossing's
+#             start didn't launch it; the first of them within RECV_S
+#             of the crossing's end is kept (the receiving shot — a net
+#             error or a hole-hidden out-flight never crosses); the
+#             rest are coda.
+# Crossing gates, measured on this reel: smoothed court-y monotone runs,
+# >= 4 samples, span 5-40 m (real deep-lob flights project up to 32 m;
+# track teleports onto crowd/kids run 43-53 m), speed 4-90 m/s, no
+# single step > 6 m/frame. On the 21 rally-correct clips the pass
+# regresses three (12/18/20: long rallies whose late track wanders the
+# far run-off with no crossings — byte-similar to point_28's TRUE coda;
+# the evidence cannot tell them apart) and fixes eight. t4-only: the
+# same pass on t3 is net negative (clay undercounts, crossings recall
+# pays), so the t3 twin doesn't grow it.
+DEAD_GAP_S = 3.0              # s; no-crossing gap that ends the point
+LAUNCH_SLACK_S = 0.6          # s; shot -> its crossing's start, max lag
+RECV_S = 1.2                  # s; crossing end -> receiving shot, max lag
+CROSS_SPAN_MIN_M = 5.0        # m; runs shorter than this aren't flights
+CROSS_SPAN_MAX_M = 40.0       # m; longer = track teleport, not a ball
+CROSS_SPEED_MIN, CROSS_SPEED_MAX = 4.0, 90.0   # m/s, projected
+CROSS_MIN_SAMPLES = 4
+CROSS_MAX_STEP_M = 6.0        # m/frame; single-step teleport guard
+CROSS_MAX_FRAME_GAP = 5       # frames; track hole that breaks a run
+# near-half ending fill — near-half landings are invisible to the
+# collapse detector BY CONSTRUCTION (it skips cy > NET_Y), so a final
+# shot struck by the FAR player never got an ending. The dense WASB
+# track recovers the bounce as an image-y V-cusp below the net line,
+# and the position AT the cusp is trustworthy exactly there: the ball
+# is ON the ground plane at the bounce instant. The trap is the SECOND
+# bounce / the dead ball at the collector's feet (freeze #3's own
+# boundary: real near hits <= 25.5, ball-at-feet >= 26.4) — winners'
+# late cusps read cy 25.6-30 and miscode d/x. The true first bounce
+# arrives within flight time, so the search stops at NEAR_BOUNCE_WIN_S:
+# measured on t3+t4, the 2.0-s window commits 6 fills with 3 misses
+# (all late cusps, all >= 25.6), the 1.2-s window commits 3 with 0.
+# Fill-only: it never overrides a far-half landing or a net death.
+NEAR_BOUNCE_WIN_S = 1.2       # s after the final shot; flight time only
+NEAR_DEEP_M = 0.5             # m behind the near baseline before 'deep'
+NEAR_CY_CEIL = 8.0            # m; cusps beyond L_C+this are not bounces
 # Per-match handedness — freeze #2's one allowed knob. All four players
 # in t3/t4 are right-handed (Djokovic, Ruud, Krejcikova, Paolini —
 # looked up, not assumed), so no mirror anywhere.
@@ -157,6 +216,65 @@ def detect_events(frames, iy, cyc, fps, serve_frame=None):
         events.append({"idx": i, "frame": int(frames[i]), "kind": kind,
                        "signal": how, "court_y": pos_y, "vcy_after": ma})
     return events
+
+
+def net_crossings(frames, cyc, fps):
+    """Sustained monotone court-y runs that pass the net at rally speed —
+    the point's spine (see the coda constants block for the gates).
+    Returns [(start_frame, end_frame)]."""
+    cs = moving_average(cyc, 3)
+    out = []
+    n = len(frames)
+    i = 0
+    while i < n - 1:
+        d = np.sign(cs[i + 1] - cs[i])
+        if d == 0 or frames[i + 1] - frames[i] > CROSS_MAX_FRAME_GAP:
+            i += 1
+            continue
+        j = i
+        while (j + 1 < n and np.sign(cs[j + 1] - cs[j]) == d
+               and frames[j + 1] - frames[j] <= CROSS_MAX_FRAME_GAP):
+            j += 1
+        lo, hi = cs[i], cs[j]
+        span = abs(hi - lo)
+        dur = (frames[j] - frames[i]) / fps
+        steps = np.abs(np.diff(cs[i:j + 1])) / np.maximum(np.diff(frames[i:j + 1]), 1)
+        if (j - i + 1 >= CROSS_MIN_SAMPLES
+                and CROSS_SPAN_MIN_M <= span <= CROSS_SPAN_MAX_M
+                and min(lo, hi) < NET_Y - 1 and max(lo, hi) > NET_Y + 1
+                and dur > 0
+                and CROSS_SPEED_MIN <= span / dur <= CROSS_SPEED_MAX
+                and steps.max() <= CROSS_MAX_STEP_M):
+            out.append((int(frames[i]), int(frames[j])))
+        i = j
+    return out
+
+
+def truncate_coda(shots, xruns, fps):
+    """Drop shots after the point already ended (dead-gap and anchor rules,
+    see the coda constants block). Returns (kept_shots, n_dropped, why)."""
+    n = len(shots)
+    new_n, why = n, ""
+    for k in range(n - 1):
+        if k == 0 and shots[0].get("synth"):
+            continue
+        f0, f1 = shots[k]["frame"], shots[k + 1]["frame"]
+        if (f1 - f0) / fps > DEAD_GAP_S and not any(f0 < a < f1 for a, _ in xruns):
+            new_n, why = k + 1, f"dead-gap({(f1 - f0) / fps:.1f}s)"
+            break
+    if xruns:
+        ax, axe = xruns[-1]
+        keep = sum(1 for s in shots[:new_n]
+                   if s["frame"] <= ax + LAUNCH_SLACK_S * fps)
+        rest = [s for s in shots[:new_n]
+                if s["frame"] > ax + LAUNCH_SLACK_S * fps]
+        if rest and rest[0]["frame"] <= axe + RECV_S * fps:
+            keep += 1
+        if keep < new_n:
+            new_n = keep
+            why = (why + " " if why else "") + f"anchor(f{ax}-{axe})"
+    new_n = max(new_n, 1)
+    return shots[:new_n], n - new_n, why
 
 
 def zone(x):
@@ -309,6 +427,11 @@ def chart_clip(stem, Hm, serves):
     if not shots:
         return None
 
+    # coda truncation: drop shots after the point already ended (the
+    # in-plateau dead-ball coda; rules + receipts in the constants block)
+    xruns = net_crossings(frames, cyc, fps)
+    shots, n_coda, coda_why = truncate_coda(shots, xruns, fps)
+
     # landings first (striker-independent): first bounce before the next shot
     for k, sh in enumerate(shots):
         nxt = shots[k + 1]["frame"] if k + 1 < len(shots) else 10 ** 9
@@ -403,6 +526,27 @@ def chart_clip(stem, Hm, serves):
                 and abs(float(tail_y[-1]) - NET_Y) < NET_ZONE_M
                 and tail_f[-1] - last["frame"] <= 1.2 * fps):
             ending = "n@"
+    if ending == "?":
+        # near-half ending fill (see constants block): first image-y
+        # V-cusp in the near half within flight time of the final shot
+        iy_s2 = moving_average(ys, SMOOTH)
+        viy2 = np.gradient(iy_s2, frames.astype(float))
+        swing_min = SWING_NEAR_30 * 30.0 / fps
+        lf = last["frame"]
+        for i in range(2, len(frames) - 2):
+            if frames[i] <= lf + 2 or frames[i] > lf + NEAR_BOUNCE_WIN_S * fps:
+                continue
+            if frames[i + 1] - frames[i - 1] > 6:
+                continue      # cusp straddling a track hole is not a bounce
+            if (viy2[i - 1] > 0 and viy2[i + 1] < 0
+                    and viy2[i - 1] - viy2[i + 1] >= swing_min
+                    and NET_Y + 1 < cyc[i] < L_C + NEAR_CY_CEIL):
+                by, bx = float(cyc[i]), float(cxc[i])
+                deep = by > L_C + NEAR_DEEP_M
+                wide = not (1.372 - OUT_MARGIN <= bx <= W_C - 1.372 + OUT_MARGIN)
+                ending = ("x@" if deep and wide else "d@" if deep
+                          else "w@" if wide else "*")
+                break
 
     mcp = ""
     for sh in shots:
@@ -413,6 +557,7 @@ def chart_clip(stem, Hm, serves):
             "server_used": server_used, "side": s.get("side", ""),
             "n_hits": len(hits), "n_bounces": len(bounces),
             "conflicts": conflicts, "n_holes": len(holes),
+            "n_coda": n_coda, "coda_why": coda_why,
             "ending": ending, "mcp": mcp, "shots": shots}
 
 
@@ -446,13 +591,15 @@ def main():
                 wr.writerow({"shot": k + 1, **{k2: sh.get(k2) for k2 in fields[1:]}})
         rows.append({k: r[k] for k in
                      ("clip", "server", "server_used", "side", "n_hits",
-                      "n_bounces", "n_holes", "conflicts", "ending", "mcp")})
+                      "n_bounces", "n_holes", "conflicts", "n_coda",
+                      "coda_why", "ending", "mcp")})
         strikers = "".join(sh["striker"][0].upper() for sh in r["shots"])
         flip = (" SERVER-OVERRIDE" if r["server"] not in ("?", r["server_used"])
                 else "")
+        coda = f" coda-{r['n_coda']}[{r['coda_why']}]" if r["n_coda"] else ""
         print(f"{r['clip']}: server={r['server']}->({r['server_used']}) "
               f"strikers={strikers} holes={r['n_holes']} "
-              f"conflicts={r['conflicts']}{flip}  MCP: {r['mcp']}")
+              f"conflicts={r['conflicts']}{flip}{coda}  MCP: {r['mcp']}")
 
     with open(CHART_DIR / "match_chart_v2.csv", "w", newline="") as f:
         wr = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
