@@ -1487,3 +1487,127 @@ to it by construction.
   untouched; ground truth and point-boundary outputs consumed, not
   regenerated.
 - Session cost: $0.00. Project total: ~$4.15 of $9.
+
+## 2026-07-10 — Event detector v5: the skeleton becomes the design, and the chart gets a north star
+
+**Diagnosed first, on all 57 rally-count misses, not a sample.** The
+M2-era detector (image-y cusps classified hit-or-bounce, tuned on
+sparse 25fps SAM tracks, running on dense WASB tracks it was never
+designed for) was wrong on rally length on 34 t3 and 23 t4 clips.
+Categorized from event-stream dumps and strips, with counts:
+
+    category                              t3   t4   recoverable?
+    FOOTAGE (editor cut into the rally)   14    3   no — film's gone
+    OVER (dead-ball coda / dup cusps)      4    9   yes — structure
+    UNDER (far-end hits the swing gate
+           can't see; crossings exist)    ~7   ~4   yes — structure
+    UNDER (crossing-recall holes)         ~9   ~7   partially
+
+Two findings inside those numbers. Clay HAS codas — the coda pass was
+shipped t4-only, and t3 points 05/10/21/29 chart +2..+4 phantom shots
+each (05's strip: four "hits" while Ruud walks to the towel). And the
+far-end miss is systematic: a far hit at 250+ px is a ~1 px/frame
+image-y wiggle the near-tuned gate can't feel, but its FLIGHT crosses
+the net at full projected speed — t3_point_33's five missed far hits
+all launch clean crossings.
+
+**The keystone measurement, taken before any design was written: raw
+crossing count + 1 already beats the whole detector.** Rally ±1 from
+just counting the track's strict net crossings: t3 36/59 vs the
+chart's 25/59, t4 36/49 vs 26/49. The t4 coda entry's insight — a
+live rally sends the ball across the net every shot — wasn't a
+truncation rule; it was the design, inverted. So v5
+(experiments/events_v5.py, shared by all four t*w twins behind an
+EVENTS flag, default v5): crossings partition the rally, each
+partition contains EXACTLY ONE hit, and the cusp detector is demoted
+from counting shots to locating each hit inside its slot (strongest
+envelope-valid cusp near the crossing start, ANY speed class — the
+"bounce"-classified far hits are exactly the recoveries — else a
+synth at the crossing start). The serve anchors the chain's front;
+a trailing no-cross shot within RECV_S of the last crossing's end is
+the net-error/failed-return slot; dead gaps cut the chain ONLY when
+the track observed the gap AND the ball never passed the net inside
+it (a hole says "didn't see", not "nothing crossed" — t3_point_29's
+41-49 m deep-lob excursions fail the frozen 40 m span cap while being
+perfectly alive, and its mid-rally gaps must bridge while t4's
+tracked codas must cut). Partitions longer than any single flight
+(> 2.0 s, incl. the pre-chain front) admit hidden hits from weak net
+passes and strong leftover cusps. And the spine adjudicates the serve
+detector: t4_point_15's stance call at f406 of a 441-frame clip sits
+AFTER the entire crossing story — refuted, twin falls back to its
+no-serve path (the old chart had amputated the clip to 1 shot).
+
+**Train/test, declared before scoring: every new constant tuned on t3
++ dev-reel spot checks only; t1/t2/t4 scored untouched.** Tuned:
+LAUNCH_BACK/FWD 0.5/0.2 s, EXTRA_PART_S 2.0 (swept 1.2/1.5/2.0 on t3:
+34/35/36 rally ±1), EXTRA_SEP_S 0.8, SERVE_SNAP_S 1.0, GAP_COV 0.5,
+suspect-serve gate. Inherited frozen: all CROSS_* gates, DEAD_GAP_S,
+RECV_S, and the entire cusp/collapse/envelope machinery. m3 spot
+checks: sane ordered streams, no explosions. One honest chart-level
+consequence, fixed and named: v4 charts had been handing the serve
+the RETURN's far-half landing (the serve's own near-half bounce is
+invisible to the collapse detector BY CONSTRUCTION, and the missing
+return let the serve steal the next bounce). v5 places the return at
+its true launch, the theft stopped, and t3 serve zones collapsed to
+4/12 — recovered honestly with a near-half serve-landing fill: a ball
+flying INTO the camera never reverses image-y at the bounce, it
+DECELERATES, so the bounce is the first big descending-velocity kink
+(t3_point_25: viy 34 -> 9 px/f at f68, cy 18.5, dead on the service
+line). t3 8/17 with real serve bounces. t4's truncate_coda stands
+down under v5 — the chain already excluded the coda structurally.
+
+**Scorecards, all four matches, before -> after (regressions bolded
+in prose, not hidden):**
+
+    t3 clay (59, TUNED)   before   after      t4 grass (49, HELD OUT)  before   after
+    server end            48/59    48/59      server end               38/49    37/49
+    rally len ±1          25/59    36/59      rally len ±1             26/49    28/49
+    serve zone             9/18     8/17      serve zone               16/27    15/32
+    letters (all)        70/105  132/173      letters (all)           67/123   97/159
+    letters (aligned)     19/24    65/85      letters (aligned)        16/32    15/28
+    ending type           10/31    19/42      ending type              12/33     9/33
+
+    t1 night (22, HELD OUT)  before  after    t2 ctrl (5, HELD OUT)  before  after
+    server end                9/22   10/22    server end                2/5     2/5
+    rally len ±1             16/22   13/22    rally len ±1              4/5     5/5
+    serve zone                 3/3   11/12    serve zone                1/1     1/3
+    letters (aligned)          2/2    9/11    letters (aligned)       11/14   12/12
+    ending type               6/11    9/16    ending type               2/3     2/3
+
+The tuned tree: rally 42% -> 61%, and letters (aligned) — the honest
+letter metric — more than tripled its base at a higher rate (79% ->
+76% on 24 -> 85). Held-out t4 rally 53% -> 57% with letters (all) 54%
+-> 61%. The regressions, on the record: t1 rally 16/22 -> 13/22 — the
+skeleton needs crossings and the night reel's low-recall tracks
+amputate what the old cusp counter padded; t4 endings 12/33 -> 9/33
+and server end -1 — endings inherit final-shot identity, which v5
+reshuffled; t2/t4 serve-zone rates fell as commits rose (the old
+zone numbers were partly the return-landing artifact wearing a serve
+costume — some of those "rights" were never real). t4_point_23 still
+charts 19/5: the replayed let is played ball on both sides of the
+net, and the spine is blind to it by the same construction as score
+identity.
+
+**And the north star, drafted and wired: token-level acceptance.**
+experiments/mcp_accept.py tokenizes machine and MCP strings as
+[serve+zone][letter+direction]*[ending] and accepts a point iff the
+lists are within ONE token edit — strict equality, '?' matches
+nothing, refusing to commit costs the same as being wrong. Every t*w
+eval now prints it. Acceptance before v5: 0/135. After: 3/135 (2.2%)
+— t1 2/22, t2 0/5, t3 1/59, t4 0/49; mean token distance 7.54 ->
+7.18. Two percent is the honest read: rally length was the keystone,
+but the metric demands the zones and letters stacked on top of it,
+per point, near-perfectly. That's the mountain, measured.
+
+Receipts: v5_t3_point_33.png (five recovered far-end hits, 9/15 ->
+15/15 exact), v5_t3_point_05.png (clay coda cut, 9/5 -> 5/5),
+v5_t4_point_05.png (held-out grass coda excluded by the chain itself,
+14/8 -> 8/8) in charts_wasb/.
+- New shared modules: events_v5.py (crossing-skeleton detector, full
+  constants provenance in-file), mcp_accept.py (tokenizer + token
+  Levenshtein). All four t*w chart twins wire v5 as default (EVENTS
+  flag reruns v4), drop the pre-serve event filter under v5, and grow
+  the near-half serve-landing kink fill; t4w's truncate_coda is
+  v4-path-only now. All four t*w evals report acceptance. Frozen
+  non-w trees, ground truth, and point-boundary outputs untouched.
+- Session cost: $0.00. Project total: ~$4.15 of $9.

@@ -52,6 +52,14 @@ from pathlib import Path
 import cv2
 import numpy as np
 
+import events_v5
+
+# EVENT DETECTOR: "v5" = the crossing-skeleton detector (events_v5.py,
+# 2026-07-10) — net crossings partition the rally and each partition
+# contains exactly one hit; the M2-era cusp classifier only locates
+# the hit inside its slot. "v4" reruns the old detector unchanged.
+EVENTS = "v5"
+
 OUT_BASE = Path(__file__).resolve().parent.parent / "outputs" / "t4"
 CHART_DIR = OUT_BASE / "charts_wasb"
 ROOT = Path(__file__).resolve().parent.parent
@@ -394,7 +402,14 @@ def chart_clip(stem, Hm, serves):
     server = s.get("server", "?")
     serve_frame = int(s["serve_frame"]) if server != "?" else None
 
-    events = detect_events(frames, ys, cyc, fps, serve_frame)
+    if EVENTS == "v5":
+        events, serve_frame, v5info = events_v5.detect_events(
+            frames, ys, cyc, fps, serve_frame,
+            server if server in ("near", "far") else None)
+        if serve_frame is None:
+            server = "?"        # spine-refuted serve call (see events_v5)
+    else:
+        events = detect_events(frames, ys, cyc, fps, serve_frame)
 
     players = {}
     with open(OUT_BASE / "players" / f"players_{stem}.csv") as f:
@@ -404,7 +419,8 @@ def chart_clip(stem, Hm, serves):
     ball_exact = dict(zip(frames.tolist(), zip(xs.tolist(), ys.tolist())))
 
     if serve_frame is not None:
-        events = [e for e in events if e["frame"] >= serve_frame - 3]
+        if EVENTS != "v5":      # v5's skeleton already handled pre-serve
+            events = [e for e in events if e["frame"] >= serve_frame - 3]
     else:
         first_strike = next((e for e in events if e["kind"] == "hit"), None)
         if first_strike:
@@ -428,14 +444,43 @@ def chart_clip(stem, Hm, serves):
         return None
 
     # coda truncation: drop shots after the point already ended (the
-    # in-plateau dead-ball coda; rules + receipts in the constants block)
-    xruns = net_crossings(frames, cyc, fps)
-    shots, n_coda, coda_why = truncate_coda(shots, xruns, fps)
+    # in-plateau dead-ball coda; rules + receipts in the constants block).
+    # Under v5 the crossing chain already excluded the coda structurally,
+    # so the post-hoc pass stands down and reports the detector's cuts.
+    if EVENTS == "v5":
+        n_coda, coda_why = v5info["n_dropped"], v5info["why"]
+    else:
+        xruns = net_crossings(frames, cyc, fps)
+        shots, n_coda, coda_why = truncate_coda(shots, xruns, fps)
 
     # landings first (striker-independent): first bounce before the next shot
     for k, sh in enumerate(shots):
         nxt = shots[k + 1]["frame"] if k + 1 < len(shots) else 10 ** 9
         landing = next((b for b in bounces if sh["frame"] < b["frame"] < nxt), None)
+        if landing is None and sh["is_serve"] and EVENTS == "v5":
+            # near-half serve-landing fill: a far server's serve bounces
+            # in the NEAR half, where the collapse detector is blind by
+            # construction. v4 charts hid this by handing the serve the
+            # RETURN's far-half landing (v5 places the return at its true
+            # launch, so the theft stopped and the zones went '?'). A
+            # ball flying INTO the camera never reverses image-y at the
+            # bounce — it decelerates: the bounce is the first big
+            # descending-velocity KINK in the near half, and the
+            # projection is honest exactly there (ending-fill physics).
+            iy_sv = moving_average(ys, SMOOTH)
+            viy_sv = np.gradient(iy_sv, frames.astype(float))
+            swing_sv = SWING_NEAR_30 * 30.0 / fps
+            for i in range(2, len(frames) - 2):
+                if not sh["frame"] + 2 < frames[i] < nxt:
+                    continue
+                if frames[i + 1] - frames[i - 1] > 6:
+                    continue      # kink straddling a track hole
+                if (viy_sv[i - 1] > 0
+                        and viy_sv[i - 1] - viy_sv[i + 1] >= swing_sv
+                        and NET_Y + 1 < cyc[i] < L_C):
+                    landing = {"frame": int(frames[i]),
+                               "court_y": float(cyc[i])}
+                    break
         lx = None
         if landing is not None:
             li = np.searchsorted(frames, landing["frame"])

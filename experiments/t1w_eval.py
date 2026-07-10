@@ -22,6 +22,8 @@ Usage:
 import csv
 from pathlib import Path
 
+from mcp_accept import mcp_point_tokens, chart_point_tokens, token_levenshtein
+
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data" / "mcp"
 CHART = ROOT / "outputs" / "t1" / "charts_wasb"
@@ -79,7 +81,7 @@ def main():
     tally = {"server": [0, 0], "rally_pm1": [0, 0], "serve_zone": [0, 0],
              "letters_match": 0, "letters_mirror": 0, "letters_total": 0,
              "letters_al_match": 0, "letters_al_total": 0,
-             "ending": [0, 0], "ending_committed": 0}
+             "ending": [0, 0], "ending_committed": 0, "accept": [0, 0]}
     print(f"{'clip':14} {'srv':>3}{'✓':2} {'len ours/mcp':>13} {'zone o/m':>9}  letters(ours vs mcp-side)")
     for clip, mc in match.items():
         m, a = mapd[clip], align[clip]
@@ -138,6 +140,13 @@ def main():
                 tally["letters_mirror"] += 1
                 lets.append(f"{sh['letter']}≠{mcp_side}")
 
+        # acceptance — the north star: ≤1 token edit vs MCP (mcp_accept.py)
+        d_tok = token_levenshtein(
+            mcp_point_tokens(played),
+            chart_point_tokens(shots, mc.get("ending", "?")))
+        tally["accept"][0] += d_tok <= 1
+        tally["accept"][1] += 1
+
         ours_end = our_ending_type(mc.get("ending", "?"))
         true_end_t = mcp_ending_type(played)
         end_pair = ""
@@ -164,6 +173,8 @@ def main():
           f"   <- length-matched clips only")
     print(f"ending type      : {s['ending'][0]}/{s['ending'][1]}"
           f"   ({s['ending_committed']} committed)")
+    print(f"acceptance ≤1edit: {s['accept'][0]}/{s['accept'][1]}"
+          f"   <- token-level point acceptance, the north star")
 
 
 if __name__ == "__main__":
