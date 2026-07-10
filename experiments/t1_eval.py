@@ -39,6 +39,21 @@ def parse_mcp(first, second):
     return serve, strokes, s
 
 
+def mcp_ending_type(played):
+    """Ending TYPE only: * winner, or n/w/d/x error kind. Forced vs
+    unforced (# vs @) is the charter's judgment and is not compared."""
+    if played.endswith("*"):
+        return "*"
+    t = played.rstrip("@#!")
+    return t[-1] if t and t[-1] in "nwdx" else "?"
+
+
+def our_ending_type(ending):
+    if ending == "*":
+        return "*"
+    return ending[0] if ending and ending[0] in "nwdx" else "?"
+
+
 def nadal_end(a):
     g = int(a["gm1"]) + int(a["gm2"])
     prior = 0
@@ -62,7 +77,9 @@ def main():
     match = {r["clip"]: r for r in csv.DictReader(open(CHART / "match_chart_v2.csv"))}
 
     tally = {"server": [0, 0], "rally_pm1": [0, 0], "serve_zone": [0, 0],
-             "letters_match": 0, "letters_mirror": 0, "letters_total": 0}
+             "letters_match": 0, "letters_mirror": 0, "letters_total": 0,
+             "letters_al_match": 0, "letters_al_total": 0,
+             "ending": [0, 0], "ending_committed": 0}
     print(f"{'clip':14} {'srv':>3}{'✓':2} {'len ours/mcp':>13} {'zone o/m':>9}  letters(ours vs mcp-side)")
     for clip, mc in match.items():
         m, a = mapd[clip], align[clip]
@@ -93,6 +110,11 @@ def main():
             tally["serve_zone"][1] += 1
             zone_pair = f"{srow['zone']}/{serve_d}{'✓' if ok_z else '✗'}"
 
+        # letters compared per shot index — but the index is only
+        # trustworthy when rally lengths AGREE (t1 points 01/04 taught
+        # that: both "contact-side misses" were index misalignment from
+        # a missed/phantom shot). aligned = length-matched clips only.
+        aligned = ours_len == mcp_len
         lets = []
         for k, sh in enumerate(shots):
             if sh["is_serve"] == "True" or sh["letter"] in ("?", ""):
@@ -105,25 +127,43 @@ def main():
             if mcp_side == "?":
                 continue
             tally["letters_total"] += 1
-            if sh["letter"] == mcp_side:
+            hit = sh["letter"] == mcp_side
+            if aligned:
+                tally["letters_al_total"] += 1
+                tally["letters_al_match"] += hit
+            if hit:
                 tally["letters_match"] += 1
                 lets.append(f"{sh['letter']}={mcp_side}")
             else:
                 tally["letters_mirror"] += 1
                 lets.append(f"{sh['letter']}≠{mcp_side}")
 
-        print(f"{clip:14} {mc['server_used'][:3]:>3}{'✓' if ok_srv else '✗':2} "
-              f"{ours_len:>5}/{mcp_len:<7} {zone_pair:>9}  {' '.join(lets)}"
-              f"   [{played[:26]}]")
+        ours_end = our_ending_type(mc.get("ending", "?"))
+        true_end_t = mcp_ending_type(played)
+        end_pair = ""
+        if ours_end != "?":
+            tally["ending_committed"] += 1
+            if true_end_t != "?":
+                ok_e = ours_end == true_end_t
+                tally["ending"][0] += ok_e
+                tally["ending"][1] += 1
+                end_pair = f"end {ours_end}/{true_end_t}{'✓' if ok_e else '✗'}"
 
-    print("\n=== scorecard (frozen pipeline, lefty night match) ===")
+        print(f"{clip:14} {mc['server_used'][:3]:>3}{'✓' if ok_srv else '✗':2} "
+              f"{ours_len:>5}/{mcp_len:<7} {zone_pair:>9} {end_pair:>9}  "
+              f"{' '.join(lets)}   [{played[:26]}]")
+
+    print("\n=== scorecard (lefty night match) ===")
     s = tally
-    print(f"server end     : {s['server'][0]}/{s['server'][1]}")
-    print(f"rally len ±1   : {s['rally_pm1'][0]}/{s['rally_pm1'][1]}")
-    print(f"serve zone     : {s['serve_zone'][0]}/{s['serve_zone'][1]}")
-    print(f"letters exact  : {s['letters_match']}/{s['letters_total']}")
-    print(f"letters MIRROR : {s['letters_mirror']}/{s['letters_total']}"
-          f"   <- right-hand assumption vs two lefties")
+    print(f"server end       : {s['server'][0]}/{s['server'][1]}")
+    print(f"rally len ±1     : {s['rally_pm1'][0]}/{s['rally_pm1'][1]}")
+    print(f"serve zone       : {s['serve_zone'][0]}/{s['serve_zone'][1]}")
+    print(f"letters (all)    : {s['letters_match']}/{s['letters_total']}"
+          f"   (index unreliable when lengths differ)")
+    print(f"letters (aligned): {s['letters_al_match']}/{s['letters_al_total']}"
+          f"   <- length-matched clips only")
+    print(f"ending type      : {s['ending'][0]}/{s['ending'][1]}"
+          f"   ({s['ending_committed']} committed)")
 
 
 if __name__ == "__main__":

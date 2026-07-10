@@ -848,3 +848,35 @@ the orchestrator signs off.
   both at STAGING stages, both forced by transfer failures the dev
   reel could not have shown. The chart loop itself stays frozen.
 - Session cost: $0.00. Pending t2 ball spend if approved: ~$0.49.
+
+## 2026-07-09 — Endings v1, and the letter metric confesses
+
+**Every string used to end in '?'. Now it ends in evidence.** Ending
+v1, observable signals only: the last shot's far-half landing codes
+out-deep/-wide (`d@`/`w@`/`x@`), in-court-and-nothing-came-back codes a
+winner (`*`), and a ball track that dies within 1.5 m of the net inside
+1.2 s of the last hit codes a net error (`n@`). Winner-vs-forced-vs-
+unforced is charter judgment the pipeline does not attempt — `@` means
+"error, attribution not judged" and eval compares TYPE only. First
+numbers on t1: **6/11 committed, 3/6 correct** — and all three misses
+trace to rally-length errors upstream (a phantom last shot with an
+in-court landing reads as a winner; a thin track calls a serve out-deep
+on a point that continued).
+
+**The letter metric had been grading on a curve.** Frame-checking the
+two "contact-side misses" (t1 points 01, 04) showed both are INDEX
+misalignment — our chart is a shot short or long, so letter k compares
+against the wrong MCP stroke. Both charts also looked plausibly right
+on the frames. The eval now reports letters two ways: all-index
+(9/11, unreliable) and **length-matched clips only (1/1)** — a smaller
+and more honest number. Verify strips for t1 exist now
+(t1_verify_chart.py).
+
+**Both findings point the same direction: rally length is the
+bottleneck.** Thin tracks under-count (points 03, 08, 15), phantom
+cusps over-count (04, 07, 14), and every downstream metric — letters,
+endings, strings — inherits the error. That is the next real fix, and
+it is a detector problem, not a charting problem.
+- Dev strings refreshed with endings for consistency (point_59 closes
+  `w@`, matching its known out-wide final landing).
+- Session cost: $0.00.

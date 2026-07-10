@@ -67,6 +67,8 @@ REFINE = 14                   # frames each side of the cusp to hunt contact
 # ~0.6 of body height, plus slack for 1 frame of ball flight
 LETTER_GATE = lambda h_px: 0.6 * h_px + 30
 HOLE_FRAMES = 8               # ball-track gap that can hide a missed hit
+OUT_MARGIN = 0.25             # meters of slack before calling a ball out
+NET_ZONE_M = 1.5              # track dying this close to the net = net error
 # Per-match handedness. The letter logic reads which side of the
 # striker's body the ball is on in image x and calls right-side 'f' —
 # true only for right-handers; a lefty's call flips. Both dev-reel
@@ -339,16 +341,39 @@ def chart_clip(stem, Hm, serves):
         else:
             sh["letter"] = "?"
 
+    # ending v1 — observable evidence only. The last shot's own landing
+    # (far-half only, by construction) codes out-deep/-wide; a ball track
+    # that dies at the net right after the last hit codes a net error.
+    # Winner vs forced vs unforced is HUMAN judgment the pipeline does not
+    # attempt: '@' means "error, attribution not judged" and eval compares
+    # the ending TYPE only.
+    ending = "?"
+    last = shots[-1]
+    if last.get("landing_y") is not None:
+        ly, lx = last["landing_y"], last.get("landing_x")
+        deep = ly < -OUT_MARGIN
+        wide = lx is not None and not (
+            1.372 - OUT_MARGIN <= lx <= W_C - 1.372 + OUT_MARGIN)
+        ending = ("x@" if deep and wide else "d@" if deep
+                  else "w@" if wide else "*")   # in, and nothing came back
+    else:
+        li = int(np.searchsorted(frames, last["frame"]))
+        tail_y, tail_f = cyc[li:], frames[li:]
+        if (len(tail_y) >= 3
+                and abs(float(tail_y[-1]) - NET_Y) < NET_ZONE_M
+                and tail_f[-1] - last["frame"] <= 1.2 * fps):
+            ending = "n@"
+
     mcp = ""
     for sh in shots:
         mcp += f"s{sh['zone']}" if sh["is_serve"] else f"{sh['letter']}{sh['zone']}"
-    mcp += "?"  # ending: not yet coded
+    mcp += ending
 
     return {"clip": stem, "fps": fps, "server": server,
             "server_used": server_used, "side": s.get("side", ""),
             "n_hits": len(hits), "n_bounces": len(bounces),
             "conflicts": conflicts, "n_holes": len(holes),
-            "mcp": mcp, "shots": shots}
+            "ending": ending, "mcp": mcp, "shots": shots}
 
 
 def main():
@@ -376,7 +401,7 @@ def main():
                 wr.writerow({"shot": k + 1, **{k2: sh.get(k2) for k2 in fields[1:]}})
         rows.append({k: r[k] for k in
                      ("clip", "server", "server_used", "side", "n_hits",
-                      "n_bounces", "n_holes", "conflicts", "mcp")})
+                      "n_bounces", "n_holes", "conflicts", "ending", "mcp")})
         strikers = "".join(sh["striker"][0].upper() for sh in r["shots"])
         flip = (" SERVER-OVERRIDE" if r["server"] not in ("?", r["server_used"])
                 else "")
