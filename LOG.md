@@ -1611,3 +1611,69 @@ v5_t4_point_05.png (held-out grass coda excluded by the chain itself,
   v4-path-only now. All four t*w evals report acceptance. Frozen
   non-w trees, ground truth, and point-boundary outputs untouched.
 - Session cost: $0.00. Project total: ~$4.15 of $9.
+
+## 2026-07-10 — Acceptance decomposition: the 7.18 edits get names and addresses
+
+**Before choosing what to build next, the mean token distance was
+opened up, not guessed at.** experiments/mcp_decompose.py backtraces
+the acceptance metric's own Levenshtein to an alignment and bins every
+edit on all 135 scored points — pure computation on the existing v5
+chart CSVs and MCP strings; no detector, chart, or eval logic touched,
+and the baseline replicates exactly (3/135, mean 7.18). Mean edits per
+point, overall: deletions (shots never charted) 1.95, letter+direction
+both wrong 1.61, direction-only 1.20, ending 0.70, insertions
+(phantom shots) 0.54, cross-type 0.44, letter-only 0.43, serve zone
+0.30. The top sinks, named: DIRECTION DIGITS (in 2.81 edits/pt — 39%
+of the whole budget), STRUCTURE (ins+del 2.49/pt, but split honestly:
+t3's 2.68 deletions are mostly the editor's film, t4's 1.24 insertions
+are our phantoms), ENDINGS (0.70/pt on a single token per point).
+Direction is the weakest component by every cut: attempted on only 70%
+of rally shots (the landing detector is far-half-only BY CONSTRUCTION)
+and 48% right when attempted — barely above the 33% floor — while MCP
+commits a direction on 848/850 strokes. And it's not a refusal
+problem alone: 221 committed-wrong vs 159 refused.
+
+**The edit-effort curve says the skeleton is no longer the wall.**
+Acceptance at ≤1/2/3/5 edits: 2.2% / 6.7% / 14.8% / 41.5%. The same
+thresholds on shot-count + letters only: 23.7% / 42.2% / 58.5% /
+75.6%. Structure alone would accept 10x more points than the full
+metric — the annotations stacked on v5's spine (zones, directions,
+endings) are now the binding constraint.
+
+**The headroom table — fix ONE component to MCP truth at aligned
+positions, re-score, the deliverable:**
+
+    counterfactual                       accept ≤1      mean dist
+    baseline (v5 as charted)             3/135 ( 2.2%)  7.18
+    directions perfect (all shots)       9/135 ( 6.7%)  5.88
+    endings perfect                      7/135 ( 5.2%)  6.47
+    serve zone perfect                   5/135 ( 3.7%)  6.87
+    letters perfect                      5/135 ( 3.7%)  6.63
+    directions perfect (attempted only)  4/135 ( 3.0%)  6.33
+    letters + directions                21/135 (15.6%)  3.93
+    letters + dirs + endings            53/135 (39.3%)  3.23
+    all components (structure residual) 59/135 (43.7%)  2.93
+
+No single fix rescues acceptance — the mean point is wrong on several
+axes at once, so singles top out at 6.7%. But the compounding is steep
+and ordered, and structure caps the whole game at 43.7%.
+
+**Recommendation: build a real shot-direction model next.** Directions
+are the largest single sink, the largest single headroom, and a
+prerequisite for every compound ceiling above 7%. The tell is in the
+counterfactuals: perfecting only the ATTEMPTED directions is worth
+almost nothing (3.0%) — sparsity and accuracy are the same disease,
+the far-half-only landing detector wearing a direction costume. A
+direction model that works on BOTH halves (receiver contact geometry
+as the where-did-it-go signal, with landing as corroboration when it
+exists) attacks the 2.81 edits/pt head-on; endings ride second (one
+token, 0.70/pt, 30% right); t4's phantom insertions are the fixable
+half of structure. t3's deleted shots stay footage-capped — that
+ceiling is the film's, not ours.
+
+- New: experiments/mcp_decompose.py (edit attribution, effort curves,
+  direction spot check, counterfactual headroom — reuses mcp_accept.py
+  tokenizers verbatim). docs/benchmark.md grows an "Acceptance
+  decomposition" section with the same tables. Frozen trees, ground
+  truth, charts, and all t*w eval/detector logic untouched.
+- Session cost: $0.00. Project total: ~$4.15 of $9.

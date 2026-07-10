@@ -68,4 +68,86 @@ Krejcikova–Paolini, Wimbledon F 2024 (grass, WTA).
   clips; superseded approach-wise by serve v3 but tree stays frozen.
 - Deuce/ad stance refusal on clay (34/56 clips refuse a side).
 
+## Acceptance decomposition (2026-07-10)
+
+Where do the 7.18 mean token edits per point actually live? The token
+Levenshtein was backtraced to an alignment and every edit binned
+(experiments/mcp_decompose.py — pure analysis, nothing in the pipeline
+changed). Mean edits per point, all 135 scored points:
+
+| edit category | t1 night | t2 ctrl | t3 clay | t4 grass | overall |
+|---|:---:|:---:|:---:|:---:|:---:|
+| deletion (shot we never charted) | 1.59 | 0.40 | 2.68 | 1.39 | **1.95** |
+| sub: letter AND direction wrong  | 2.14 | 1.00 | 1.71 | 1.33 | **1.61** |
+| sub: direction digit only        | 0.86 | 2.60 | 1.15 | 1.27 | **1.20** |
+| sub: ending token                | 0.59 | 0.60 | 0.66 | 0.82 | 0.70 |
+| insertion (phantom extra shot)   | 0.14 | 0.00 | 0.15 | 1.24 | 0.54 |
+| sub: cross-type (structural)     | 0.41 | 0.20 | 0.39 | 0.53 | 0.44 |
+| sub: letter only                 | 0.27 | 0.40 | 0.39 | 0.55 | 0.43 |
+| sub: serve zone                  | 0.09 | 0.60 | 0.47 | 0.16 | 0.30 |
+| **total (mean token distance)**  | 6.09 | 5.80 | 7.61 | 7.29 | **7.18** |
+
+The top sinks: **direction digits** (2.81 edits/pt across the two bins
+they appear in — 39% of the whole budget), **structure** (deletions +
+insertions, 2.49/pt — t3's deletions are largely the editor cutting
+into rallies, t4's insertions are phantom shots), and **endings**
+(0.70/pt, but it's one token per point — the ending is simply wrong
+more often than right). Refusal vs error, within wrong components:
+directions 221 committed-wrong / 159 refused-'?', letters 113w/163r,
+endings 59w/36r, serve zones 7w/34r.
+
+Strict per-component accuracy on the 43 length-matched points ('?'
+counts as wrong, unlike the committed-only rows in the table above):
+serve zone 11/43 (26%), rally letter 114/209 (55%), rally direction
+58/209 (28%), letter+direction both right 39/209 (19%), ending 13/43
+(30%). Directions are the weakest component: attempted on 70% of rally
+shots (459/660 — the far-half-only landing detector refuses the rest)
+and only 48% right when attempted (206/426, vs 33% chance and vs MCP
+committing a direction on 848/850 strokes). Both the recall and the
+accuracy are broken.
+
+**Edit-effort curve** — acceptance at ≤k token edits (how far the
+draft is from useful, before the strict ≤1 bar):
+
+| ≤k edits | full tokens | structural only (count + letters) |
+|:---:|:---:|:---:|
+| 1 | 3/135 (2.2%) | 32/135 (23.7%) |
+| 2 | 9/135 (6.7%) | 57/135 (42.2%) |
+| 3 | 20/135 (14.8%) | 79/135 (58.5%) |
+| 5 | 56/135 (41.5%) | 102/135 (75.6%) |
+
+Structure alone would accept 10x more points than the full metric —
+the annotations stacked on the skeleton (zones, directions, endings)
+are now the bottleneck, not the skeleton v5 just rebuilt.
+
+**Acceptance headroom** — fix ONE component to MCP truth at aligned
+positions, leave everything else as charted, re-score (the deliverable
+table; ordering = priority):
+
+| counterfactual | acceptance ≤1 | mean dist |
+|---|:---:|:---:|
+| baseline (v5 as charted) | 3/135 (2.2%) | 7.18 |
+| directions perfect (all shots) | 9/135 (6.7%) | 5.88 |
+| endings perfect | 7/135 (5.2%) | 6.47 |
+| serve zone perfect | 5/135 (3.7%) | 6.87 |
+| letters perfect | 5/135 (3.7%) | 6.63 |
+| directions perfect (attempted only) | 4/135 (3.0%) | 6.33 |
+| letters + directions perfect | 21/135 (15.6%) | 3.93 |
+| letters + dirs + endings perfect | 53/135 (39.3%) | 3.23 |
+| all components perfect (structure-only residual) | 59/135 (43.7%) | 2.93 |
+
+Two honest reads. First: no single fix rescues acceptance — the mean
+point is wrong on several axes at once, so singles top out at 6.7%.
+Second: the compounding is steep and ordered. Directions are the
+largest single lever; directions + letters reach 15.6%; adding endings
+reaches 39.3%. Structure caps everything at 43.7% — but t3's missing
+shots are footage (unrecoverable) while t4's phantom insertions are
+pipeline (recoverable). The next build is a real shot-direction model:
+the current digit comes from far-half-only landing detection, which is
+why 30% of shots get no attempt and the attempts are near chance.
+Fixing "attempted only" is worth almost nothing (3.0%) — the sparsity
+and the accuracy have to be fixed together, which means inferring
+direction on BOTH halves (e.g. from receiver contact geometry, not
+just ball landing).
+
 Full history: LOG.md. Landscape context: docs/landscape-2026-07.md.
