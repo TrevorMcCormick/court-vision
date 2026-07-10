@@ -1,0 +1,12 @@
+clip,set1,set2,gm1,gm2,pts,server_bug,note
+t2_point_01,0,0,1,0,30-0,2,bug Haase-top; transcribed Federer-first
+t2_point_02,0,0,1,0,AD-40,2,
+t2_point_03,0,0,2,0,15-40,1,
+t2_point_04,0,0,2,1,0-0,2,
+t2_point_05,0,0,2,1,AD-40,2,
+t2_point_06,0,0,5,3,0-15,1,
+t2_point_07,1,0,1,1,15-30,2,
+t2_point_08,1,0,4,4,0-40,2,
+t2_point_09,1,0,4,5,15-0,1,
+t2_point_10,1,0,5,5,30-40,2,
+t2_point_11,1,0,6,6,6-5,2,tiebreak; match point

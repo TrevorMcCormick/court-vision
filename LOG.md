@@ -777,3 +777,74 @@ code written; this paragraph is the fix.
   (future disambiguation fuel) — data plumbing, 23/25 matches
   unchanged, zero effect on the eval.
 - Session cost: $0.00. Project total: ~$3.65 of $9.
+
+## 2026-07-09 — T2 staging: the near-transfer control mostly keeps its promise
+
+**Footage was the first dead end.** The longest Federer–Haase upload
+(9:44) turned out to be a Bandicam screen-capture with the broadcast
+shrunk into a corner sub-window — court view technically present,
+score bug clipped at the frame edge, useless. The 6:29 "highlights"
+is five minutes of press conference. Test 2 runs on the 5:07 Sky
+Sports world-feed cut (720p25 → 30 fps working copy): full-frame
+broadcast angle, same court, same black-and-yellow bug, day session
+as ordered. Half t1's footage; the control costs clips.
+
+**The automated homography fit works in daylight — first try.** The
+same M1 recipe that died three ways under floodlights (t1) fit this
+plate clean: extreme clusters found both baselines and both doubles
+sidelines, and every t1 cross-check agreed — far-corner midpoint 642.4
+vs measured center line 641.6, px/m linear in y (predicted 65.1 at
+mid-frame, measured 65.2). Held-out lines: center 0.2 px, near service
+1.2 px, singles 3.9/5.7 px, far service ~3.5 px by eyeball (the
+dist-transform said 19.5 px, but that's distance to the WRONG line —
+the far service line is so washed out it never entered the loose white
+mask at all; V~228 peak, S~128). Zero manual corners. So the t1 misery
+was the night, not the method.
+
+**Segmentation did NOT transfer untouched, and the failure was
+self-inflicted.** Court probe round 1: 5 segments, and a run I could
+SEE was court view scored 0.68 blue. The probe grid's center column
+runs along the center service line and the x=1.5 columns sit 13 cm
+off the singles lines — under day glare those lines bloom to V~250,
+S~25, and the single-pixel reads count them as not-court. Sharper
+irony: the homography was fit ON a court-view run, so the projected
+probes land pixel-perfect on the white exactly when it matters. Night
+exposure never blew the lines out; t1 passed by luck, not design. Fix:
+interior probes read a dilated blue mask (on-a-line still counts),
+apron probes keep the raw one. 11 segments, 90 s of play.
+
+**Alignment: 10/11 unique, and the bug swapped teams.** This bug is
+HAASE-top where t1's was Nadal-top — player 1 is the BOTTOM row now,
+so transcription flips rows before the server-first Pts transform.
+All ten matched rows agree with my marker reads (t1 had one eyeball
+miss). The ambiguous one is a 40-AD that happened twice in the same
+game — same trap as t1's point_10. Set structure derived from MCP
+itself: set 1 ran 9 games (6-3), set 2 to 6-6 plus a 12-point
+tiebreak. The reel's last clip IS the last MCP row — match point,
+5-6 in the breaker.
+
+**Players/serves: coverage record, then dissolves ate the toss gate.**
+Bg-sub players: near 100% / far 99% median — best of the three reels
+(day + deep plates = no ghosts). But this editor CROSSFADES between
+cuts, so each clip's first ~5 frames diff as one giant blob (h 0.82 of
+frame vs 0.25 for a real player) and the toss gate's argmax grabbed it:
+serve_frame=0, "toss ratio" 4.2x. A real toss stretches ~1.1-1.3x —
+blobs taller than 2x the series median are transitions, dropped before
+peak-finding. After the fix: 6/11 confident serves, ratios 1.23-1.40.
+Changeover parity (9-game set 1 prior from MCP): "Federer starts near"
+explains 5 of 6 calls, the alternative 1 — serve-end accuracy 5/6
+(83%), and the one miss was already the thinnest margin (0.18 m).
+
+**Ball dry-run: 11/11 bootstrapped, 6 approved.** GOOD: 02/03 (toss
+balls, crisp), 08/09/11 (clear flight streaks), 01 (real blur off the
+racquet — the mover chain earned it). REJECT: 04 (box on a line
+judge's leg), 05/07 (sign-edge glare at the net posts — the Sky feed's
+Fly Emirates/FedEx panels flicker like t1's net signs), 06 (a dissolve
+ghost at f4; the transition curse again). WEAK: 10 (a faint smudge ON
+the singles line — t1's weak-accept died at 12 frames, not paying that
+tax twice). Nothing sent. The 6 GOODs are 1,566 frames ≈ $0.49 when
+the orchestrator signs off.
+- Two thresholds changed this session (probe dilation, toss blob cap),
+  both at STAGING stages, both forced by transfer failures the dev
+  reel could not have shown. The chart loop itself stays frozen.
+- Session cost: $0.00. Pending t2 ball spend if approved: ~$0.49.
