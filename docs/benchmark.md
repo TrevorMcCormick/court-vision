@@ -6,8 +6,9 @@ dev reel's. 168 points aligned to human-charted MCP ground truth
 WASB (local, free, promptless). Marginal cost per match: ~$0.
 
 Current numbers (as of 2026-07-10, event detector v5 — the crossing
-skeleton; all four columns are the t*w WASB chart twins scored by the
-t*w evals):
+skeleton — plus shot-direction v2, the receiver-mirrored both-halves
+direction estimator; all four columns are the t*w WASB chart twins
+scored by the t*w evals):
 
 | metric            | t1 night/lefty | t2 day ctrl | t3 clay RG | t4 grass WTA |
 |-------------------|:---:|:---:|:---:|:---:|
@@ -16,13 +17,14 @@ t*w evals):
 | serve zone        | 11/12 | 1/3 | 8/17 | 15/32 |
 | letters (aligned) | 9/11 | 12/12 | 65/85 (76%) | 15/28 |
 | ending type       | 9/16 | 2/3 | 19/42 | 9/33 |
-| **acceptance ≤1 token edit** | 2/22 | 0/5 | 1/59 | 0/49 |
+| **acceptance ≤1 token edit** | 3/22 | 1/5 | 3/59 | 0/49 |
 
 **Acceptance is the north star from here on:** tokenize machine and MCP
 strings as [serve+zone][letter+direction]*[ending]; a point is accepted
 when the two need at most ONE token edit (Levenshtein over tokens,
-strict equality — a '?' matches nothing). Overall: 3/135 (2.2%), up
-from 0/135 before v5. The metric is brutal by design; it is the
+strict equality — a '?' matches nothing). Overall: 7/135 (5.2%), up
+from 0/135 before v5 and 3/135 before the direction model; mean token
+distance 7.18 -> 6.19. The metric is brutal by design; it is the
 distance to "a human charter would sign this," measured per point.
 Implementation: experiments/mcp_accept.py, reported by every t*w eval.
 
@@ -69,6 +71,9 @@ Krejcikova–Paolini, Wimbledon F 2024 (grass, WTA).
 - Deuce/ad stance refusal on clay (34/56 clips refuse a side).
 
 ## Acceptance decomposition (2026-07-10)
+
+(This section is the PRE-direction-model record — the analysis that
+picked the build. The after-numbers live in "Shot direction v2" below.)
 
 Where do the 7.18 mean token edits per point actually live? The token
 Levenshtein was backtraced to an alignment and every edit binned
@@ -149,5 +154,52 @@ Fixing "attempted only" is worth almost nothing (3.0%) — the sparsity
 and the accuracy have to be fixed together, which means inferring
 direction on BOTH halves (e.g. from receiver contact geometry, not
 just ball landing).
+
+## Shot direction v2 (2026-07-10)
+
+The build the decomposition ordered — in two parts, semantics first.
+
+**Semantics.** MCP's direction digit is RECEIVER-END relative and NOT
+handedness-flipped ("1 = a right-hander's forehand side (a lefty's
+backhand)" names a fixed side of the receiving half). Our zone() had
+mapped landing court-x into absolute image thirds. Every plausible
+mapping, tested on all 150 committed aligned landings on
+length-matched points (experiments/dir_calibrate.py):
+
+| mapping | t1 (lefty) | t2 | t3 | t4 | overall |
+|---|:---:|:---:|:---:|:---:|:---:|
+| absolute asc (old zone()) | 7/24 | 6/17 | 32/79 | 12/30 | 57/150 (38%) |
+| absolute desc | 9/24 | 6/17 | 33/79 | 14/30 | 62/150 (41%) |
+| **receiver-end mirror, no handedness** | 11/24 | 8/17 | 46/79 | 14/30 | **79/150 (53%)** |
+| receiver-end + handedness flip | 5/24 | 8/17 | 46/79 | 14/30 | 73/150 (49%) |
+
+The both-lefty t1 match adjudicates the handedness question: 11/24 vs
+5/24 against the flip. Serve zones passed the same audit (shipped
+serve_zone() 11/16 vs 3/16 for its 4↔6 swap) — no serve change.
+
+**Estimator.** shot_direction.py infers a digit for EVERY rally shot
+from a measured signal ladder (quality/precedence tuned on t3 only,
+n=113 aligned pairs; t1/t2/t4 held out): near-half landing 86% >
+receiver's next-shot contact x 77% (81% coverage — where the ball was
+received is where it went) > net-crossing x + flight slope
+extrapolated to the receiver's baseline 67% (93% coverage) > far-half
+landing 47% (the OLD only signal). The top available signal commits;
+'?' only when no signal exists — the disagreement veto was measured
+and rejected (78% vs 77% precision for 62 vs 85 net-right tokens;
+acceptance charges refusal and error the same edit).
+
+**Direction component, before → after** (attempt rate / accuracy when
+attempted, aligned pairs): t3 TUNED 71%/48% → 98%/76%; held out: t1
+80%/36% → 97%/66%, t2 73%/42% → 96%/88%, t4 64%/56% → 96%/75%.
+Overall 70%/48% → 97%/75%.
+
+**Acceptance:** 3/135 → 7/135 (t1 2→3, t2 0→1, t3 1→3, t4 0→0); mean
+token distance 7.18 → 6.19; effort curve ≤1/2/3/5: 2.2/6.7/14.8/41.5%
+→ 5.2/11.1/23.7/57.0%. Every other scorecard metric is byte-identical
+— the change touches only rally direction digits. The lever is spent:
+"directions perfect" headroom is now +1 point (8/135); the re-run
+decomposition names the next sinks as structure (2.57 edits/pt),
+letters (1.71), endings (0.70), with letters+dirs+endings-perfect at
+35.6% and all-components at 44.4%.
 
 Full history: LOG.md. Landscape context: docs/landscape-2026-07.md.

@@ -53,6 +53,7 @@ import cv2
 import numpy as np
 
 import events_v5
+import shot_direction
 
 # EVENT DETECTOR: "v5" = the crossing-skeleton detector (events_v5.py,
 # 2026-07-10) — net crossings partition the rally and each partition
@@ -285,11 +286,6 @@ def truncate_coda(shots, xruns, fps):
     return shots[:new_n], n - new_n, why
 
 
-def zone(x):
-    third = W_C / 3
-    return 1 if x < third else (2 if x < 2 * third else 3)
-
-
 def serve_zone(bx, deuce, server):
     """Thirds of the receiving service box toward the center line: 4 wide,
     5 body, 6 T. Coarse, and honest about it."""
@@ -487,15 +483,13 @@ def chart_clip(stem, Hm, serves):
             lx = float(np.median(cxc[max(0, li - 2):li + 3]))
         sh["landing_x"] = round(lx, 2) if lx is not None else None
         sh["landing_y"] = round(landing["court_y"], 1) if landing else None
-        if sh["is_serve"] and lx is not None:
+        if sh["is_serve"]:
             # deuce/ad can be uncommitted (ball-called serves whose
             # stance was unreadable); no side, no zone claim
             sh["zone"] = (serve_zone(lx, s["side"] == "deuce", server)
-                          if s.get("side") in ("deuce", "ad") else "?")
-        elif lx is not None:
-            sh["zone"] = zone(lx)
-        else:
-            sh["zone"] = "?"
+                          if lx is not None
+                          and s.get("side") in ("deuce", "ad") else "?")
+        # rally-shot directions come from shot_direction.annotate() below
 
     # per-side contact search: nearest the ball comes to EACH player's box
     # inside the shot's window — feeds both the touch votes and the letter
@@ -548,6 +542,13 @@ def chart_clip(stem, Hm, serves):
             sh["letter"] = "f" if forehand else "b"
         else:
             sh["letter"] = "?"
+
+    # rally-shot direction digits (MCP 1/2/3), BOTH halves: the
+    # receiver-mirrored mapping + the measured signal ladder (near-half
+    # landing > receiver contact > crossing+slope > far-half landing) —
+    # shot_direction.py, semantics calibrated on all 4 matches, signal
+    # quality/precedence tuned on t3 only
+    shot_direction.annotate(shots, frames, cyc, cxc, fps)
 
     # ending v1 — observable evidence only. The last shot's own landing
     # (far-half only, by construction) codes out-deep/-wide; a ball track

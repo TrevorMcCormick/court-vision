@@ -1677,3 +1677,104 @@ ceiling is the film's, not ours.
   decomposition" section with the same tables. Frozen trees, ground
   truth, charts, and all t*w eval/detector logic untouched.
 - Session cost: $0.00. Project total: ~$4.15 of $9.
+
+## 2026-07-10 — Shot direction v2: the digit was naming the wrong court
+
+**Semantics before code: the direction digit was being read in the
+wrong coordinate frame, and a calibration table proved it before
+anything was built.** MCP's instructions define direction 1 as "a
+right-hander's forehand side (a lefty's backhand)" — the parenthetical
+is the tell: that sentence names a FIXED SIDE of the receiving half,
+mirrored by which END is receiving, NOT flipped by who's holding the
+racquet. Our zone() mapped landing court-x into ABSOLUTE image
+thirds — correct for a far righty receiver by coincidence, mirrored
+for every near receiver, and 48% when attempted looked like noise when
+half of it was a sign error. Every plausible mapping, tested on all
+150 committed aligned landings on length-matched points across the 4
+matches (experiments/dir_calibrate.py — t1 both-lefty, t2/t3/t4 all
+righty, so the matches jointly disambiguate):
+
+    mapping                        t1(L)  t2(R)  t3(R)  t4(R)   overall
+    abs asc (the shipped zone())    7/24   6/17  32/79  12/30   57/150 (38%)
+    abs desc (mirror)               9/24   6/17  33/79  14/30   62/150 (41%)
+    RECV-END MIRROR, no handedness 11/24   8/17  46/79  14/30   79/150 (53%)
+    recv-end + handedness flip      5/24   8/17  46/79  14/30   73/150 (49%)
+    handedness only                 9/24   6/17  32/79  12/30   59/150 (39%)
+
+The both-lefty t1 match adjudicates the row that matters: 11/24 vs
+5/24 AGAINST the handedness flip — the naive reading of the spec loses
+to its own parenthetical. And a split hiding inside the winner:
+near-half landings under the mirror score 19/22 on t3 while far-half
+score 27/57 — the collapse detector's far-half landing x (the ONLY
+direction signal the chart had) is the noisy measurement, and the
+near-half kink fills are nearly clean. The complementary serve table
+came free and PASSED: shipped serve_zone() 11/16 vs 3/16 for its 4<->6
+swap — wide/body/T stands, serves untouched.
+
+**The estimator: every shot in the dense-WASB era has a
+where-did-it-go signal now.** shot_direction.py, shared by all four
+t*w twins, replacing zone(lx). Signal quality measured on t3 ONLY
+(n=113 aligned pairs; dir_signals_dev.py); t1/t2/t4 held out:
+
+    signal                       coverage      accuracy (t3)
+    near-half landing            22   (19%)    19/22  (86%)
+    receiver contact             91   (81%)    70/91  (77%)
+    crossing + slope            105   (93%)    58/105 (55%)
+    far-half landing             57   (50%)    27/57  (47%)
+
+The receiver's contact point for the NEXT shot is the workhorse —
+where the ball was received IS where this shot went, and the airborne
+projection's x degrades gently even where its y is garbage. The
+crossing signal (net-crossing x plus flight dx/dy, the v5 skeleton
+moonlighting) improved 55% -> 67% under a depth sweep that rose
+monotonically 0-12 m and plateaued at the receiver's BASELINE — the
+flight line evaluated where the receiver actually stands. Precedence =
+the measured ladder. The refusal question got an experiment instead of
+a principle: vetoing on runner-up disagreement kept precision 78% vs
+77% but cut net-right tokens 85 -> 62 — acceptance charges a refusal
+and an error the same token edit, so a 77% guess strictly beats an
+honest shrug. Commit-always won; '?' survives only for the signal-less
+shot (2/113 on t3).
+
+**Scorecards — the direction component in isolation, before -> after,
+tuned and held-out separated** (attempt rate / accuracy-when-attempted
+on aligned pairs, from mcp_decompose):
+
+    match                 attempted            right when attempted
+    t3 clay (TUNED)       71% -> 262/267 (98%)   48% -> 192/251 (76%)
+    t1 night (HELD OUT)   80% ->  92/95  (97%)   36% ->  59/89  (66%)
+    t2 ctrl (HELD OUT)    73% ->  25/26  (96%)   42% ->  22/25  (88%)
+    t4 grass (HELD OUT)   64% -> 261/272 (96%)   56% -> 153/203 (75%)
+    overall               70% -> 640/660 (97%)   48% -> 426/568 (75%)
+
+Both diseases treated at once, as the decomposition demanded: attempt
+rate 70 -> 97 AND accuracy 48 -> 75, held-out gains matching the tuned
+tree (t2's 88% is small-n grace; t1's 66% is the night reel paying its
+usual geometry tax). Strict positional direction accuracy ('?' counts
+wrong) went 28% -> 69%; direction refusals 159 -> 12.
+
+**And the north star moved:** acceptance 3/135 -> 7/135 (t1 2->3, t2
+0->1, t3 1->3, t4 0->0), mean token distance 7.18 -> 6.19, effort
+curve at <=1/2/3/5 edits 2.2/6.7/14.8/41.5% -> 5.2/11.1/23.7/57.0%.
+Every OTHER metric on all four scorecards is byte-identical (server
+end, rally +-1, serve zone, letters, endings) — the change touches
+only rally direction digits and the evals confirm nothing else moved.
+On the record: t4 acceptance stays 0/49 — its disease is structure
+(1.29 phantom insertions + 1.43 deletions per point), and no direction
+digit can fix a token that shouldn't exist. The lever is now spent by
+its own measure: direction-only edits fell 1.20 -> 0.47/pt, and the
+re-run counterfactual says "directions perfect" is worth +1 point
+(8/135). The new top sinks, named for next time: structure 2.57/pt,
+letters 1.71/pt across their two bins, endings 0.70 — with
+letters+dirs+endings-perfect now reading 35.6% and all-components
+44.4%. Endings ride next: one token per point, 30% right.
+
+- New: experiments/shot_direction.py (receiver-mirrored mapping + the
+  signal-ladder estimator, constants provenance in-file),
+  dir_calibrate.py (the semantics table), dir_signals_dev.py (t3
+  signal harness). All four t*w chart twins swap zone(lx) for
+  shot_direction.annotate() and drop the orphaned zone(); serve-zone
+  logic untouched. docs/benchmark.md: header table + a "Shot direction
+  v2" section. Frozen non-w trees, ground truth, and point-boundary
+  outputs untouched.
+- Session cost: $0.00. Project total: ~$4.15 of $9.
