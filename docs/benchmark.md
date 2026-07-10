@@ -252,4 +252,68 @@ bar. The shipped default stays bgsub ($0); the SAM CSVs, raw masks,
 and the delta are the buy-vs-build record for the consolidation
 decision.
 
+## Consolidation + per-point confidence (2026-07-10)
+
+**The package.** The experiment sprawl is now `courtvision/` — one
+chart assembler and one eval instead of four hand-synced twins each,
+per-broadcaster staging in `data/matches/<id>.yaml`, CLI in
+`docs/USAGE.md`. The regression gate PASSED: rerunning chart+eval
+through the package reproduces all 138 chart CSVs byte-for-byte and
+all four scorecards byte-identically — acceptance stays 7/135.
+`experiments/` is frozen history; divergence policy in
+`courtvision/README.md`.
+
+**The confidence layer.** A 57%-within-5-edits draft is only usable if
+the charter knows WHICH points to trust before looking. Per-point
+signals already computed by the pipeline (serve commit/margin, striker
+conflicts, ball coverage + holes, letter/direction refusals + contact
+distances, direction signal-tier quality, ending commit,
+crossings-vs-shots consistency, shot count, and the mid-rally-start
+signature — a "serve" called 0 s into the clip whose ball-launch cy
+sits INSIDE the court is a rally crossing in costume) feed a numpy
+logistic + one mechanistic gate. Calibration discipline:
+leave-one-match-out across the 4 matches; target = token edit distance
+to MCP truth.
+
+**Two tiers ship, not three.** The wished-for top tier — "sign off at
+a glance," within 2 token edits at ≥85% precision — was built first
+and does NOT survive LOMO: 50% held-out precision at 1.5% coverage.
+135 points at an 11% base rate cannot support it; that's on the
+record, not hidden. What survives is the **usable-draft bar (≤5 token
+edits)**, the same line the effort curve already named:
+
+| LOMO (held-out) | high precision (≤5 edits) | coverage | low-tier ≤5 rate |
+|---|:---:|:---:|:---:|
+| t1 night  | 11/11 (100%) | 50.0% | 27% |
+| t2 ctrl   | 3/3 (100%)   | 60.0% | 50% |
+| t3 clay   | 16/19 (84%)  | 32.2% | 43% |
+| t4 grass  | 11/11 (100%) | 22.4% | 50% |
+| **pooled**| **41/44 (93%)** | **32.6%** | 44% |
+
+Flag × edit-distance confusion (LOMO, pooled):
+
+| flag | 0-1 | 2 | 3-5 | 6+ | total |
+|---|:---:|:---:|:---:|:---:|:---:|
+| high | 6 | 6 | 29 | 3  | 44 |
+| low  | 1 | 2 | 37 | 51 | 91 |
+
+Read it honestly: HIGH means "start from the draft" (93% of
+high-flagged points need ≤5 token edits; only 3/44 are disasters),
+not "the draft is right" (27% of high-flagged are within 2). LOW
+means "expect heavy correction or re-chart" — 56% of low-flagged
+points are 6+ edits out. t3 is the weak fold because its disease
+(the editor cutting into rallies) is only partially observable; the
+launch-plausibility gate catches the clips whose "serve" was a rally
+crossing, and what remains is footage we cannot see.
+
+The shipped scorer (`data/confidence_model.json`, all-data fit by the
+same threshold rule) flags 45/135 scored points high at 96% in-sample
+precision; the honest generalization estimate is the LOMO table above.
+
+**The exporter.** `courtvision draft <match>` emits
+`outputs/<t>/export/<t>_mcp_draft.csv` — MCP points schema (match_id,
+Pt, Set/Gm/Pts, Svr, 1st/2nd) with the machine string in 1st plus
+confidence, conf_p, clip, serve_s (jump-to timestamp), n_shots. Across
+the four matches: 138 draft points, 46 flagged high.
+
 Full history: LOG.md. Landscape context: docs/landscape-2026-07.md.

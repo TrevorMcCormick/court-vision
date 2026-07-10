@@ -1883,3 +1883,87 @@ instead of a suspicion.
   ground truth, serves.csv, and point-boundary outputs untouched.
 - Session cost: ~$12 (SAM A/B, under the one-off $30 authorization).
   Project total: ~$16.
+
+## 2026-07-10 — Consolidation with a gate, and the confidence layer that makes a draft usable
+
+**The sprawl becomes the tool.** Twenty-odd experiment scripts — four
+chart twins kept in sync by hand, four evals, the shared modules they
+imported by sys.path adjacency — are now the `courtvision/` package:
+one chart assembler, one eval, one CLI (`chart` / `eval` / `draft`),
+and every per-broadcaster difference the twins carried in code moved
+into `data/matches/<id>.yaml` (lefty, clip offsets, serve lock,
+side-gated serve zones, near-half ending fill, coda reporting, the
+changeover-parity set priors). events_v5, shot_direction,
+player_boxes, and mcp_accept lifted verbatim; the upstream stages
+(WASB ball, bgsub players, serve v3, score-bug boundaries, MCP align,
+the decomposition) came along as config-driven modules. Adding a
+match is now a YAML, not a fork.
+
+**The gate, because "refactor" is where numbers go to drift:** the
+package had to reproduce the benchmark EXACTLY before anything new
+was allowed on top. It did — all 138 chart CSVs byte-for-byte
+across the four trees, all four scorecards byte-identical down to
+the per-clip lines, acceptance 7/135 untouched. The experiments/
+directory stays frozen as history (divergence policy in
+courtvision/README.md: v5-only in the package, serve v3-only for
+t1/t2 reruns, no SAM fleet lift — the receipts stay where they were
+written).
+
+**Then the layer the MVP actually needed.** A 57%-within-5-edits
+draft is useless if the charter has to discover per point whether
+it's the 5%-acceptance kind or the 25-edit kind. Per-point signals
+the pipeline already computes — serve commit + stance margin, striker
+-chain conflicts, ball coverage and max hole, letter/direction
+refusal fractions and contact distances, the direction signal-tier
+ladder, ending commit, crossings-vs-shots consistency, shot count —
+feed a numpy logistic, LOMO-calibrated against token edit distance.
+One bug found on the way in: aces were charged 100% letter refusal
+for having no rally letters to refuse — the cleanest points in the
+set, punished for being short. One genuinely new signal found on the
+way in: the mid-rally-start signature. The clay editor cuts INTO
+rallies, and on those clips the ball-launch serve detector fires on
+the clip's first crossing — a "serve" 0 s into the clip whose launch
+cy sits INSIDE the court (a real serve's toss projects 20+ m beyond
+the baselines). That one mechanistic gate took the held-out t3 fold
+from 65% to 84% high-tier precision.
+
+**The discipline, and the tier that died of it.** Fit on 3 matches,
+score the held-out 4th, all four ways. The tier I wanted — "sign off
+at a glance", within 2 token edits at >=85% precision — was built
+FIRST and failed the audit: 50% held-out precision at 1.5% coverage.
+135 points at an 11% base rate cannot support it; two tiers ship,
+not three, and the failed one is on the record. What survives is the
+usable-draft bar the effort curve already named:
+
+    LOMO (held out)   high prec (<=5 edits)   coverage   low <=5 rate
+    t1 night              11/11 (100%)          50.0%        27%
+    t2 ctrl                 3/3 (100%)          60.0%        50%
+    t3 clay               16/19  (84%)          32.2%        43%
+    t4 grass              11/11 (100%)          22.4%        50%
+    pooled                41/44  (93%)          32.6%        44%
+
+    flag x edits (pooled)   0-1    2   3-5   6+
+    high                      6    6    29    3
+    low                       1    2    37   51
+
+**What the MVP can promise today, said plainly.** Given a broadcast
+match with a fitted homography and a transcribed score-bug alignment:
+a draft chart for every tracked point at $0, and a HIGH flag on ~a
+third of them that means "start from the draft" with 93% reliability
+(3 disasters in 44 flags, held out). What it cannot promise: that a
+high-flagged point is RIGHT (27% within 2 edits), that a low-flagged
+point is chartable at all without the video (56% are 6+ edits out),
+or anything about the footage the editor never broadcast — t3's
+deletions stay invisible to every signal except the serve forensics.
+The draft-and-triage loop a charter would actually run now exists:
+`courtvision draft <match>` -> outputs/<t>/export/<t>_mcp_draft.csv,
+MCP points schema, machine string in 1st, confidence + clip +
+jump-to timestamp appended. 138 draft points, 46 flagged high.
+
+- New: courtvision/ (18 modules; README with the divergence policy),
+  data/matches/t{1-4}.yaml, data/confidence_model.json (all-data fit;
+  the honest numbers are the LOMO table), docs/USAGE.md.
+  docs/benchmark.md: consolidation + confidence section. Frozen
+  non-w trees, ground truth, serves.csv, and point-boundary outputs
+  untouched; experiments/ untouched.
+- Session cost: $0.00. Project total: ~$16.
