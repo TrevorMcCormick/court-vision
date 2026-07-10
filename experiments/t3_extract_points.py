@@ -36,7 +36,13 @@ def main():
     parser.add_argument("--skip-clips", action="store_true")
     args = parser.parse_args()
 
-    segs = list(csv.DictReader(open(OUT_DIR / "segments.csv")))
+    # point_boundary.py's score-bug segments supersede the probe's when
+    # present (segment != point: merges, splits, no-bug drops — see LOG)
+    seg_csv = OUT_DIR / "segments_v2.csv"
+    if not seg_csv.exists():
+        seg_csv = OUT_DIR / "segments.csv"
+    segs = list(csv.DictReader(open(seg_csv)))
+    print(f"segments from {seg_csv.name}")
     cap = cv2.VideoCapture(args.video)
     fps = cap.get(cv2.CAP_PROP_FPS)
     n_total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))

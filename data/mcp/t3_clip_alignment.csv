@@ -1,69 +1,60 @@
 clip,set1,set2,gm1,gm2,pts,server_bug,note
-t3_point_01,0,0,0,0,0-0,1,bug absent at clip start; inferred first point of match
-t3_point_02,0,0,0,0,15-0,1,bug Djokovic-top; transcribed Ruud-first
-t3_point_03,0,0,0,0,40-0,1,
-t3_point_04,0,0,1,0,AD-40,2,
-t3_point_05,0,0,1,0,40-AD,2,
-t3_point_06,0,0,1,0,40-AD,2,dup score of 05
-t3_point_07,0,0,1,0,40-40,2,
-t3_point_08,0,0,1,0,40-AD,2,dup score of 05
-t3_point_09,0,0,1,0,AD-40,2,dup score of 04
-t3_point_10,0,0,2,0,0-0,1,
-t3_point_11,0,0,3,1,15-0,1,
-t3_point_12,0,0,3,1,30-15,1,
-t3_point_13,0,0,3,1,30-15,1,dup of 12
-t3_point_14,0,0,3,1,30-15,1,dup of 12
-t3_point_15,0,0,3,1,30-15,1,dup of 12
-t3_point_16,0,0,4,2,15-30,1,
-t3_point_17,0,0,4,2,30-40,1,
-t3_point_18,0,0,4,2,30-40,1,dup of 17
-t3_point_19,0,0,4,3,0-0,2,
-t3_point_20,0,0,4,3,15-15,2,
-t3_point_21,0,0,4,3,30-30,,server mark not visible
-t3_point_22,,,,,,,no bug: net close-up false positive
-t3_point_23,0,0,4,4,30-40,1,
-t3_point_24,0,0,4,4,40-40,1,
-t3_point_25,0,0,4,4,AD-40,1,
-t3_point_26,0,0,4,4,AD-40,1,dup of 25
-t3_point_27,0,0,5,4,15-0,2,
-t3_point_28,0,0,5,4,30-0,2,
-t3_point_29,0,0,5,4,30-40,2,
-t3_point_30,0,0,6,5,0-15,2,
-t3_point_31,0,0,6,5,0-15,2,dup of 30
-t3_point_32,0,0,6,5,0-15,2,dup of 30
-t3_point_33,0,0,6,6,0-0,1,tiebreak set 1
-t3_point_34,0,0,6,6,0-1,2,tiebreak
-t3_point_35,0,0,6,6,0-3,1,tiebreak
-t3_point_36,0,0,6,6,1-5,2,tiebreak
-t3_point_37,0,1,0,1,30-40,1,set 2
-t3_point_38,0,1,0,2,15-40,2,
-t3_point_39,0,1,2,4,0-0,2,
-t3_point_40,0,1,2,4,0-15,2,
-t3_point_41,,,,,,,no bug: dissolve/close-up false positive
-t3_point_42,0,1,2,4,30-30,2,
-t3_point_43,0,1,2,4,30-40,2,
-t3_point_44,0,1,2,5,30-40,1,
-t3_point_45,0,1,2,5,40-40,1,
-t3_point_46,0,1,2,5,AD-40,1,
-t3_point_47,0,2,0,0,15-15,1,set 3
-t3_point_48,0,2,0,0,40-30,1,
-t3_point_49,0,2,1,1,0-0,1,
-t3_point_50,0,2,1,1,15-0,1,
-t3_point_51,0,2,1,1,30-30,1,
-t3_point_52,0,2,1,1,30-40,1,break point banner
-t3_point_53,0,2,1,1,AD-40,1,
-t3_point_54,0,2,2,1,0-0,2,
-t3_point_55,0,2,2,1,0-15,2,
-t3_point_56,0,2,2,1,0-30,2,
-t3_point_57,0,2,2,1,0-40,2,
-t3_point_58,0,2,3,3,40-30,1,
-t3_point_59,,,,,,,no bug visible at clip start
-t3_point_60,0,2,4,3,0-0,2,
-t3_point_61,0,2,4,3,30-40,2,server mark cropped; game sequence implies Djokovic
-t3_point_62,0,2,4,4,0-0,1,
-t3_point_63,0,2,5,5,0-0,1,
-t3_point_64,0,2,5,5,0-30,1,
-t3_point_65,0,2,5,5,0-40,1,triple break point banner
-t3_point_66,0,2,5,6,0-30,2,
-t3_point_67,0,2,5,6,0-40,2,championship point
-t3_point_68,0,2,5,6,15-40,2,
+t3_point_01,0,0,0,0,15-0,1,bug Djokovic-top; transcribed Ruud-first (v2 segments: src seg2)
+t3_point_02,0,0,0,0,40-0,1,src 3
+t3_point_03,0,0,1,0,AD-40,2,src 4
+t3_point_04,0,0,1,0,40-AD,2,src 5; deuce cycle A
+t3_point_05,0,0,1,0,40-AD,2,src 6; deuce cycle B — distinct plateau from 04 (40-40 seen in gap)
+t3_point_06,0,0,1,0,40-40,2,src 7
+t3_point_07,0,0,1,0,40-AD,2,src 8; deuce cycle C
+t3_point_08,0,0,1,0,AD-40,2,src 9
+t3_point_09,0,0,2,0,0-0,1,src 10
+t3_point_10,0,0,3,1,15-0,1,src 11
+t3_point_11,0,0,3,1,30-15,1,src 12+13+14+15 merged: one 21s rally the probe fragmented
+t3_point_12,0,0,4,2,15-30,1,src 16
+t3_point_13,0,0,4,2,30-40,1,src 17+18 merged: the 29-shot rally in two pieces
+t3_point_14,0,0,4,3,0-0,2,src 19
+t3_point_15,0,0,4,3,15-15,2,src 20
+t3_point_16,0,0,4,3,30-30,2,src 21; server mark now visible (Djokovic)
+t3_point_17,0,0,4,3,40-30,2,src 22; recovered — old transcription called this a no-bug net close-up
+t3_point_18,0,0,4,4,30-40,1,src 23
+t3_point_19,0,0,4,4,40-40,1,src 24
+t3_point_20,0,0,4,4,AD-40,1,src 25+26 merged
+t3_point_21,0,0,5,4,15-0,2,src 27
+t3_point_22,0,0,5,4,30-0,2,src 28
+t3_point_23,0,0,5,4,30-40,2,src 29
+t3_point_24,0,0,6,5,0-15,2,src 30+31+32 merged: one 18s rally in three pieces
+t3_point_25,0,0,6,6,0-0,1,tiebreak set 1; src 33
+t3_point_26,0,0,6,6,0-1,2,tiebreak; src 34
+t3_point_27,0,0,6,6,0-3,1,tiebreak; src 35
+t3_point_28,0,0,6,6,1-5,2,tiebreak; src 36
+t3_point_29,0,1,0,1,30-40,1,set 2; src 37
+t3_point_30,0,1,0,2,15-40,2,src 38
+t3_point_31,0,1,2,4,0-0,2,src 39
+t3_point_32,0,1,2,4,0-15,2,src 40
+t3_point_33,0,1,2,4,15-15,2,src 41; recovered — old transcription called this a no-bug dissolve
+t3_point_34,0,1,2,4,30-30,2,src 42
+t3_point_35,0,1,2,4,30-40,2,src 43
+t3_point_36,0,1,2,5,30-40,1,src 44
+t3_point_37,0,1,2,5,40-40,1,src 45
+t3_point_38,0,1,2,5,AD-40,1,src 46
+t3_point_39,0,2,0,0,15-15,1,set 3; src 47
+t3_point_40,0,2,0,0,40-30,1,src 48
+t3_point_41,0,2,1,1,0-0,1,src 49
+t3_point_42,0,2,1,1,15-0,1,src 50
+t3_point_43,0,2,1,1,30-30,1,src 51
+t3_point_44,0,2,1,1,30-40,1,src 52; break point banner
+t3_point_45,0,2,1,1,AD-40,1,src 53
+t3_point_46,0,2,2,1,0-0,2,src 54
+t3_point_47,0,2,2,1,0-15,2,src 55
+t3_point_48,0,2,2,1,0-30,2,src 56
+t3_point_49,0,2,2,1,0-40,2,src 57
+t3_point_50,0,2,3,3,40-30,1,src 58
+t3_point_51,0,2,4,3,30-0,2,src 60; old transcription misread this as 0-0
+t3_point_52,0,2,4,3,30-40,2,src 61; server mark visible (Djokovic)
+t3_point_53,0,2,4,4,0-0,1,src 62
+t3_point_54,0,2,5,5,0-0,1,src 63
+t3_point_55,0,2,5,5,0-30,1,src 64
+t3_point_56,0,2,5,5,0-40,1,src 65; triple break point banner
+t3_point_57,0,2,5,6,0-30,2,src 66
+t3_point_58,0,2,5,6,0-40,2,src 67; championship point
+t3_point_59,0,2,5,6,15-40,2,src 68

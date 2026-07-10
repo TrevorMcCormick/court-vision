@@ -1179,3 +1179,125 @@ because the reel's edit grammar can't be trusted to provide them.
   wasb_track_ball grows --tree t3/t4. Frozen t1/t2/m3 scripts and all
   frozen-era constants untouched.
 - Session cost: $0.00. Project total: ~$4.15 of $9.
+
+## 2026-07-10 — Point boundaries: the score bug is the point ID
+
+**The staging entry ended with "point boundaries need their own
+detector." The detector was on screen the whole time.** The score bug
+is a screen-space overlay — camera pan never moves it — static within
+a point, and it changes exactly at point boundaries. So the bug region
+IS the point ID: merge adjacent segments whose bug never changes (same
+point, camera flaked), split segments where it changes mid-segment
+(two points, editor never cut), and read the plateau timeline as the
+point sequence. Validated on pixels before a line of the pass was
+written: the four "30-15 dup" clips (old segs 12-15) share ONE
+unbroken digit plateau across all four segments AND their gaps — a
+21-second, 16-shot rally the probe fragmented because the camera
+zooms mid-rally and the line probes drop. Same story for the 29-shot
+rally (17+18) and 30+31+32. And the three "40-AD dup" clips are NOT
+replays: a 40-40 plateau sits between them in the gaps. They're three
+different deuce-cycle points, and the plateau ORDER carries exactly
+the information the value alone cannot.
+
+**The identity metric had to be a changed-pixel fraction, not a mean
+diff.** Same-point crops read <= 0.005 changed pixels
+(brightness-normalized, |diff| > 45), different-score crops >= 0.033 —
+a 6x margin. The mean-diff step between segs 17/18 that looked like a
+score change was crowd bleeding through the crop's right edge; the
+crops, rendered and read, both say "2-4 / 40-30".
+
+**Four traps between the idea and a working pass, all found by
+looking:** (1) The RG bug GROWS a column per completed set — games and
+points slide right ~27 px at each set boundary, and a fixed crop
+spends sets 2-3 staring at the frozen "7 6 / 6 3" columns (segs 48/49
+and 64/65 read as single plateaus until the era windows went in). (2)
+The set-1 tiebreak banner pushes the whole bug down ~14 px and it
+drifts — the digit crop now follows the presence template's per-frame
+winning dy. (3) A plateau ref frozen on a fade-in transition frame
+sits at threshold distance from its own settled plateau and lets
+compression noise fake a change 100 frames later (seg 4 split into
+two identical-scored halves). But the opposite fix — a rolling ref —
+glides straight through the RG update animation, which spreads a
+score change over ~12 frames of ~0.01 steps and merged four deuce
+points into one. The working design: frozen ref per plateau, anchored
+on the median of a settling window. (4) The first replay detector
+flagged 15 live t4 segments — motion magnitude is framing, not speed;
+a quiet wide shot reads exactly like slow motion until you look at
+WHICH frames are duplicates.
+
+**The replay mechanism is REFUTED, and that's the finding.** Every
+dup-score group turned out to be fragments or distinct deuce points.
+The one cadence suspect (t3 seg 62: isolated duplicate frames at the
+1-in-6 rate a 2x slow-mo of a 50fps source would leave) was acquitted
+by physics: image-space ball gravity from the WASB tracks is unimodal
+across all 68 old t3 clips (30th-pct |d2y/dt2| 0.7-2.3 px/f^2, seg 62
+at 1.78, upper half) and all 48 t4 clips. A 2x slow-mo clip would sit
+~4x low. There is no probe-passing slow-mo replay in either reel —
+the staging entry's "main-camera slow-mo replays" claim was wrong.
+point_boundary.py keeps dup_frac bookkeeping and a dead-air drop
+(median motion < 0.15; live pieces never dip under 0.26) for the day
+one shows up; neither fired in the final runs.
+
+**New segments: t3 68 -> 59 points (4 merges, 2 no-bug drops), t4
+48 -> 49 (18 split pieces, 1 merge, 21 boundary stubs dropped).**
+Clips re-extracted, bugs re-transcribed by eye from fresh contact
+sheets — and the transcription pass caught four errors in the staging
+alignment: old t3 segs 22 and 41 ("no bug: close-up/dissolve false
+positive") and old t4 segs 31 and 47 ("no bug: crowd shot") are all
+real court-view points with the bug up — the old mid-clip sheet frame
+just caught a bad moment. Old t3 seg 60 was misread 0-0; it's 30-0.
+The t4 "3rd DEUCE" banner on the recovered seg-47 point confirms the
+deuce ordering the plateaus imply.
+
+**Alignment: 59/59 and 49/49 unique, from 59/68 and 36/48.** True
+boundaries plus a new order pass in the align twins: the reel is
+chronological, so an ambiguous clip's MCP candidates are bounded by
+its resolved neighbors' Pt numbers — 6 t3 and 10 t4 deuce-recurrence
+ambiguities resolved, matched-Pt sequence verified monotonic. The
+score bug can't tell the first 40-AD from the second, but the
+timeline can.
+
+**Scorecards, same frozen chart loop, before -> after:**
+
+    t3 (clay)          before (59)  after (58*)     t4 (grass)     before (36)  after (49)
+    mean shots o/MCP   3.9 / 8.9    4.6 / 8.1       mean shots     8.1 / 7.2    7.7 / 6.7
+    server end         10/59        7/58            server end     10/36        17/49
+    rally len ±1       20/59        24/58           rally len ±1   15/36        21/49
+    serve zone         1/6          1/4             serve zone     1/4          8/10
+    letters (all)      46/75        58/100          letters (all)  70/127       80/153
+    letters (aligned)  16/25        22/32           letters (algn) 11/22        10/18
+    ending type        11/34        9/30            ending type    1/12         5/19
+    (*t3_point_06: track too thin, not charted)
+
+Where the merges had footage to work with, they paid: the 16-shot
+rally charts 12/16 as one clip (its four fragments charted 1-3 each),
+and t3_point_24 charts 12/12 exact. t3 rally ±1 34% -> 41%, letters
+(aligned) 64% -> 69%. t4 serve zone 1/4 -> 8/10 and endings 8% -> 26%
+— splits put the serve at the clip start where the gates can see it.
+Honest losses on the same table: t3 server end fell 10/59 -> 7/58
+(merged clips start mid-rally, so no serve anchor and alternation has
+to vote alone), t3 endings 11/34 -> 9/30, t4 letters (all) 55% ->
+52%, letters (aligned) 50% -> 56% on a smaller base.
+
+**What still fails, named:** (1) t3's mean-shots gap (4.6 vs 8.1)
+is mostly NOT recoverable by segmentation — the RG editor cuts INTO
+long rallies, so the first shots were never broadcast: point_01
+charts 2/13 and the 29-shot rally 8/29 with the film starting
+mid-rally. The bug proves those clips are single points; it cannot
+conjure footage. (2) t4 still over-counts 19/49 clips by >1 — but
+these are now single-point clips per the plateau timeline, so the
+excess is chart-level: the Wimbledon feed's long dead time lives
+INSIDE the point's plateau, the dead ball stays inside the court-y
+envelope on grass, and the freeze-#3 gate can't touch it. That's the
+t1 dead-ball coda in a new costume, and it's the next chart-level
+fix, not a segmentation one. (3) t4_point_23 charts 21/5: the bug
+holds 40-40 through 28 unbroken seconds, which pixel-reads as one
+point — likely a challenge/replayed let (the score really doesn't
+change), and score identity is blind to it by construction.
+- New shared pass: point_boundary.py (bug scan cached per reel,
+  plateau labeling, merge/split/no-bug/dead-air, receipts in
+  outputs/*/bug_checks/ + bug_timeline.png). Extract twins prefer
+  segments_v2.csv; align twins grow the order pass. WASB re-tracked
+  all 108 new clips (t3 82%, t4 72% coverage), $0. Frozen t1/t2/m3
+  trees, scripts, and every chart constant untouched.
+- Session cost: $0.00. Project total: ~$4.15 of $9.

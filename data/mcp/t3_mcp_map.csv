@@ -1,69 +1,60 @@
 clip,note,mcp_pt,svr,first,second,winner,status,gms,pts
-t3_point_01,bug absent at clip start; inferred first point of match,1,1,5f28f3b3f3b1n@,,1,matched,0-0,0-0
-t3_point_02,bug Djokovic-top; transcribed Ruud-first,2,1,4d,4b38b3f2f1f1f2f2s2u+3s2v2z1*,1,matched,0-0,15-0
-t3_point_03,,4,1,4b29f3b2f3*,,1,matched,0-0,40-0
-t3_point_04,,12|20,2,,,,ambiguous,,
-t3_point_05,,14|16|18,2,,,,ambiguous,,
-t3_point_06,dup score of 05,14|16|18,2,,,,ambiguous,,
-t3_point_07,,11|13|15|17|19,2,,,,ambiguous,,
-t3_point_08,dup score of 05,14|16|18,2,,,,ambiguous,,
-t3_point_09,dup score of 04,12|20,2,,,,ambiguous,,
-t3_point_10,,21,1,6n,6b28b3b3b3b3b3b3b3b2f2b3b2f1n@,1,matched,2-0,0-0
-t3_point_11,,34,1,6n,4b38b2f2f+3m1o3m1w#,1,matched,3-1,15-0
-t3_point_12,,36,1,4n,5f28f1f3f2f1f1f1f1f3s2f1r2f3b3b1d@,1,matched,3-1,30-15
-t3_point_13,dup of 12,36,1,4n,5f28f1f3f2f1f1f1f1f3s2f1r2f3b3b1d@,1,matched,3-1,30-15
-t3_point_14,dup of 12,36,1,4n,5f28f1f3f2f1f1f1f1f3s2f1r2f3b3b1d@,1,matched,3-1,30-15
-t3_point_15,dup of 12,36,1,4n,5f28f1f3f2f1f1f1f1f3s2f1r2f3b3b1d@,1,matched,3-1,30-15
-t3_point_16,,46,1,4n,5b37b3b2f2f1f1f3s3f+3m2o3d@,1,matched,4-2,15-30
-t3_point_17,,48,1,5f28f1f1f3f3b3b3b2f2f1f1f1f3s3f1f1f2f1f2f2f3f3s3b1f2j+1l3o3n@,,2,matched,4-2,30-40
-t3_point_18,dup of 17,48,1,5f28f1f1f3f3b3b3b2f2f1f1f1f3s3f1f1f2f1f2f2f3f3s3b1f2j+1l3o3n@,,2,matched,4-2,30-40
-t3_point_19,,49,2,4f18f1f1f1f+3s2v1*,,1,matched,4-3,0-0
-t3_point_20,,51,2,c6n,4f18f1f1f3f3s3f-3*,1,matched,4-3,15-15
-t3_point_21,server mark not visible,53,2,6b18f1f1f3b2f3b3b3b3b2u3*,,1,matched,4-3,30-30
-t3_point_22,no bug: net close-up false positive,,,,,,NO MATCH,,
-t3_point_23,,62,1,6x,5b37s3b3b3b3f3b3f3b3s2f3s3b3b2f2f1f1w@,1,matched,4-4,30-40
-t3_point_24,,63,1,4n,4f28b+3b2z2*,1,matched,4-4,40-40
-t3_point_25,,64,1,5b38f+1f1j3m3o1*,,1,matched,4-4,AD-40
-t3_point_26,dup of 25,64,1,5b38f+1f1j3m3o1*,,1,matched,4-4,AD-40
-t3_point_27,,66,2,4b37y+2r3m3l3v3s3z1n#,,1,matched,5-4,0-15
-t3_point_28,,67,2,4f28f+3s3z1*,,2,matched,5-4,0-30
-t3_point_29,,70,2,4b37b+1f3d#,,2,matched,5-4,40-30
-t3_point_30,,77,2,4b37f1f1f1f2f3s3b3b1f3b1*,,1,matched,6-5,15-0
-t3_point_31,dup of 30,77,2,4b37f1f1f1f2f3s3b3b1f3b1*,,1,matched,6-5,15-0
-t3_point_32,dup of 30,77,2,4b37f1f1f1f2f3s3b3b1f3b1*,,1,matched,6-5,15-0
-t3_point_33,tiebreak set 1,81,1,6b28f3b2f3b3f2f1f1f2b3b3b2f1f1f3*,,2,matched,6-6,0-0
-t3_point_34,tiebreak,82,2,4+m19f2f1f2f2f3b3f3b1f1u3s3s3z1*,,2,matched,6-6,1-0
-t3_point_35,tiebreak,84,1,4b38f1*,,1,matched,6-6,0-3
-t3_point_36,tiebreak,87,2,4*,,2,matched,6-6,5-1
-t3_point_37,set 2,98,1,6b38f3b2f3b3f1f1w#,,1,matched,0-1,30-40
-t3_point_38,,107,2,6s37s3*,,2,matched,0-2,40-15
-t3_point_39,,124,2,6b18f3s2f1*,,2,matched,2-4,0-0
-t3_point_40,,125,2,4n,4f;29b2f+2b2z3m3o1f2v3*,1,matched,2-4,15-0
-t3_point_41,no bug: dissolve/close-up false positive,,,,,,NO MATCH,,
-t3_point_42,,128,2,5b28f2f2f3s2n@,,2,matched,2-4,30-30
-t3_point_43,,129,2,4b39b2f+1l1o=3n@,,2,matched,2-4,40-30
-t3_point_44,,135,1,5f28f1*,,1,matched,2-5,30-40
-t3_point_45,,136,1,4f28f+3m2o1*,,1,matched,2-5,40-40
-t3_point_46,,137,1,6d,4b28b3b1d@,1,matched,2-5,AD-40
-t3_point_47,set 3,144,1,5b28f1f2j+2b3z3b3*,,2,matched,0-0,15-15
-t3_point_48,,147,1,6f2n#,,1,matched,0-0,40-30
-t3_point_49,,152,1,4f18f1f2b3b2b2f2f1f3s3y3b2f3z1*,,1,matched,1-1,0-0
-t3_point_50,,153,1,4+b37v1*,,1,matched,1-1,15-0
-t3_point_51,,156,1,4w,6b38f3b3b3f1*,2,matched,1-1,30-30
-t3_point_52,break point banner,157,1,4b38b3b1n@,,1,matched,1-1,30-40
-t3_point_53,,159,1,6w,5b38b3b1n#,1,matched,1-1,AD-40
-t3_point_54,,160,2,6d,4f29f3s1f1f2b3s2f1*,2,matched,2-1,0-0
-t3_point_55,,161,2,6f37f1*,,2,matched,2-1,15-0
-t3_point_56,,162,2,6w,5b28f1*,2,matched,2-1,30-0
-t3_point_57,,163,2,6f38f3b2f3*,,2,matched,2-1,40-0
-t3_point_58,,182,1,4b38f1l3o=3*,,1,matched,3-3,40-30
-t3_point_59,no bug visible at clip start,,,,,,NO MATCH,,
-t3_point_60,,183,2,4f38b3b2j+1f2v2n@,,1,matched,4-3,0-0
-t3_point_61,server mark cropped; game sequence implies Djokovic,188,2,6f#,,2,matched,4-3,40-30
-t3_point_62,,189,1,6d,5b28b1f2f2b2f1f2f2f1*,2,matched,4-4,0-0
-t3_point_63,,199,1,4f37b3b3b3b1*,,2,matched,5-5,0-0
-t3_point_64,,201,1,5b29f1f3b3f2f2f1f1f1*,,2,matched,5-5,0-30
-t3_point_65,triple break point banner,202,1,4b28f3b2b2b2f3b2f3b3b3b3b2f1r2b3b3b3*,,2,matched,5-5,0-40
-t3_point_66,,205,2,6b27f1*,,2,matched,5-6,30-0
-t3_point_67,championship point,206,2,4+m2o=3s2f1w@,,1,matched,5-6,40-0
-t3_point_68,,207,2,4d,6f17f3b3b3b3b3s2f3s2f1f1w#,2,matched,5-6,40-15
+t3_point_01,bug Djokovic-top; transcribed Ruud-first (v2 segments: src seg2),2,1,4d,4b38b3f2f1f1f2f2s2u+3s2v2z1*,1,matched,0-0,15-0
+t3_point_02,src 3,4,1,4b29f3b2f3*,,1,matched,0-0,40-0
+t3_point_03,src 4; order-resolved,12,2,4b37f1*,,2,matched,1-0,40-AD
+t3_point_04,src 5; deuce cycle A; order-resolved,14,2,5f18f1f1f2b3b3b1f1n#,,1,matched,1-0,AD-40
+t3_point_05,src 6; deuce cycle B — distinct plateau from 04 (40-40 seen in gap); order-resolved,16,2,4b28f1f1f3n#,,1,matched,1-0,AD-40
+t3_point_06,src 7; order-resolved,17,2,4f27f1*,,2,matched,1-0,40-40
+t3_point_07,src 8; deuce cycle C; order-resolved,18,2,4n,5f38*,1,matched,1-0,AD-40
+t3_point_08,src 9; order-resolved,20,2,4b38j+1l3o3d@,,1,matched,1-0,40-AD
+t3_point_09,src 10,21,1,6n,6b28b3b3b3b3b3b3b3b2f2b3b2f1n@,1,matched,2-0,0-0
+t3_point_10,src 11,34,1,6n,4b38b2f2f+3m1o3m1w#,1,matched,3-1,15-0
+t3_point_11,src 12+13+14+15 merged: one 21s rally the probe fragmented,36,1,4n,5f28f1f3f2f1f1f1f1f3s2f1r2f3b3b1d@,1,matched,3-1,30-15
+t3_point_12,src 16,46,1,4n,5b37b3b2f2f1f1f3s3f+3m2o3d@,1,matched,4-2,15-30
+t3_point_13,src 17+18 merged: the 29-shot rally in two pieces,48,1,5f28f1f1f3f3b3b3b2f2f1f1f1f3s3f1f1f2f1f2f2f3f3s3b1f2j+1l3o3n@,,2,matched,4-2,30-40
+t3_point_14,src 19,49,2,4f18f1f1f1f+3s2v1*,,1,matched,4-3,0-0
+t3_point_15,src 20,51,2,c6n,4f18f1f1f3f3s3f-3*,1,matched,4-3,15-15
+t3_point_16,src 21; server mark now visible (Djokovic),53,2,6b18f1f1f3b2f3b3b3b3b2u3*,,1,matched,4-3,30-30
+t3_point_17,src 22; recovered — old transcription called this a no-bug net close-up,54,2,4b28f3b3f3f2f1f1f1f1f2s3b3b3b3b2f3s2f3s2f+1l2o2f2v1*,,2,matched,4-3,30-40
+t3_point_18,src 23,62,1,6x,5b37s3b3b3b3f3b3f3b3s2f3s3b3b2f2f1f1w@,1,matched,4-4,30-40
+t3_point_19,src 24,63,1,4n,4f28b+3b2z2*,1,matched,4-4,40-40
+t3_point_20,src 25+26 merged,64,1,5b38f+1f1j3m3o1*,,1,matched,4-4,AD-40
+t3_point_21,src 27,66,2,4b37y+2r3m3l3v3s3z1n#,,1,matched,5-4,0-15
+t3_point_22,src 28,67,2,4f28f+3s3z1*,,2,matched,5-4,0-30
+t3_point_23,src 29,70,2,4b37b+1f3d#,,2,matched,5-4,40-30
+t3_point_24,src 30+31+32 merged: one 18s rally in three pieces,77,2,4b37f1f1f1f2f3s3b3b1f3b1*,,1,matched,6-5,15-0
+t3_point_25,tiebreak set 1; src 33,81,1,6b28f3b2f3b3f2f1f1f2b3b3b2f1f1f3*,,2,matched,6-6,0-0
+t3_point_26,tiebreak; src 34,82,2,4+m19f2f1f2f2f3b3f3b1f1u3s3s3z1*,,2,matched,6-6,1-0
+t3_point_27,tiebreak; src 35,84,1,4b38f1*,,1,matched,6-6,0-3
+t3_point_28,tiebreak; src 36,87,2,4*,,2,matched,6-6,5-1
+t3_point_29,set 2; src 37,98,1,6b38f3b2f3b3f1f1w#,,1,matched,0-1,30-40
+t3_point_30,src 38,107,2,6s37s3*,,2,matched,0-2,40-15
+t3_point_31,src 39,124,2,6b18f3s2f1*,,2,matched,2-4,0-0
+t3_point_32,src 40,125,2,4n,4f;29b2f+2b2z3m3o1f2v3*,1,matched,2-4,15-0
+t3_point_33,src 41; recovered — old transcription called this a no-bug dissolve,126,2,6b28f2f2f1f1f1f1f2f+3b3z1l1o1f2n#,,1,matched,2-4,15-15
+t3_point_34,src 42,128,2,5b28f2f2f3s2n@,,2,matched,2-4,30-30
+t3_point_35,src 43,129,2,4b39b2f+1l1o=3n@,,2,matched,2-4,40-30
+t3_point_36,src 44,135,1,5f28f1*,,1,matched,2-5,30-40
+t3_point_37,src 45,136,1,4f28f+3m2o1*,,1,matched,2-5,40-40
+t3_point_38,src 46,137,1,6d,4b28b3b1d@,1,matched,2-5,AD-40
+t3_point_39,set 3; src 47,144,1,5b28f1f2j+2b3z3b3*,,2,matched,0-0,15-15
+t3_point_40,src 48,147,1,6f2n#,,1,matched,0-0,40-30
+t3_point_41,src 49,152,1,4f18f1f2b3b2b2f2f1f3s3y3b2f3z1*,,1,matched,1-1,0-0
+t3_point_42,src 50,153,1,4+b37v1*,,1,matched,1-1,15-0
+t3_point_43,src 51,156,1,4w,6b38f3b3b3f1*,2,matched,1-1,30-30
+t3_point_44,src 52; break point banner,157,1,4b38b3b1n@,,1,matched,1-1,30-40
+t3_point_45,src 53,159,1,6w,5b38b3b1n#,1,matched,1-1,AD-40
+t3_point_46,src 54,160,2,6d,4f29f3s1f1f2b3s2f1*,2,matched,2-1,0-0
+t3_point_47,src 55,161,2,6f37f1*,,2,matched,2-1,15-0
+t3_point_48,src 56,162,2,6w,5b28f1*,2,matched,2-1,30-0
+t3_point_49,src 57,163,2,6f38f3b2f3*,,2,matched,2-1,40-0
+t3_point_50,src 58,182,1,4b38f1l3o=3*,,1,matched,3-3,40-30
+t3_point_51,src 60; old transcription misread this as 0-0,185,2,6b29f1f1f;3*,,2,matched,4-3,0-30
+t3_point_52,src 61; server mark visible (Djokovic),188,2,6f#,,2,matched,4-3,40-30
+t3_point_53,src 62,189,1,6d,5b28b1f2f2b2f1f2f2f1*,2,matched,4-4,0-0
+t3_point_54,src 63,199,1,4f37b3b3b3b1*,,2,matched,5-5,0-0
+t3_point_55,src 64,201,1,5b29f1f3b3f2f2f1f1f1*,,2,matched,5-5,0-30
+t3_point_56,src 65; triple break point banner,202,1,4b28f3b2b2b2f3b2f3b3b3b3b2f1r2b3b3b3*,,2,matched,5-5,0-40
+t3_point_57,src 66,205,2,6b27f1*,,2,matched,5-6,30-0
+t3_point_58,src 67; championship point,206,2,4+m2o=3s2f1w@,,1,matched,5-6,40-0
+t3_point_59,src 68,207,2,4d,6f17f3b3b3b3b3s2f3s2f1f1w#,2,matched,5-6,40-15

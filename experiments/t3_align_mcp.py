@@ -7,9 +7,13 @@ were swapped into RUUD-first (MCP player-1) order when writing
 t3_clip_alignment.csv. From there the t1/t2 logic holds verbatim:
 MCP's Pts column is SERVER-first, so flip whenever Svr == 2.
 
-The reel's probe splits long rallies and keeps main-camera replays, so
-several clips carry the SAME score — they are marked dup in the notes
-and all match the same MCP row.
+Point-boundary era (point_boundary.py): clips are true points now, and
+the reel is CHRONOLOGICAL, so deuce-recurrence ambiguity is resolvable
+by order — two 40-AD clips in the same game are the first and second
+AD points, because the score-bug plateau timeline showed a 40-40
+between them. Second pass: an ambiguous clip's candidates are filtered
+to Pt numbers strictly between the nearest resolved neighbors, then
+the smallest survivor is taken, status "matched", note "order-resolved".
 
 Reads data/mcp/t3_clip_alignment.csv, writes data/mcp/t3_mcp_map.csv.
 
@@ -54,12 +58,41 @@ def main():
         elif cands:
             rec.update(mcp_pt="|".join(c["Pt"] for c in cands), svr=cands[0]["Svr"],
                        first="", second="", winner="", status="ambiguous")
+            rec["_cands"] = cands
         else:
             rec.update(mcp_pt="", svr="", first="", second="", winner="",
                        status="NO MATCH")
         out.append(rec)
+
+    # ---- order pass: the reel is chronological, so an ambiguous clip's
+    # candidates are bounded by its resolved neighbors' Pt numbers ----
+    n_order = 0
+    for k, rec in enumerate(out):
+        if rec["status"] != "ambiguous":
+            continue
+        prev_pt = next((int(out[j]["mcp_pt"]) for j in range(k - 1, -1, -1)
+                        if out[j]["status"] == "matched"), 0)
+        next_pt = next((int(out[j]["mcp_pt"]) for j in range(k + 1, len(out))
+                        if out[j]["status"] == "matched"), 10 ** 9)
+        window = [c for c in rec.pop("_cands")
+                  if prev_pt < int(c["Pt"]) < next_pt]
+        if not window:
+            continue
+        m = min(window, key=lambda c: int(c["Pt"]))
+        rec.update(mcp_pt=m["Pt"], svr=m["Svr"], first=m["1st"],
+                   second=m["2nd"], winner=m["PtWinner"], status="matched",
+                   gms=f"{m['Gm1']}-{m['Gm2']}", pts=m["Pts"],
+                   note=(rec["note"] + "; " if rec["note"] else "")
+                   + "order-resolved")
+        n_order += 1
+    for rec in out:
+        rec.pop("_cands", None)
         print(f"{rec['clip']}: {rec['status']} {rec['mcp_pt']}"
               f"{' 1st=' + rec['first'][:24] if rec['first'] else ''}")
+    pts_seq = [int(r["mcp_pt"]) for r in out if r["status"] == "matched"]
+    if pts_seq != sorted(pts_seq):
+        print("WARNING: matched Pt sequence is not monotonic — check the join")
+    print(f"order pass resolved {n_order} deuce-recurrence ambiguities")
 
     with open(DATA / "t3_mcp_map.csv", "w", newline="") as f:
         wr = csv.DictWriter(f, fieldnames=list(out[0].keys()))
