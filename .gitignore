@@ -6,6 +6,9 @@ outputs/
 *.mov
 *.mkv
 
+# Third-party clones + downloaded weights
+third_party/
+
 # Python
 .venv/
 __pycache__/

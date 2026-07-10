@@ -916,3 +916,69 @@ holes and drops, not charting logic. Candidate next moves: multi-prompt
 SAM (re-prompt after holes), or a cheap diff-based ball recovery in the
 gaps using the tracked segments as anchors.
 - Session cost: $0.49 (6 t2 tracks). Project total: ~$4.15 of $9.
+
+## 2026-07-09 — WASB vs SAM: the $0 specialist takes ball duty
+
+The landscape doc said no published SAM-vs-specialist comparison on
+small fast balls exists; this entry is ours. WASB-SBDT (BMVC 2023, NTT,
+MIT) with the pretrained tennis weights — 6 MB, per-frame heatmap, no
+prompt, no bootstrap, no fal spend. Their Detector class hard-asserts
+CUDA and everything routes through hydra, so the model definition and
+affine code are imported from their src and the driver loop (3-frame
+windows at 512x288, ImageNet norm, sigmoid + 0.5 threshold + weighted
+blob centroid, their online tracker's 300 px gate) is ~200 lines of
+ours (experiments/wasb_track_ball.py). Runs on MPS at roughly 15-20
+fps. Sanity check first: three rendered frames on t1_point_01, circle
+dead on the ball in all three — including a motion-blur streak coming
+off the racquet, exactly the shape SAM's box prompt kept refusing.
+
+**Tracking: WASB wins every case that matters and needs no permission
+slip.** Mean coverage on the 11 A/B t1 clips 87% vs SAM's 82%, and on
+the t2 day clips 88% vs 74%. The distribution is the story: SAM's
+disasters evaporate (t1_point_25: 55%→93%; t1_point_08: 50%→76%;
+t2_point_01: 55%→87%; t2_point_09: 68%→94%), while SAM keeps a 3-7 pt
+edge only on the easy floodlit-night clips it was always good at. Max
+holes shrink to match (t2_point_09: 40 frames → 4). And the 13 t1
+clips SAM never touched because no toss/mover bootstrap was trusted?
+WASB tracked all of them, 73-97% coverage, zero interaction.
+
+**A/B through the frozen loop, same clips, zero constants touched:**
+    t1 (11 clips)      SAM      WASB        t2 (5 scored)  SAM    WASB
+    server end         7/11     7/11        server end     2/5    2/5
+    rally len ±1       7/11     5/11        rally len ±1   1/5    4/5
+    serve zone         1/2      2/2         serve zone     1/2    1/1
+    letters (all)      9/11     13/16       letters (all)  6/13   16/19
+    letters (aligned)  1/1      0/0         letters (algn) 2/2    11/14
+    ending type        3/6      1/5         ending type    0/3    2/3
+The t2 column is the verdict. The control match — the one that caught
+SAM starving in day glare — flips from worst scorecard to best:
+t2_point_01, the 12-shot Federer rally SAM charted as 6, comes out
+12/12 with all 7 committed letters correct. Rally length 1/5 → 4/5 on
+identical clips, identical chart logic. The only thing that changed is
+the ball track.
+
+**The t1 regression is real and reported: rally length 7/11 → 5/11,
+endings 3/6 → 1/5.** Direction matters: SAM under-counted (thin
+tracks hide hits), WASB over-counts (03: 8/5, 06: 6/3, 25: 12/10). A
+denser track feeds the cusp detector MORE — pre-serve ball handling,
+toss, bounces the thin track never saw — and the frozen thresholds
+were battle-hardened against sparse SAM tracks, never against 90%
+coverage. That's a chart-loop problem to fix in the open, not a
+tracker problem; the same dense tracks scored 4/5 on t2.
+
+**New coverage, 13 clips SAM never tracked (11 scored, 2 ambiguous-MCP
+auto-skipped):** rally len ±1 6/11, letters 20/31, endings 2/3, server
+end 1/11 — that last number is honest and explains itself: these are
+exactly the clips where the serve detector had no confident call
+(which is WHY SAM had no bootstrap), so the chart has no serve anchor
+and no synth serve. Different failure, same root as always.
+
+SAM retires from ball duty. Marginal tracking cost per match: $0.00,
+forever, and the 25-clip fleet takes minutes on a laptop GPU. SAM
+remains a candidate for player segmentation, where a box prompt is
+cheap and the object is large.
+- experiments/t1w_chart_point.py / t2w_chart_point.py / t1w_eval.py /
+  t2w_eval.py are byte-identical twins of the frozen scripts except
+  ball/ → ball_wasb/ and charts/ → charts_wasb/ — the A/B is
+  clip-for-clip comparable and the frozen originals are untouched.
+- Session cost: $0.00. Project total: ~$4.15 of $9.
