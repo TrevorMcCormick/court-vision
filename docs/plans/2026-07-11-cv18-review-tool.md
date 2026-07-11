@@ -964,8 +964,8 @@ function openRow(i) {
   const r = S.rows[i];
   v.src = `/clip/${r.clip}.mp4`;
   v.playbackRate = 1;
-  const seekTo = r.serve_s !== null
-    ? Math.max(0, parseFloat(r.serve_s) - 1.5) : 0;
+  const sNum = parseFloat(r.serve_s);
+  const seekTo = Number.isFinite(sNum) ? Math.max(0, sNum - 1.5) : 0;
   rowSeek = seekTo;
   v.onloadedmetadata = () => { v.currentTime = seekTo; v.play(); };
   $("#first").value = r.corrected_1st || r.first_draft || "";
@@ -973,7 +973,7 @@ function openRow(i) {
   $("#notes").value = r.notes || "";
   const conf = r.confidence !== null
     ? ` · <span class="hi">${r.confidence} ${r.conf_p}</span>` : "";
-  const jump = r.serve_s !== null ? ` · serve @ ${r.serve_s}s` : "";
+  const jump = Number.isFinite(sNum) ? ` · serve @ ${r.serve_s}s` : "";
   $("#meta").innerHTML = `<b>${r.clip}</b> · Pt ${r.pt || "—"} · ` +
     `${r.pts || "?"} · Svr ${r.svr || "?"}${conf}${jump}`;
   $("#lint").textContent = "";
