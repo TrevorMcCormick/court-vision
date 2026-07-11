@@ -59,3 +59,51 @@ def test_draft_tokens_mirror_mcp_ambiguous_shots():
     # corrected strings must project the same way truth does
     from courtvision.mcp import mcp_point_tokens
     assert draft_point_tokens("4h1n#") == mcp_point_tokens("4h1n#")
+
+
+def test_load_session_rejects_regenerated_export(cfg):
+    import csv
+    import json
+    from courtvision.review_analysis import _load_session
+    from tests.conftest import EXPORT_FIELDS, ROWS
+
+    # Create a review session directory with manifest and empty events
+    session_dir = cfg.out_dir / "review" / "sha-check"
+    session_dir.mkdir(parents=True)
+    with open(session_dir / "manifest.json", "w") as f:
+        # Store the original SHA of the export
+        export_path = cfg.out_dir / "export" / "tt_mcp_draft.csv"
+        import hashlib
+        original_sha = hashlib.sha256(export_path.read_bytes()).hexdigest()
+        json.dump({"export_sha256": original_sha, "rows": []}, f)
+    # Create empty events file
+    with open(session_dir / "events.jsonl", "w") as f:
+        pass
+    # Regenerate the export with a different value
+    export = cfg.out_dir / "export" / "tt_mcp_draft.csv"
+    rows = [dict(r) for r in ROWS]
+    rows[0]["1st"] = "s6*"                     # regenerate with a change
+    with open(export, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=EXPORT_FIELDS)
+        w.writeheader()
+        w.writerows(rows)
+    try:
+        _load_session(cfg, "sha-check")
+        assert False, "expected ValueError"
+    except ValueError as e:
+        assert "export changed" in str(e)
+
+
+def test_load_session_skips_corrupt_event_lines(cfg):
+    from courtvision.review import ReviewSession
+    from courtvision.review_analysis import _load_session
+
+    s = ReviewSession(cfg, "cold", "bad-lines", seed="s", n=2)
+    s.append_event({"ts_ms": 1, "row": "tt_point_01",
+                    "event": "row_open", "payload": {}})
+    with open(s.dir / "events.jsonl", "a") as f:
+        f.write("{truncated garba\n\n")
+    s.append_event({"ts_ms": 2, "row": "tt_point_01",
+                    "event": "accept", "payload": {}})
+    loaded = _load_session(cfg, "bad-lines")
+    assert [e["event"] for e in loaded["events"]] == ["row_open", "accept"]

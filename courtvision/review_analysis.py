@@ -20,6 +20,7 @@ manifest, not by hand.
 """
 
 import csv
+import hashlib
 import json
 from collections import Counter
 
@@ -110,18 +111,35 @@ def corrected_played(corr_row):
 def _load_session(cfg, name):
     d = cfg.out_dir / "review" / name
     man = json.loads((d / "manifest.json").read_text())
-    events = [json.loads(l) for l in
-              (d / "events.jsonl").read_text().splitlines()]
+    events, bad = [], 0
+    for l in (d / "events.jsonl").read_text().splitlines():
+        if not l.strip():
+            continue
+        try:
+            events.append(json.loads(l))
+        except json.JSONDecodeError:
+            bad += 1
+    if bad:
+        print(f"warning: {name}: skipped {bad} unparseable event line(s)")
     corr = {}
     if (d / "corrected.csv").exists():
         with open(d / "corrected.csv") as f:
             corr = {r["clip"]: r for r in csv.DictReader(f)}
-    with open(cfg.out_dir / "export" / f"{cfg.id}_mcp_draft.csv") as f:
+    export_path = cfg.out_dir / "export" / f"{cfg.id}_mcp_draft.csv"
+    with open(export_path) as f:
         export = {r["clip"]: r for r in csv.DictReader(f)}
+    sha = hashlib.sha256(export_path.read_bytes()).hexdigest()
+    if man.get("export_sha256") and sha != man["export_sha256"]:
+        raise ValueError(
+            f"{cfg.id} export changed since session '{name}' was "
+            f"created — the corrections were made against a draft "
+            f"that no longer exists (manifest {man['export_sha256'][:12]}, "
+            f"disk {sha[:12]})")
     truth = {}
-    with open(cfg.eval.mcp_map) as f:
-        truth = {r["clip"]: r for r in csv.DictReader(f)
-                 if r["status"] == "matched"}
+    if cfg.eval.mcp_map and cfg.eval.mcp_map.exists():
+        with open(cfg.eval.mcp_map) as f:
+            truth = {r["clip"]: r for r in csv.DictReader(f)
+                     if r["status"] == "matched"}
     return {"dir": d, "man": man, "events": events, "corr": corr,
             "export": export, "truth": truth}
 
