@@ -2062,3 +2062,64 @@ the number is just good.
   t1-t4 ground truth, and t1-t4 charts untouched (chart CSVs never
   re-run; only their exports carry the new confidence column).
   Marginal cost of the three matches: $0.
+
+## 2026-07-11 — The t4 autopsy: what a clean-looking fragment costs, and the gates that catch it
+
+**The weak fold gets its autopsy.** The recalibration named t4 (grass,
+Wimbledon 2024 WTA F) the drag: 69% held-out HIGH precision against
+everyone else's ≥84. Eight false-highs, every one pulled apart against
+its chart CSV, MCP string, and — house rule — frame strips, because the
+mechanism gets named from pixels or it doesn't get named. Two diseases,
+neither of them the phantom-insertion story I'd been telling. First:
+the half-cadence chart. t4_point_02 charts 8 shots at 1.5 s spacing;
+the pixels show the real exchange running 0.9 s (near hit f245, far
+hit ~f272, near winding up again by f293 — a stroke our chart simply
+never had). Every other stroke missing, and the striker chain
+alternates right over the top of it: conflicts 0, crossings_gap 0,
+because the ball track is blind in exactly the same places the hit
+detector is. Second: the dissolve-cut mid-rally join. t4_point_35
+opens on a crowd cutaway and then FIVE SECONDS of live rally before
+the stroke our stance detector blessed as a "serve" at f148. The grass
+editor cuts into points like the clay editor — but t4's serves are all
+stance-called (src=players), and the launch-plausibility gate only
+inspects src=ball serves. It defaulted to pass on every t4 point,
++0.59 logit of unearned trust, a signal that structurally cannot fire
+on this feed.
+
+**The dead-ends, kept.** Weak-gated crossings do NOT recover the
+missing strokes — point_02's 17-stroke rally yields 7 weak crossings;
+the track never told the story, so no crossings-vs-shots residual can
+either. And charted cadence (mean inter-shot gap) is real but soft:
+AUC 0.62 on t4 AND cross-feed, yet its marginal LOMO flags ran 50/50 —
+it gets a sidecar column for the charter's eyes, not a model seat.
+
+**What shipped instead: two more rules from physics, one feature.**
+`xr_pre_serve` — weak crossings that end before the charted serve;
+two or more means the clip joined the rally mid-flight and the chart
+can't be the whole point (also a fitted feature, where one crossing
+can whisper). `rally_spineless` — a 3+-shot chart whose window holds
+zero weak crossings charted a rally the ball never played
+(t4_point_49: four shots, zero crossings, flagged high at p=0.747
+against a 0.745 threshold). Both live beside the launch gate, outside
+the fit. LOMO, all seven folds:
+
+    t4    18/26 (69%) @ 53.1%  ->  17/20 (85%) @ 40.8%
+    pooled 92/104 (88%) @ 21.2% ->  90/96 (94%) @ 19.6%
+
+No other fold below 92%; t5's one disaster gated away (3/3). High-tier
+6+-edit disasters halve, 12 -> 6. The trade is 1.6 pts of coverage,
+and it's the honest direction: t4 was being flagged at 53% of the
+match against a 61% base rate — the model wasn't discriminating, it
+was liking t4's rosy serve signals. The residue is on the record too:
+point_11 stays flagged at d=10 (its dissolve-cut leaves no pre-serve
+crossings — the track is blind there as well), and 43/46 sit one edit
+over the bar. Fragments the track never saw remain invisible to every
+signal; that ceiling is t4's chart quality, not the calibration's.
+
+- Modified: courtvision/confidence.py (3 signals, 2 gates, model
+  feature +1), courtvision/export.py (docstring number),
+  data/confidence_model.json (refit on 491, t_high=0.753, 97 high at
+  96% in-sample), docs/benchmark.md (autopsy table + before/after).
+  Exports regenerated for all seven matches (508 points, 99 high).
+  Charts, ground truth, experiments/, and staging outputs untouched.
+- Session cost: $0.00. Project total: ~$16.

@@ -8,7 +8,7 @@ faults, so every point is written as if played on the first serve —
 correcting that is part of the charter's pass), plus the columns MCP
 doesn't have and a charter triaging a draft needs:
 
-  confidence   high = the draft is a usable starting point (~93% of
+  confidence   high = the draft is a usable starting point (~94% of
                high-flagged points are within 5 token edits, LOMO —
                data/confidence_model.json, courtvision.confidence);
                low = expect heavy correction or a re-chart

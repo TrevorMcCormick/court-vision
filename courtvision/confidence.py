@@ -15,17 +15,31 @@ already computed by the pipeline; nothing new is measured:
              far landing .47), recomputed from the chart artifacts
   ending     committed vs '?'
   structure  crossings-vs-shots consistency (a live rally crosses the
-             net every shot), shots per tracked second, and the
+             net every shot), shots per tracked second, mean charted
+             inter-shot gap (a live exchange runs ~0.7-1.1 s; a chart
+             pacing 1.5 s+ between shots is recording every other
+             stroke — the t4 grass autopsy, named from pixels), and the
              mid-rally-start signature: a "serve" called 0 s into the
              clip whose ball-launch cy sits INSIDE the court is a rally
              crossing in costume (a real serve's toss projects far
              beyond the baselines) — the observable trace of the clay
              editor cutting INTO rallies
+  pre-serve  weak-gated net crossings that END before the charted
+             serve: rally-speed ball flight before our "serve" means
+             the clip joined the point mid-rally (the grass editor's
+             dissolve-cut), and the chart cannot be the whole point —
+             the stance-called-serve blind spot the launch gate can't
+             see (it only inspects src=ball serves)
+  spine      a chart claiming 3+ shots while the ball never once
+             crosses the net even at the weak gates has no crossing
+             spine at all — a rally story invented from track noise
 
 Scorer: logistic regression (numpy, deterministic, L2) on standardized
 signals, predicting P(point within 5 token edits of MCP truth) — the
-"the draft is a usable starting point" bar — PLUS the mechanistic
-serve-launch-plausibility gate (a rule from geometry, not fitted).
+"the draft is a usable starting point" bar — PLUS three mechanistic
+gates (rules from geometry and physics, not fitted): serve-launch
+plausibility, no pre-serve rally crossings (< 2), and the rally has a
+crossing spine.
 CALIBRATION DISCIPLINE: thresholds and the honest performance numbers
 come from leave-one-match-out fits across the 4 benchmark matches (fit
 on 3, score the held-out 4th); the shipped model in
@@ -39,8 +53,9 @@ precision at <=6% coverage — 135 points at an 11% base rate cannot
 support it, full record in docs/benchmark.md. What survives:
 
   HIGH  P(<=5 edits) past the fold's 90%-train-precision threshold AND
-        the serve launch is plausible. LOMO: ~93% of high-flagged
-        points are within 5 edits, at ~1/3 coverage.
+        all three mechanistic gates pass. LOMO (7 matches, 491 points):
+        ~94% of high-flagged points are within 5 edits, at ~20%
+        coverage — the table in docs/benchmark.md.
   LOW   everything else — expect heavy correction or a re-chart.
 
 Usage:
@@ -66,7 +81,8 @@ FEATURES = ["serve_committed", "serve_margin_m", "serve_overridden",
             "conflicts", "n_holes", "coverage", "max_hole_s",
             "letters_refused_frac", "mean_contact_dist",
             "dir_quality_mean", "dirs_refused_frac", "ending_committed",
-            "crossings_gap", "n_shots", "shots_per_s"]
+            "crossings_gap", "n_shots", "shots_per_s",
+            "xr_pre_serve", "rally_spineless", "mean_shot_gap_s"]
 
 PRECISION_TARGET = 0.90       # train precision required to flag HIGH
 GOOD_EDITS = 5                # the "usable starting point" bar (see module doc)
@@ -77,7 +93,18 @@ STRICT_EDITS = 2              # the unsupported sign-off bar, reported anyway
 MODEL_FEATURES = ["n_shots", "letters_refused_frac", "dirs_refused_frac",
                   "serve_zone_committed", "ending_committed",
                   "serve_committed", "crossings_gap", "max_hole_s",
-                  "serve_s", "serve_launch_plausible"]
+                  "serve_s", "serve_launch_plausible", "xr_pre_serve"]
+
+# the mechanistic gates, applied OUTSIDE the fit (rules, not weights)
+GATES = ("serve_launch_plausible == 1 and xr_pre_serve < 2 "
+         "and rally_spineless == 0")
+
+
+def gate_pass(f):
+    """The three mechanistic gates, from a point's signal dict."""
+    return (f["serve_launch_plausible"] == 1.0
+            and f["xr_pre_serve"] < 2
+            and f["rally_spineless"] == 0.0)
 
 
 def _shots_from_chart(rows):
@@ -185,6 +212,23 @@ def point_signals(cfg, clip, mc, Hm, offsets, serves, charts_dir=None):
     xr = events.net_crossings(frames, cyc, fps)
     crossings_gap = abs(len(shots) - (len(xr) + 1))
 
+    # the whole-point gates the t4 autopsy earned (2026-07-11): weak
+    # crossings ending before the charted serve = the clip joined the
+    # rally mid-flight (the grass editor's dissolve-cut, invisible to
+    # the launch gate on stance-called serves); a 3+-shot chart whose
+    # window holds ZERO weak crossings has no spine at all.
+    xw = events.net_crossings(frames, cyc, fps, weak=True)
+    shot_frames = [sh["frame"] for sh in shots]
+    serve_f = serve_sh["frame"] if serve_sh is not None else None
+    xr_pre_serve = float(sum(1 for (a, b, _) in xw
+                             if serve_f is not None and b < serve_f))
+    w0 = serve_f if serve_f is not None else shot_frames[0]
+    w1 = max(shot_frames) + int(1.5 * fps)
+    xw_in = sum(1 for (a, b, _) in xw if b >= w0 and a <= w1)
+    rally_spineless = 1.0 if (len(shots) >= 3 and xw_in == 0) else 0.0
+    mean_shot_gap = (float(np.mean(np.diff(shot_frames))) / fps
+                     if len(shot_frames) >= 2 else 0.0)
+
     return {
         "serve_committed": serve_committed,
         "serve_margin_m": min(float(margin), 3.0) if margin else 0.0,
@@ -204,6 +248,9 @@ def point_signals(cfg, clip, mc, Hm, offsets, serves, charts_dir=None):
         "crossings_gap": float(crossings_gap),
         "n_shots": float(len(shots)),
         "shots_per_s": len(shots) / (nfr / fps) if nfr else 0.0,
+        "xr_pre_serve": xr_pre_serve,
+        "rally_spineless": rally_spineless,
+        "mean_shot_gap_s": mean_shot_gap,
     }
 
 
@@ -313,7 +360,9 @@ def calibrate_and_report():
     Xall = np.stack([r["x"] for r in rows])
     midx = [FEATURES.index(k) for k in MODEL_FEATURES]
     X = Xall[:, midx]
-    gate = Xall[:, FEATURES.index("serve_launch_plausible")] == 1.0
+    gate = ((Xall[:, FEATURES.index("serve_launch_plausible")] == 1.0)
+            & (Xall[:, FEATURES.index("xr_pre_serve")] < 2)
+            & (Xall[:, FEATURES.index("rally_spineless")] == 0.0))
     d = np.array([r["d_tok"] for r in rows])
     match_of = np.array([r["match"] for r in rows])
     good = (d <= GOOD_EDITS).astype(float)
@@ -343,7 +392,7 @@ def calibrate_and_report():
           f"LOMO precision {prec} at {hi.sum() / len(d):.1%} coverage — "
           f"{len(d)} points at a {strict.mean():.0%} base rate can't support it")
 
-    # ---- the shipped model: fit on all 135, threshold by the same rule ----
+    # ---- the shipped model: fit on all points, threshold by the same rule ----
     Xs, mu, sd = _standardize(X)
     w = _fit_logistic(Xs, good)
     p = _predict(w, Xs)
@@ -352,10 +401,11 @@ def calibrate_and_report():
              "weights": w.tolist(), "t_high": float(t_high),
              "good_edits": GOOD_EDITS,
              "precision_target": PRECISION_TARGET,
-             "gate": "serve_launch_plausible == 1",
+             "gate": GATES,
              "n_train": len(rows),
-             "note": "fit on all 4 benchmark matches; honest numbers are "
-                     "the LOMO table in docs/benchmark.md"}
+             "note": f"fit on all {len(rows)} points across {len(mids)} "
+                     "matches; honest numbers are the LOMO table in "
+                     "docs/benchmark.md"}
     MODEL_PATH.write_text(json.dumps(model, indent=1))
     hi = (p >= t_high) & gate
     print(f"\nshipped model (all-data fit): flags {hi.sum()}/{len(rows)} high "
@@ -379,7 +429,6 @@ def score_match(cfg, charts_dir=None):
     for clip, f in sigs.items():
         x = (np.array([f[k] for k in model["features"]]) - mu) / sd
         p = float(1 / (1 + np.exp(-(w[0] + x @ w[1:]))))
-        flag = ("high" if p >= model["t_high"]
-                and f["serve_launch_plausible"] == 1.0 else "low")
+        flag = "high" if p >= model["t_high"] and gate_pass(f) else "low"
         out[clip] = (flag, p, f)
     return out

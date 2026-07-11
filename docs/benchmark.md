@@ -416,4 +416,79 @@ background-job watcher died silently between t6 ball tracking and t7
 players — the jobs finished; nothing was listening. The remaining long
 stages were polled from the driving loop instead.
 
+## The t4 autopsy: whole-point gates (2026-07-11)
+
+The 7-match recalibration named t4 the weak fold: 69% held-out HIGH
+precision (18/26), every other fold ≥ 84%. Autopsy of the 8 false-highs
+(held-out flag, > 5 token edits), mechanisms named from pixels per the
+house rule:
+
+| clip | d_tok | mechanism (verified on frames) |
+|---|:---:|---|
+| t4_point_02 | 13 | **half-cadence chart**: real exchange every ~0.9 s (near hit f245, far hit ~f272, near winding up f293), charted shots every ~1.5 s — every other stroke missed, striker chain alternates cleanly over the top (conflicts 0, crossings_gap 0: the track is blind in the same places) |
+| t4_point_08 | 7 | half-cadence + 1 pre-serve weak crossing |
+| t4_point_11 | 10 | **dissolve-cut mid-rally join**: clip opens on a crossfade INTO a live rally; a rally stroke at 1.5 s passes the stance check as the "serve"; the 8 strokes before it don't exist to any signal |
+| t4_point_35 | 14 | dissolve-cut join: crowd cutaway, then ~5 s of live rally BEFORE the charted "serve" at f148 (3 weak net crossings pre-serve — the tell) |
+| t4_point_39 | 8 | mid-rally join (1 pre-serve crossing) + letter garbage |
+| t4_point_43 | 6 | letter/direction accumulation on a 10-shot rally, one edit over the bar |
+| t4_point_46 | 6 | same class as 43 |
+| t4_point_49 | 6 | **spineless rally**: 4-shot chart, ZERO net crossings in the window even at the weak gates — a rally story the track never told |
+
+What made them look trustworthy: the t4-fold model leans on serve
+commitment (committed + zone + launch plausible + n_shots), and
+`serve_launch_plausible` is VACUOUS on t4 — every t4 serve is
+stance-called (src=players), so the gate defaults to pass and
+contributes +0.59 logit to every point unexamined. The failures are
+whole-point failures (the chart is a fragment, or an invention) that
+per-shot quality signals structurally cannot see.
+
+The fix — three additions to `courtvision/confidence.py`, two of them
+mechanistic gates in the launch-gate family (rules, not weights):
+
+- `xr_pre_serve` (signal + gate at ≥ 2): weak-gated net crossings that
+  END before the charted serve. Rally-speed ball flight before our
+  "serve" means the clip joined the point mid-rally and the chart
+  cannot be the whole point — the stance-called-serve blind spot the
+  launch gate can't inspect. Also fed to the logistic as a feature.
+- `rally_spineless` (gate): a chart claiming 3+ shots whose window
+  holds zero weak crossings has no spine at all.
+- `mean_shot_gap_s` (sidecar signal, not in the model): charted
+  inter-shot cadence. A live exchange runs ~0.7–1.1 s; 1.5 s+ means
+  every other stroke is missing (t4_point_02). Cross-feed AUC 0.62 —
+  real but too weak to earn a model seat (its marginal LOMO flags ran
+  50/50); it travels to the export sidecar for the charter's eyes.
+
+**Recalibration (LOMO, 491 points, same discipline):**
+
+| LOMO (held-out) | before | after |
+|---|:---:|:---:|
+| t1 night   | 10/10 (100%) @ 45.5% | 10/10 (100%) @ 45.5% |
+| t2 ctrl    | 3/3 (100%) @ 60.0%   | 3/3 (100%) @ 60.0% |
+| t3 clay    | 11/12 (92%) @ 20.3%  | 11/12 (92%) @ 20.3% |
+| t4 grass   | 18/26 (69%) @ 53.1%  | **17/20 (85%) @ 40.8%** |
+| t5 AO      | 3/4 (75%) @ 5.6%     | 3/3 (100%) @ 4.2% |
+| t6 USO     | 34/35 (97%) @ 27.3%  | 35/36 (97%) @ 28.1% |
+| t7 Turin   | 13/14 (93%) @ 8.9%   | 11/12 (92%) @ 7.6% |
+| **pooled** | **92/104 (88%) @ 21.2%** | **90/96 (94%) @ 19.6%** |
+
+Flag × edit-distance confusion (LOMO, pooled, after):
+
+| flag | 0-1 | 2 | 3-5 | 6+ | total |
+|---|:---:|:---:|:---:|:---:|:---:|
+| high | 13 | 16 | 61 | 6   | 96 |
+| low  | 15 | 51 | 173 | 156 | 395 |
+
+Disasters in the high tier halved, 12 → 6. Coverage paid 1.6 pts
+(21.2% → 19.6%) — the honest trade: t4's flags drop from 53% of the
+match (barely above its 61% base rate) to 41% at 85%. Five of the
+eight false-highs are de-flagged, including all the worst (d 13, 14,
+8, 7). The residue is on the record: t4_point_11 (d=10) stays flagged
+— its dissolve-cut join leaves no pre-serve crossings because the
+track is blind there too — and 43/46 (d=6) are one edit over the bar.
+The strict ≤2-edit tier under the new gates reads 86% (6/7) at 1.4%
+coverage in LOMO — first time above water, still nowhere near
+shippable n; still not shipped. Shipped scorer refit on all 491
+(t_high=0.753) flags 97/491 high at 96% in-sample; exports
+regenerated for all seven matches — 508 draft points, 99 flagged high.
+
 Full history: LOG.md. Landscape context: docs/landscape-2026-07.md.
