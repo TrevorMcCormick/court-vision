@@ -125,3 +125,25 @@ There is deliberately no "sign-off" tier: a within-2-edits flag at
 ≥85% precision did not survive leave-one-match-out (50% at 1.5%
 coverage) — 135 points at an 11% base rate cannot support it. When
 the benchmark grows, `calibrate` refits and reports honestly.
+
+## Correcting drafts: the review tool
+
+`review` opens a local web UI for correcting a match's draft export
+against its clips — the charter-assist surface, and the instrument
+for the cv-18 stopwatch experiment (protocol: docs/cv18-protocol.md).
+
+    uv run python -m courtvision review t6 --mode review --session r1
+    uv run python -m courtvision review t6 --mode cold --session c1 \
+        --seed cv18-a --n 10          # drafts hidden, gradeable rows
+
+Sessions live in `outputs/<match>/review/<session>/` (manifest,
+events.jsonl telemetry, corrected.csv) and resume if rerun. `cold`
+mode hides everything machine-derived (draft string, confidence,
+serve timestamp); `review` mode pre-fills the draft. Lint warnings
+under the inputs are advisory MCP-legality checks and never block.
+
+    uv run python -m courtvision review-analyze \
+        --cold-a t6:c1 --review t6:r1 --cold-b t7:c2
+
+writes the timing/accuracy/anchoring/histogram report to the review
+session's directory.
