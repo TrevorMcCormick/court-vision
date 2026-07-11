@@ -2123,3 +2123,45 @@ signal; that ceiling is t4's chart quality, not the calibration's.
   Exports regenerated for all seven matches (508 points, 99 high).
   Charts, ground truth, experiments/, and staging outputs untouched.
 - Session cost: $0.00. Project total: ~$16.
+
+## 2026-07-11 — cv-17: the drafts go public, addressed to the 32
+
+**Nothing in the pipeline ran.** The session turned outward — the
+first since t1 with zero perception, charting, or eval work. The
+seven draft exports are now published artifacts: all
+`t*_mcp_draft.csv` hosted at trmccormick.com/data/ (stable URLs via
+Docusaurus `pathname://`, dodging the hashed-asset pipeline), and
+cv-17 ("The 33rd Charter") is the cover letter, addressed to the
+Match Charting Project's 32 active charters via Sackmann's Jan 2026
+plea. Reply channel: GitHub issues on this repo. This is the public
+probe on landscape open question #1 (has anyone attempted assisted
+charting?) — if a charter answers, the question answers itself.
+
+**Framing decisions worth keeping.** The ask is a stopwatch, not
+praise: chart ten points cold vs correct ten green drafts, measured
+by someone who holds the pencil — the ratio the whole project bets
+on and has never measured. The grammar honesty went in the post
+instead of under it: the strings are MCP-style, not MCP-legal (`s`
+prefix, `?` direction tokens, none of MCP's depth/position/volley
+vocabulary), converted from a gap into question 3 for the charter
+(strict-legal with blanks vs visible uncertainty). And the license
+note is explicit: the exports carry MCP-joined columns, so the files
+inherit CC BY-NC-SA 4.0 with attribution to Tennis Abstract and the
+volunteer charters.
+
+**The hero is the file.** render_cv17_hero.py scrolls all 134 rows
+of t6's draft as rendered pixels (39 HIGH in green, summary card
+pinned), plays two HIGH points with the WASB comet and their draft
+row in the bar, then the honest-split card — 39 start-from-draft /
+95 re-chart / 6 unplaced / faults invisible — before the ask card.
+Per-file split published in the post: t1 10/24, t2 4/6, t3 12/59,
+t4 18/49, t5 3/71, t6 39/134, t7 13/165 = 99/508 high. t4's 37%
+flag rate got the honest aside (its answer key runs half-cadence on
+some rallies; "if you open one file to hunt over-confidence, open
+that one").
+
+- New: experiments/render_cv17_hero.py, outputs/cv17_hero{,_raw}.mp4
+  (untracked). Blog repo: cv-17 post, static/data/*.csv x7,
+  static/img/blog/the-review-copy.mp4, social card. Pipeline, charts,
+  exports, model: untouched.
+- Session cost: $0.00. Project total: ~$16.
