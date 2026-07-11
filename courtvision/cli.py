@@ -82,6 +82,12 @@ def main(argv=None):
     p.add_argument("--port", type=int, default=8765)
     p.add_argument("--no-browser", action="store_true")
 
+    p = sub.add_parser("review-analyze",
+                       help="cv-18 tables from review sessions")
+    p.add_argument("--cold-a", required=True, metavar="MATCH:SESSION")
+    p.add_argument("--review", required=True, metavar="MATCH:SESSION")
+    p.add_argument("--cold-b", required=True, metavar="MATCH:SESSION")
+
     args = parser.parse_args(argv)
 
     if args.cmd == "chart":
@@ -147,6 +153,14 @@ def main(argv=None):
         review.run(config.load(args.match), args.mode, args.session,
                    seed=args.seed, n=args.n, port=args.port,
                    open_browser=not args.no_browser)
+    elif args.cmd == "review-analyze":
+        from . import review_analysis
+        def _spec(s):
+            mid, name = s.split(":", 1)
+            return (config.load(mid), name)
+        review_analysis.analyze({"cold_a": _spec(args.cold_a),
+                                 "review": _spec(args.review),
+                                 "cold_b": _spec(args.cold_b)})
 
 
 if __name__ == "__main__":
