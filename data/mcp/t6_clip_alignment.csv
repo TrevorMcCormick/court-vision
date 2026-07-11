@@ -1,0 +1,136 @@
+clip,set1,set2,gm1,gm2,pts,server_bug,note
+t6_point_01,0,0,0,0,0-15,1,bug Pegula-top; transcribed player-1-first (Sabalenka)
+t6_point_02,0,0,0,0,0-30,1,
+t6_point_03,0,0,0,0,15-30,1,
+t6_point_04,0,0,0,0,30-30,1,
+t6_point_05,0,0,0,0,40-30,1,
+t6_point_06,0,0,1,0,15-0,2,
+t6_point_07,0,0,1,0,15-15,2,
+t6_point_08,0,0,1,0,15-30,2,
+t6_point_09,0,0,1,0,15-40,2,
+t6_point_10,0,0,1,1,0-0,1,
+t6_point_11,0,0,1,1,15-0,1,
+t6_point_12,0,0,1,1,15-15,1,
+t6_point_13,0,0,1,1,15-40,1,
+t6_point_14,0,0,1,2,0-0,2,
+t6_point_15,0,0,1,2,15-0,2,
+t6_point_16,0,0,1,2,30-0,2,
+t6_point_17,0,0,1,2,30-15,2,
+t6_point_18,0,0,1,2,30-30,2,
+t6_point_19,0,0,1,2,30-40,2,
+t6_point_20,0,0,1,2,40-40,2,
+t6_point_21,0,0,1,2,AD-40,2,Sabalenka AD (bug shows AD on Sabalenka row)
+t6_point_22,,,,,,,adjudicated: walk-up/let fragment (bug animating in); real point in 23 (MCP Pt25 1st in)
+t6_point_23,0,0,2,2,0-0,1,0-0 fragment pair with 22
+t6_point_24,0,0,2,2,15-0,1,
+t6_point_25,0,0,2,2,15-15,1,
+t6_point_26,0,0,2,2,30-30,1,
+t6_point_27,0,0,2,2,40-30,1,
+t6_point_28,0,0,3,2,0-0,2,
+t6_point_29,0,0,3,2,15-0,2,
+t6_point_30,0,0,3,2,15-15,2,
+t6_point_31,0,0,3,2,30-15,2,
+t6_point_32,0,0,3,2,40-15,2,
+t6_point_33,0,0,4,2,0-0,1,
+t6_point_34,0,0,4,2,15-15,1,
+t6_point_35,0,0,4,2,30-30,1,
+t6_point_36,0,0,4,2,40-40,1,
+t6_point_37,0,0,4,2,AD-40,1,
+t6_point_38,0,0,5,2,0-0,2,
+t6_point_39,0,0,5,2,15-0,2,
+t6_point_40,0,0,5,2,15-15,2,
+t6_point_41,0,0,5,2,15-30,2,
+t6_point_42,0,0,5,2,15-40,2,
+t6_point_43,0,0,5,3,0-0,1,SERVING FOR THE SET
+t6_point_44,0,0,5,3,0-15,1,
+t6_point_45,0,0,5,3,15-15,1,
+t6_point_46,0,0,5,3,15-30,1,
+t6_point_47,0,0,5,3,30-40,1,BREAK POINT
+t6_point_48,0,0,5,3,40-40,1,
+t6_point_49,0,0,5,3,40-AD,1,Pegula AD
+t6_point_50,0,0,5,4,0-0,2,
+t6_point_51,0,0,5,4,0-15,2,
+t6_point_52,0,0,5,4,0-30,2,
+t6_point_53,0,0,5,4,0-40,2,
+t6_point_54,0,0,5,4,15-40,2,
+t6_point_55,0,0,5,4,30-40,2,
+t6_point_56,0,0,5,5,15-15,1,
+t6_point_57,0,0,6,5,0-0,2,
+t6_point_58,0,0,6,5,0-15,2,
+t6_point_59,0,0,6,5,15-15,2,
+t6_point_60,0,0,6,5,30-15,2,
+t6_point_61,0,0,6,5,40-15,2,SET POINT
+t6_point_62,0,0,6,5,40-30,2,SET POINT #2
+t6_point_63,0,0,6,5,40-40,2,deuce cycle A
+t6_point_64,0,0,6,5,AD-40,2,SET POINT #3
+t6_point_65,0,0,6,5,40-40,2,deuce cycle B
+t6_point_66,0,0,6,5,AD-40,2,SET POINT #4
+t6_point_67,0,0,6,5,40-40,2,deuce cycle C
+t6_point_68,0,0,6,5,40-AD,2,Pegula AD
+t6_point_69,0,0,6,5,AD-40,2,SET POINT #5
+t6_point_70,1,0,0,0,0-0,1,set 2 era (sets col 7/5 appears)
+t6_point_71,1,0,0,0,15-0,1,
+t6_point_72,1,0,0,0,30-0,1,
+t6_point_73,1,0,0,0,40-0,1,
+t6_point_74,1,0,0,0,40-30,1,
+t6_point_75,1,0,1,0,0-0,2,
+t6_point_76,1,0,1,0,0-15,2,
+t6_point_77,1,0,1,0,15-15,2,
+t6_point_78,,,,,,,IBM stats card (NET POINTS WON) passed presence — not a score bug; dropped
+t6_point_79,1,0,1,0,30-15,2,
+t6_point_80,1,0,1,0,40-15,2,BREAK POINT
+t6_point_81,,,,,,,adjudicated: first-serve fault 4w (MCP Pt105); second-serve point in 82
+t6_point_82,1,0,2,0,0-0,1,0-0 fragment pair with 81
+t6_point_83,1,0,2,0,15-0,1,
+t6_point_84,1,0,2,0,30-0,1,
+t6_point_85,1,0,2,0,40-0,1,
+t6_point_86,1,0,3,1,0-0,1,0-0 fragment pair with 87
+t6_point_87,,,,,,,adjudicated: aftermath fragment; serve+rally in 86 (MCP Pt117 2nd-serve point)
+t6_point_88,1,0,3,1,15-0,1,
+t6_point_89,1,0,3,1,15-15,1,
+t6_point_90,1,0,3,1,15-30,1,
+t6_point_91,1,0,3,1,15-40,1,
+t6_point_92,1,0,3,1,30-40,1,
+t6_point_93,1,0,3,2,0-0,2,
+t6_point_94,1,0,3,2,0-15,2,
+t6_point_95,1,0,3,2,0-30,2,
+t6_point_96,1,0,3,2,15-40,2,
+t6_point_97,1,0,3,2,30-40,2,
+t6_point_98,1,0,3,2,40-40,2,
+t6_point_99,1,0,3,3,0-0,1,
+t6_point_100,1,0,3,3,15-0,1,
+t6_point_101,1,0,3,3,30-0,1,
+t6_point_102,1,0,3,3,30-15,1,
+t6_point_103,1,0,3,3,30-30,1,
+t6_point_104,1,0,3,3,30-40,1,
+t6_point_105,1,0,3,4,0-0,2,
+t6_point_106,1,0,3,4,0-15,2,
+t6_point_107,1,0,3,4,0-30,2,
+t6_point_108,1,0,3,4,15-30,2,
+t6_point_109,1,0,3,4,30-30,2,
+t6_point_110,1,0,3,4,40-40,2,
+t6_point_111,1,0,3,4,40-AD,2,Pegula AD
+t6_point_112,1,0,3,5,0-0,1,
+t6_point_113,1,0,3,5,0-15,1,
+t6_point_114,1,0,3,5,15-15,1,
+t6_point_115,1,0,3,5,30-15,1,
+t6_point_116,1,0,3,5,40-15,1,
+t6_point_117,1,0,3,5,40-30,1,
+t6_point_118,,,,,,,adjudicated: walk-up fragment (SERVING FOR THE SET banner); serve in 119
+t6_point_119,1,0,4,5,0-0,2,0-0 fragment trio
+t6_point_120,,,,,,,adjudicated: rally tail of mid-rally cutaway split; serve+head in 119 (MCP Pt151 15 strikes ~= 119+120 crossings)
+t6_point_121,1,0,4,5,15-0,2,
+t6_point_122,1,0,4,5,30-0,2,
+t6_point_123,1,0,4,5,40-0,2,
+t6_point_124,1,0,4,5,40-15,2,
+t6_point_125,1,0,4,5,40-30,2,
+t6_point_126,1,0,5,5,0-0,1,
+t6_point_127,1,0,5,5,15-15,1,
+t6_point_128,1,0,5,5,30-15,1,
+t6_point_129,1,0,5,5,40-15,1,
+t6_point_130,1,0,6,5,0-0,2,
+t6_point_131,1,0,6,5,0-15,2,
+t6_point_132,1,0,6,5,15-15,2,
+t6_point_133,1,0,6,5,30-15,2,
+t6_point_134,1,0,6,5,40-15,2,CHAMPIONSHIP POINT
+t6_point_135,1,0,6,5,40-30,2,CHAMPIONSHIP POINT #2

@@ -1,0 +1,136 @@
+clip,note,mcp_pt,svr,first,second,winner,status,gms,pts
+t6_point_01,bug Pegula-top; transcribed player-1-first (Sabalenka),2,1,4s28f2d@,,2,matched,0-0,0-15
+t6_point_02,,3,1,4f1n#,,1,matched,0-0,0-30
+t6_point_03,,4,1,6*,,1,matched,0-0,15-30
+t6_point_04,,5,1,4r3w#,,1,matched,0-0,30-30
+t6_point_05,,6,1,6f#,,1,matched,0-0,40-30
+t6_point_06,,8,2,c5b28s3s3n@,,2,matched,1-0,0-15
+t6_point_07,,9,2,6*,,2,matched,1-0,15-15
+t6_point_08,,10,2,5b2d#,,2,matched,1-0,30-15
+t6_point_09,,11,2,5s3d#,,2,matched,1-0,40-15
+t6_point_10,,12,1,4*,,1,matched,1-1,0-0
+t6_point_11,,13,1,4s27r-3b-3z#,,2,matched,1-1,15-0
+t6_point_12,,14,1,4n,4f18f1f2b2s3b3b3b3b3b3n@,2,matched,1-1,15-15
+t6_point_13,,16,1,6w,4f29b2n#,2,matched,1-1,15-40
+t6_point_14,,17,2,5b29f3s2u3n@,,1,matched,1-2,0-0
+t6_point_15,,18,2,5b37b3b3b2f1f3n#,,1,matched,1-2,0-15
+t6_point_16,,19,2,4*,,2,matched,1-2,0-30
+t6_point_17,,20,2,5b28f3b3n@,,2,matched,1-2,15-30
+t6_point_18,,21,2,5b29b2b1f1r3d#,,2,matched,1-2,30-30
+t6_point_19,,22,2,6f18f1f1*,,1,matched,1-2,40-30
+t6_point_20,,23,2,4f19f2b3b3s2f3d@,,1,matched,1-2,40-40
+t6_point_21,Sabalenka AD (bug shows AD on Sabalenka row),24,2,5d,5b29b2d#,1,matched,1-2,40-AD
+t6_point_22,adjudicated: walk-up/let fragment (bug animating in); real point in 23 (MCP Pt25 1st in),,,,,,NO MATCH,,
+t6_point_23,0-0 fragment pair with 22,25,1,4f28b3b3b+1f2o3*,,1,matched,2-2,0-0
+t6_point_24,,26,1,4w,4b39b1d#,2,matched,2-2,15-0
+t6_point_25,,27,1,5s28f1*,,1,matched,2-2,15-15
+t6_point_26,,29,1,5b27f+3b2o1*,,1,matched,2-2,30-30
+t6_point_27,,30,1,5b29f2b3b2f3w@,,1,matched,2-2,40-30
+t6_point_28,,31,2,5d,5b28b2f+3s1v1*,1,matched,3-2,0-0
+t6_point_29,,32,2,6*,,2,matched,3-2,0-15
+t6_point_30,,33,2,4f19f3n#,,1,matched,3-2,15-15
+t6_point_31,,34,2,5b27b2s2f1f1f2f+3s2f-1*,,1,matched,3-2,15-30
+t6_point_32,,35,2,4d,5b28b2b2b;2b2f1d@,1,matched,3-2,15-40
+t6_point_33,,36,1,4d,5f19f3b3s2r3b1r2y+1f2v3*,1,matched,4-2,0-0
+t6_point_34,,38,1,6s2d#,,1,matched,4-2,15-15
+t6_point_35,,40,1,4f18f3*,,1,matched,4-2,30-30
+t6_point_36,order-resolved,42,1,4n,5b28b3s2f3b3b+3b1v^1f-1n#,1,matched,4-2,40-40
+t6_point_37,order-resolved,43,1,4d,4b37b1n#,2,matched,4-2,AD-40
+t6_point_38,,46,2,5d,5r18f1f1f3b3*,1,matched,5-2,0-0
+t6_point_39,,47,2,5b28b3s3n@,,2,matched,5-2,0-15
+t6_point_40,,48,2,4*,,2,matched,5-2,15-15
+t6_point_41,,49,2,c4b2n#,,2,matched,5-2,30-15
+t6_point_42,,50,2,5b;27f-1*,,2,matched,5-2,40-15
+t6_point_43,SERVING FOR THE SET,51,1,4r19f1n@,,2,matched,5-3,0-0
+t6_point_44,,52,1,6d,4b29f1f2f+3*,1,matched,5-3,0-15
+t6_point_45,,53,1,6x,5f27f+3b2v1f2f1f1f1n#,2,matched,5-3,15-15
+t6_point_46,,54,1,6r39b3b3b3b3b2b2f3b3b3b3n@,,1,matched,5-3,15-30
+t6_point_47,BREAK POINT,56,1,6r29f1*,,1,matched,5-3,30-40
+t6_point_48,,57,1,5b28f3n@,,2,matched,5-3,40-40
+t6_point_49,Pegula AD,58,1,6n,4b29f1d#,2,matched,5-3,40-AD
+t6_point_50,,59,2,5b1n#,,2,matched,5-4,0-0
+t6_point_51,,60,2,6r#,,2,matched,5-4,15-0
+t6_point_52,,61,2,5d,5f18f1f1f2b2d@,2,matched,5-4,30-0
+t6_point_53,,62,2,4w,5b38b3b3*,1,matched,5-4,40-0
+t6_point_54,,63,2,5b17f;1x@,,1,matched,5-4,40-15
+t6_point_55,,64,2,5d,5b27b2b1n#,2,matched,5-4,40-30
+t6_point_56,,67,1,6s#,,1,matched,5-5,15-15
+t6_point_57,,79,2,4f2d#,,2,matched,6-5,0-0
+t6_point_58,,80,2,4d,5f18*,1,matched,6-5,15-0
+t6_point_59,,81,2,6d,5b28b2f1f2f1f1n@,1,matched,6-5,15-15
+t6_point_60,,82,2,6f29f2b3b3b3b3n@,,1,matched,6-5,15-30
+t6_point_61,SET POINT,83,2,6n,5b19f3b2f2f1f2f1f2f2b3s3b2b2f3b3b3b3b3b2d@,2,matched,6-5,15-40
+t6_point_62,SET POINT #2,84,2,5f2d#,,2,matched,6-5,30-40
+t6_point_63,deuce cycle A; order-resolved,85,2,4r18f3s3b-1n@,,1,matched,6-5,40-40
+t6_point_64,SET POINT #3; order-resolved,86,2,4b37b2f1n@,,2,matched,6-5,40-AD
+t6_point_65,deuce cycle B; order-resolved,87,2,5d,5b29b3y1f-1f3*,1,matched,6-5,40-40
+t6_point_66,SET POINT #4; order-resolved,88,2,4b1n#,,2,matched,6-5,40-AD
+t6_point_67,deuce cycle C; order-resolved,89,2,c6s1w#,,2,matched,6-5,40-40
+t6_point_68,Pegula AD,90,2,6n,5b28f2f3b2f2f1f1f2b+3b2v3*,1,matched,6-5,AD-40
+t6_point_69,SET POINT #5; order-resolved,92,2,6d,4b37s3y3y-1n#,1,matched,6-5,40-AD
+t6_point_70,set 2 era (sets col 7/5 appears),93,1,6*,,1,matched,0-0,0-0
+t6_point_71,,94,1,4b2d#,,1,matched,0-0,15-0
+t6_point_72,,95,1,6w,5b28b3s2f-1*,1,matched,0-0,30-0
+t6_point_73,,96,1,4n,5b39f2f1r#,2,matched,0-0,40-0
+t6_point_74,,98,1,6r2d#,,1,matched,0-0,40-30
+t6_point_75,,99,2,5b2d#,,2,matched,1-0,0-0
+t6_point_76,,100,2,c6n,5b19*,1,matched,1-0,15-0
+t6_point_77,,101,2,5b28f2b2b3b1r2y1r+3b1*,,1,matched,1-0,15-15
+t6_point_78,IBM stats card (NET POINTS WON) passed presence — not a score bug; dropped,,,,,,NO MATCH,,
+t6_point_79,,102,2,5s18f;1w@,,1,matched,1-0,15-30
+t6_point_80,BREAK POINT,103,2,6s#,,2,matched,1-0,15-40
+t6_point_81,adjudicated: first-serve fault 4w (MCP Pt105); second-serve point in 82,,,,,,NO MATCH,,
+t6_point_82,0-0 fragment pair with 81,105,1,4w,5b37b3b3b2b2b1f1f2b1w@,1,matched,2-0,0-0
+t6_point_83,,106,1,4b3n#,,1,matched,2-0,15-0
+t6_point_84,,107,1,6d,5b28b2b3d@,1,matched,2-0,30-0
+t6_point_85,,108,1,6*,,1,matched,2-0,40-0
+t6_point_86,0-0 fragment pair with 87,117,1,6n,5b29b3s#,1,matched,3-1,0-0
+t6_point_87,adjudicated: aftermath fragment; serve+rally in 86 (MCP Pt117 2nd-serve point),,,,,,NO MATCH,,
+t6_point_88,,118,1,4x,4b37b1x#,2,matched,3-1,15-0
+t6_point_89,,119,1,6d,5b29b2b2b1f2b3n#,2,matched,3-1,15-15
+t6_point_90,,120,1,6n,4b28f3b2f1d@,2,matched,3-1,15-30
+t6_point_91,,121,1,4f28f2s1w#,,1,matched,3-1,15-40
+t6_point_92,,122,1,5b19r2d#,,2,matched,3-1,30-40
+t6_point_93,,123,2,c5s38b3s3y1*,,2,matched,3-2,0-0
+t6_point_94,,124,2,4s39y1f-3d@,,2,matched,3-2,15-0
+t6_point_95,,125,2,4f18f3*,,2,matched,3-2,30-0
+t6_point_96,,127,2,6x,5b38b3n#,1,matched,3-2,40-15
+t6_point_97,,128,2,6r28f1f1f1f1f2b3b2b3s3b3b3b3b1r2b1r2f1f1f1n#,,1,matched,3-2,40-30
+t6_point_98,,129,2,4f19f2f;3b-3b1w#,,2,matched,3-2,40-40
+t6_point_99,,131,1,4f1w#,,1,matched,3-3,0-0
+t6_point_100,,132,1,6f29f2b3b3b3f;+1f3o1*,,1,matched,3-3,15-0
+t6_point_101,,133,1,6b28f+3b3*,,2,matched,3-3,30-0
+t6_point_102,,134,1,4b18f;1f3b3b+2f2z3*,,2,matched,3-3,30-15
+t6_point_103,,135,1,4r29f3b2b1f1f2f3s#,,2,matched,3-3,30-30
+t6_point_104,,136,1,6x,5b39b2s1r1n@,2,matched,3-3,30-40
+t6_point_105,,137,2,6s28f+3b#,,2,matched,3-4,0-0
+t6_point_106,,138,2,5r39b3b3b2f1n@,,2,matched,3-4,15-0
+t6_point_107,,139,2,4f18r2y-1f-3k2*,,1,matched,3-4,30-0
+t6_point_108,,140,2,6f18f1f1f1n#,,1,matched,3-4,30-15
+t6_point_109,,141,2,6s19f1f1f3b3n@,,2,matched,3-4,30-30
+t6_point_110,,143,2,5b28b2b1w#,,2,matched,3-4,40-40
+t6_point_111,Pegula AD,144,2,4b37b3b3b1r1n#,,2,matched,3-4,AD-40
+t6_point_112,,145,1,5r28f+3d@,,2,matched,3-5,0-0
+t6_point_113,,146,1,4*,,1,matched,3-5,0-15
+t6_point_114,,147,1,6b18o1r3n#,,1,matched,3-5,15-15
+t6_point_115,,148,1,4w,5b29f1f1n#,1,matched,3-5,30-15
+t6_point_116,,149,1,5+b28i1w#,,2,matched,3-5,40-15
+t6_point_117,,150,1,4n,5b2d#,1,matched,3-5,40-30
+t6_point_118,adjudicated: walk-up fragment (SERVING FOR THE SET banner); serve in 119,,,,,,NO MATCH,,
+t6_point_119,0-0 fragment trio,151,2,5b28b3s2f2f1f1f1f3b3y1f-1f2p3s#,,1,matched,4-5,0-0
+t6_point_120,adjudicated: rally tail of mid-rally cutaway split; serve+head in 119 (MCP Pt151 15 strikes ~= 119+120 crossings),,,,,,NO MATCH,,
+t6_point_121,,152,2,5n,4b39b2b1f1d#,1,matched,4-5,0-15
+t6_point_122,,153,2,5b19f2b3b1f1f1f2f2b3b3s3b1d@,,1,matched,4-5,0-30
+t6_point_123,,154,2,6f27f+1r2d#,,2,matched,4-5,0-40
+t6_point_124,,155,2,5b19f2f1f1f2f+3b3f3b1d@,,2,matched,4-5,15-40
+t6_point_125,,156,2,5b28b1f1f1f3*,,1,matched,4-5,30-40
+t6_point_126,,157,1,6b27f-3*,,1,matched,5-5,0-0
+t6_point_127,,159,1,4w,4f29f2b3b2s2f1f2f1f3w@,1,matched,5-5,15-15
+t6_point_128,,160,1,6d,5b3d#,1,matched,5-5,30-15
+t6_point_129,,161,1,6s#,,1,matched,5-5,40-15
+t6_point_130,,162,2,6s27k-3s2d#,,2,matched,6-5,0-0
+t6_point_131,,163,2,5n,5b38b2f1*,1,matched,6-5,15-0
+t6_point_132,,164,2,4f19*,,1,matched,6-5,15-15
+t6_point_133,,165,2,4d,5b18f1f2f3d#,1,matched,6-5,15-30
+t6_point_134,CHAMPIONSHIP POINT,166,2,5b18f1f2b2b2b1r2n#,,2,matched,6-5,15-40
+t6_point_135,CHAMPIONSHIP POINT #2,167,2,5b38b2b;3s2f-1f1d#,,1,matched,6-5,30-40

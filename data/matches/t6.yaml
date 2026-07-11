@@ -1,0 +1,48 @@
+# t6 — Sabalenka-Pegula, US Open F 2024 (hard, WTA, US Open feed)
+id: t6
+title: "t6 hard USO WTA"
+match: "Sabalenka-Pegula, US Open F 2024 (hard, WTA)"
+video: clips/t6_pegula_sabalenka_30fps.mp4
+clips_dir: clips/points_t6
+out_dir: outputs/t6
+ball_dir: ball_wasb
+players_dir: players
+charts_dir: charts_wasb
+homography: H_img_to_court.npy
+serves: serves.csv
+clip_offsets: clip_offsets.csv
+
+lefty: {near: false, far: false}   # Sabalenka, Pegula — looked up
+
+staging:
+  lock_serve: true
+  serve_zone_requires_side: true
+  near_ending_fill: true
+  coda_report: false
+
+serve_detect:
+  variant: ball
+  center_tol_m: 3.0
+
+players_detect:
+  near_top_m: 11.885
+  far_bottom_m: 11.885
+
+court_detect:                 # USO: blue court + GREEN apron. The hull
+  hull_lo: [100, 60, 60]      # takes both (boundary lines erode off a
+  hull_hi: [125, 255, 255]    # court-only hull): blue band OR green band
+  hull2_lo: [40, 25, 80]
+  hull2_hi: [65, 120, 220]
+  fit_lo: 18150               # 605 s: static serve setup, crisp lines
+  fit_hi: 18300
+
+eval:
+  title: "t6: hard, US Open feed, WTA"
+  mcp_map: data/mcp/t6_mcp_map.csv
+  alignment: data/mcp/t6_clip_alignment.csv
+  mcp_points: data/mcp/points_20240907_sabalenka_pegula.csv
+  mcp_match_id: "20240907-W-US_Open-F-Aryna_Sabalenka-Jessica_Pegula"
+  start_end: far              # parity vote: 125 agree / 8 disagree vs near
+  set_priors:                 # set 1 = 12 games (7-5)
+    "1,0": 12
+  tiebreak_states: []         # 7-5 7-5, no tiebreaks
