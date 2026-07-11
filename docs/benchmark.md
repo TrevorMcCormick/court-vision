@@ -1,9 +1,11 @@
 # Court Vision benchmark — auto-charts vs the Match Charting Project
 
-Four matches, three surfaces, both tours, two broadcasters beyond the
-dev reel's. 168 points aligned to human-charted MCP ground truth
-(alignment 108/108 on t3/t4 via score-bug point IDs). Ball tracking:
-WASB (local, free, promptless). Marginal cost per match: ~$0.
+Seven matches, four surfaces/conditions, both tours, five broadcast
+feeds. 491 points aligned to human-charted MCP ground truth via
+score-bug point IDs. Ball tracking: WASB (local, free, promptless).
+Marginal cost per match: ~$0. (The tables below are the running
+record, oldest first; the 7-match numbers live in "Three matches in
+one pass" at the bottom.)
 
 Current numbers (as of 2026-07-10, event detector v5 — the crossing
 skeleton — plus shot-direction v2, the receiver-mirrored both-halves
@@ -315,5 +317,103 @@ precision; the honest generalization estimate is the LOMO table above.
 Pt, Set/Gm/Pts, Svr, 1st/2nd) with the machine string in 1st plus
 confidence, conf_p, clip, serve_s (jump-to timestamp), n_shots. Across
 the four matches: 138 draft points, 46 flagged high.
+
+## Three matches in one pass: AO, USO-W, Turin (2026-07-11)
+
+The calibration layer's stated disease was n: 135 points, an 11% base
+rate, and a top tier that died in LOMO. The fix is more aligned points,
+so three matches were staged end-to-end through the package stages
+(`fitcourt` / `probe` / `extract` / `boundaries` / `align` — no script
+twins), chosen to maximize aligned-point count first and axis coverage
+second: **t5** Sinner–Zverev, AO F 2025 (hard, night, AO feed; 190 MCP
+points), **t6** Sabalenka–Pegula, US Open F 2024 (hard, WTA, USO feed;
+167), **t7** Djokovic–Sinner, ATP Finals RR 2023 (INDOOR hard, Tennis
+TV feed; 218). All from "condensed match" uploads — 20–40 min re-cuts
+that keep most points, which beat extended highlights for alignment
+yield. 372 clips extracted, 356 points scored.
+
+What each feed broke, on the record:
+- **t5 (AO)**: the fit window is everything — the first pick had
+  26.5 px of pan smearing the ECC-translation plate; a motion scan
+  found a static 5 s serve setup and the fit landed at ≤0.2 px
+  residuals. The court-only hull erodes the boundary lines (t3's
+  lesson re-learned); the hull must include the apron.
+- **t6 (USO)**: blue court + GREEN apron — one HSV band can't hold
+  both, so `court_detect` grew a second hull band (`hull2_lo/hi`),
+  OR'd in. Generalization by config, not code forks.
+- **t7 (Turin)**: the light-blue apron rides V≈252 — the value ceiling
+  had to open to 255. Far-baseline reprojection bows ~7.7 px (lens
+  distortion, same class as t3's documented bow; accepted).
+- **All three bugs hide zero-valued columns**: at 0-0 the points
+  column vanishes, the era window sees live background, and the
+  plateau machinery splits game-start points into duplicate-score
+  fragment groups (t6: 4 groups, t7: 7). Adjudication receipts: MCP's
+  own 1st/2nd columns arbitrate most of them (a fragment pair whose
+  MCP row says `4w` + second-serve rally IS the fault + the point,
+  filmed separately); the rest fall to changeover parity + eyeballed
+  frame strips. Losers are blanked in the alignment CSV, so the eval
+  skips them rather than double-charging one MCP row.
+- **Changeover parity after a tiebreak set is NOT "13 games"**: the
+  set-2 TB at Turin went 7-4 (11 points → one internal end-change at
+  6 pts), and the set-end change cancels it — the TB set contributes
+  EVEN swap parity. The set-3 fold of the server-end vote flipped
+  from 17/37 wrong to 37/17 right when the prior moved 25 → 24.
+  Verified on video before shipping.
+
+Scorecards (same eval, same constants — nothing was re-tuned on the
+new matches; the only new knobs are per-feed `court_detect` staging):
+
+| metric            | t5 AO night | t6 USO WTA | t7 Turin indoor |
+|-------------------|:---:|:---:|:---:|
+| server end        | 53/71 (75%) | 121/128 (95%) | 133/157 (85%) |
+| rally length ±1   | 47/71 (66%) | 99/128 (77%) | 131/157 (83%) |
+| serve zone        | 11/26 | 44/96 | 62/125 |
+| letters (aligned) | 93/117 (79%) | 120/148 (81%) | 112/157 (71%) |
+| ending type       | 20/50 | 24/83 | 23/95 |
+| **acceptance ≤1 token edit** | 2/71 | 10/128 | 9/157 |
+
+Pooled acceptance across all seven matches: **28/491 (5.7%)**, from
+7/135 (5.2%) — the bar held under a 3.6x bigger, feed-diverse test.
+t6 is the best single-match acceptance on record (7.8%): WTA + the
+USO feed's stable wide camera chart cleanly. t5's weak server end
+(75%) traces to the AO night feed's serve-end detection, not
+alignment — its parity vote was 53/17, decisive but noisy.
+
+**Recalibration, 4 → 7 matches (491 points, base rate ≤5 edits 67%).**
+The LOMO table, each match scored by a model that never saw it:
+
+| LOMO (held-out) | high precision (≤5 edits) | coverage | low-tier ≤5 rate |
+|---|:---:|:---:|:---:|
+| t1 night   | 10/10 (100%) | 45.5% | 33% |
+| t2 ctrl    | 3/3 (100%)   | 60.0% | 50% |
+| t3 clay    | 11/12 (92%)  | 20.3% | 47% |
+| t4 grass   | 18/26 (69%)  | 53.1% | 52% |
+| t5 AO      | 3/4 (75%)    |  5.6% | 49% |
+| t6 USO     | 34/35 (97%)  | 27.3% | 69% |
+| t7 Turin   | 13/14 (93%)  |  8.9% | 71% |
+| **pooled** | **88% (92/104)** | **21.2%** | 61% |
+
+Flag × edit-distance confusion (LOMO, pooled):
+
+| flag | 0-1 | 2 | 3-5 | 6+ | total |
+|---|:---:|:---:|:---:|:---:|:---:|
+| high | 13 | 15 | 64 | 12  | 104 |
+| low  | 15 | 52 | 170 | 150 | 387 |
+
+Read against the old 93%/32.6%: precision -5 pts, coverage -11 pts —
+and that is the honest direction. The 4-match table was 44 flags; this
+one is 104, and the new folds expose t4 as the weak match (69% — its
+phantom-insertion disease flies under signals tuned to detect missing
+data, not invented data). The strict ≤2-edit tier was re-attempted at
+n=491 and still dies in LOMO (0% coverage at a 19% base rate) — still
+on the record, still not shipped. The shipped all-data scorer
+(`data/confidence_model.json`, t_high=0.731) flags 102/491 high at 94%
+in-sample; exports regenerated for all seven matches — 508 draft
+points, 104 flagged high.
+
+Process note, on the record: this run stalled overnight when the
+background-job watcher died silently between t6 ball tracking and t7
+players — the jobs finished; nothing was listening. The remaining long
+stages were polled from the driving loop instead.
 
 Full history: LOG.md. Landscape context: docs/landscape-2026-07.md.

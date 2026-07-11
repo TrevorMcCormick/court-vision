@@ -1967,3 +1967,98 @@ jump-to timestamp appended. 138 draft points, 46 flagged high.
   non-w trees, ground truth, serves.csv, and point-boundary outputs
   untouched; experiments/ untouched.
 - Session cost: $0.00. Project total: ~$16.
+
+## 2026-07-11 — Three matches in one pass: the calibration layer gets the n it asked for
+
+**The premise.** Every honest caveat in the confidence layer's writeup
+was a sample-size caveat: 135 points, an 11% base rate, a top tier
+that died of n. So this pass optimizes for aligned points first and
+axis coverage second. Candidate pool: MCP-charted finals cross-refed
+against YouTube, where the winner format turned out to be the
+"condensed match" upload — 20-40 minute re-cuts that keep nearly
+every point and none of the studio filler; they beat extended
+highlights for alignment yield everywhere they exist. Picked: t5
+Sinner-Zverev AO F 2025 (hard, night, AO feed, 190 MCP points), t6
+Sabalenka-Pegula US Open F 2024 (hard, WTA, USO feed, 167), t7
+Djokovic-Sinner ATP Finals RR 2023 (indoor hard, Tennis TV feed,
+218). 575 MCP points on the table; 372 clips extracted; 356 scored.
+
+**Staging is configs now, and the configs earned three new knobs.**
+Everything ran through the package stages — fitcourt, probe, extract,
+boundaries, align — plus per-match YAML; no script twins. Each feed
+broke exactly one thing, and each fix went into `court_detect` as
+config, not fork: t5's bright near-court coating starved the tophat
+default (knob: `tophat_t`), t6's green apron can't share an HSV band
+with the blue court (knob: second hull band, OR'd), t7's light-blue
+apron rides V~252 (open the ceiling). Two staging lessons re-learned
+the hard way: the hull must include the APRON or the boundary lines
+erode away with it (t3 already knew this; t5 made me re-learn it),
+and the homography fit window must be motion-scanned first — the
+first t5 window had 26.5 px of pan smearing the plate; a static 5 s
+serve setup landed the fit at <=0.2 px residuals. t7's far baseline
+bows 7.7 px of lens distortion, documented and accepted like t3's.
+
+**The bugs hide their zeros, and the plateau machinery pays for it.**
+All three broadcasters drop zero-valued trailing columns — at 0-0 the
+points column simply isn't rendered. The era window then contains
+live background, and game-start points split into duplicate-score
+fragment groups (t6: 4 groups incl. one trio, t7: 7). The adjudication
+that emerged is better than the one I planned: MCP's own 1st/2nd
+columns arbitrate most groups — when the row reads `4w` + a
+second-serve rally, the fragment pair IS the fault and the point,
+filmed either side of a cutaway, and the serve lives in the later
+piece. The rest fell to changeover parity plus eyeballed frame
+strips; two groups were mid-rally cutaway splits (net-crossing counts
+across the pair sum to MCP's strike count — the receipt). Losers get
+blanked in the alignment CSV so the eval skips them instead of
+double-charging one MCP row. Also caught this way: an IBM stats card
+that passed the presence NCC as a "score bug" (t6_point_78).
+
+**A tiebreak set is not 13 games.** The set-3 fold of t7's server-end
+parity vote came back 17 agree / 37 disagree — systematically flipped.
+The staged prior counted set 2 as 12 games + TB = 13 swap-units (odd).
+Wrong: the 7-4 TB is 11 points, which is ONE internal end-change at 6
+points, and the set-end change cancels it — net EVEN parity. Prior
+25 -> 24, verified on video (Sinner opens set 3 serving from the far
+end), vote flips to 138/27 for start_end=near. The general rule, for
+the next TB match staged: a TB set's swap parity depends on the TB's
+point total, not on calling it a 13th game.
+
+**Scorecards, same constants, nothing re-tuned:** t5 acceptance 2/71
+(server end 75% — the AO night feed's serve-end detection is the
+noisiest of the three; parity vote 53/17), t6 10/128 with server end
+121/128 and the best single-match acceptance on record (7.8% — WTA +
+the USO feed's stable wide camera chart cleanly), t7 9/157 with rally
++-1 at 83%, the best structural fold yet. Pooled: 28/491 (5.7%) from
+7/135 (5.2%) — the bar held under a 3.6x bigger, five-feed test.
+
+**The recalibration, which was the point.** LOMO across seven folds,
+491 points: pooled HIGH precision 88% (92/104) at 21.2% coverage,
+from 93% (41/44) at 32.6%. Both numbers moved toward the truth, not
+away from it — 44 flags was a small-n flattery, and the new folds
+name t4 as the weak match (18/26, 69%: its phantom-insertion disease
+flies under signals built to catch missing data, not invented data).
+t6 held 97% at 27%. The strict <=2-edit tier was re-attempted at
+n=491 and still dies in LOMO — 0% coverage at a 19% base rate; still
+on the record, still not shipped. Shipped scorer refit on all 491
+(t_high=0.731): 102/491 flagged high at 94% in-sample. Exports
+regenerated for all seven matches: 508 draft points, 104 high.
+
+**Process failures, on the record.** The run stalled overnight: the
+background-job watcher died silently between t6 ball tracking and t7
+players — both jobs finished fine; nothing was listening. The rest of
+the run polled long jobs from the driving loop instead of trusting
+completion callbacks. And the t5 players stage reported 100%/100%
+coverage, which was flagged as suspicious and turned out to be real —
+the AO feed's static wide camera plus a clean bgsub plate; sometimes
+the number is just good.
+
+- New: courtvision/{fitcourt,probe,extract}.py (staging stages behind
+  the CLI), data/matches/t{5,6,7}.yaml, data/mcp/points_* + alignment
+  + map CSVs for the three matches, outputs/t{5,6,7}. Modified:
+  boundaries CFG (+3 matches, constant-width era windows), config/cli
+  (video + court_detect), confidence_model.json (7-match refit),
+  benchmark.md, USAGE.md, courtvision/README.md. Frozen experiments/,
+  t1-t4 ground truth, and t1-t4 charts untouched (chart CSVs never
+  re-run; only their exports carry the new confidence column).
+  Marginal cost of the three matches: $0.
