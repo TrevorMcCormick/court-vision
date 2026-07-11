@@ -125,6 +125,63 @@ CFG = {
         "dys": (0,),
         "ref_frame": 2384,           # known court view, bug up (seg 5)
     },
+    "t5": {
+        "video": ROOT / "clips/t5_sinner_zverev_30fps.mp4",
+        # AO bug, bottom-left. names = flags + SINNER/ZVEREV rows (the
+        # banner above them changes text — FINAL / BREAK POINT /
+        # 7 POINT TIEBREAK — so it stays OUT of the template). The
+        # serve slash sits at x~218-247 across eras, left of every
+        # digit window. Digits GROW RIGHTWARD a column per completed
+        # set; zero-valued trailing columns are HIDDEN (games at 0-0,
+        # points at 0-0) — their appearance is itself a score change,
+        # so the plateau logic sees it. Era windows are CONSTANT WIDTH
+        # (np.stack needs it), anchored at each era's box right edge:
+        # the completed-set columns they shed are constant within a
+        # set, so nothing that changes is lost. Receipts: era_t5_*.png.
+        "names": (620, 678, 75, 210),
+        "eras": [                    # (start_frame, digits_x0, digits_x1)
+            (0, 255, 333),           # set 1: games + points
+            (20800, 272, 350),       # set 2 (+"6-3" col; TB pts share window)
+            (47000, 305, 383),       # set 3 (+"7/6 TB" col)
+        ],
+        "digits_y": (620, 678),
+        "dys": (0,),
+        "ref_frame": 27000,          # known court view, bug up (900 s)
+    },
+    "t6": {
+        "video": ROOT / "clips/t6_pegula_sabalenka_30fps.mp4",
+        # US Open WTA bug, bottom-left. names = seeds + PEGULA/SABALENKA
+        # + USA (constant); the yellow serve marker at x~296-318 is
+        # excluded from both crops... except it isn't from the digits —
+        # it changes only when the game (and thus the score) changes,
+        # so including its column is harmless. Completed-set columns
+        # insert LEFT of the games column, box grows right ~25 px at
+        # the set boundary. Era receipts: era_t6_set1.png.
+        "names": (590, 650, 65, 290),
+        "eras": [
+            (0, 325, 380),           # set 1: games + boxed points
+            (39000, 350, 405),       # set 2 (+"5-7" col; equal width)
+        ],
+        "digits_y": (590, 650),
+        "dys": (0,),
+        "ref_frame": 27000,          # known court view, bug up (900 s)
+    },
+    "t7": {
+        "video": ROOT / "clips/t7_djokovic_sinner_30fps.mp4",
+        # Tennis TV / ATP Finals bug, bottom-left. names exclude the
+        # green serve dot at x~138-145 (it hops rows every game). Digits
+        # grow rightward per set like the AO bug; TB points share the
+        # era-2 window. Era receipts: era_t7_set*.png.
+        "names": (600, 663, 150, 235),
+        "eras": [
+            (0, 245, 305),           # set 1: green games + points
+            (20000, 278, 338),       # set 2 (+"5-7" col; equal width)
+            (44000, 317, 377),       # set 3 (+"7/6 TB" col)
+        ],
+        "digits_y": (600, 663),
+        "dys": (0,),
+        "ref_frame": 33000,          # known court view, bug up (1100 s)
+    },
 }
 
 PRES_T = 0.80          # names NCC below this = bug absent
@@ -296,7 +353,7 @@ def seg_plateau_runs(plateau, a, b, fps):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--tree", required=True, choices=("t3", "t4"))
+    parser.add_argument("--tree", required=True, choices=sorted(CFG))
     parser.add_argument("--no-cache", action="store_true")
     args = parser.parse_args()
     tree = args.tree

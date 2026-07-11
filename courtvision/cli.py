@@ -58,6 +58,17 @@ def main(argv=None):
     p.add_argument("match")
     p.add_argument("--no-order-pass", action="store_true")
 
+    p = sub.add_parser("fitcourt", help="reel + court_detect -> homography")
+    p.add_argument("match")
+    p.add_argument("--manual", action="store_true")
+
+    p = sub.add_parser("probe", help="court-view detection -> segments.csv")
+    p.add_argument("match")
+
+    p = sub.add_parser("extract", help="segments -> point clips + offsets")
+    p.add_argument("match")
+    p.add_argument("--skip-clips", action="store_true")
+
     sub.add_parser("decompose", help="edit-distance decomposition report")
 
     args = parser.parse_args(argv)
@@ -105,6 +116,18 @@ def main(argv=None):
         for mid in _matches(args.match):
             align.align_match(config.load(mid),
                               order_pass=not args.no_order_pass)
+    elif args.cmd == "fitcourt":
+        from . import fitcourt
+        for mid in _matches(args.match):
+            fitcourt.fit_match(config.load(mid), manual=args.manual)
+    elif args.cmd == "probe":
+        from . import probe
+        for mid in _matches(args.match):
+            probe.probe_match(config.load(mid))
+    elif args.cmd == "extract":
+        from . import extract
+        for mid in _matches(args.match):
+            extract.extract_match(config.load(mid), skip_clips=args.skip_clips)
     elif args.cmd == "decompose":
         from . import decompose
         decompose.report()

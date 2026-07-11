@@ -80,6 +80,8 @@ class MatchConfig:
     eval: EvalCfg
     serve_detect: dict
     players_detect: dict
+    video: Path                   # the full reel (staging stages only)
+    court_detect: dict            # hull band + fit window (fitcourt/probe)
 
     def clip_path(self, stem):
         return self.clips_dir / f"{stem}.mp4"
@@ -136,6 +138,8 @@ def load(match_id):
         ),
         serve_detect=raw.get("serve_detect", {}),
         players_detect=raw.get("players_detect", {}),
+        video=ROOT / raw["video"] if raw.get("video") else None,
+        court_detect=raw.get("court_detect", {}),
     )
 
 

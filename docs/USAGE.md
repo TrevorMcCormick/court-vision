@@ -29,11 +29,14 @@ uv run python -m courtvision calibrate         # refit + report confidence
 uv run python -m courtvision decompose         # where the edits live
 
 # upstream stages (their outputs are frozen for t1-t4; run for NEW matches)
+uv run python -m courtvision fitcourt t5       # reel + court_detect -> homography
+uv run python -m courtvision probe t5          # court-view detection -> segments
+uv run python -m courtvision.boundaries --tree t5   # score-bug point splits
+uv run python -m courtvision extract t5        # segments -> clips + offsets
 uv run python -m courtvision players t5        # bgsub boxes (pass A + B)
 uv run python -m courtvision track-ball t5     # WASB ball tracks
 uv run python -m courtvision serve t5          # serve detection v3
 uv run python -m courtvision align t5          # clips -> MCP rows by score
-uv run python -m courtvision.boundaries --tree t5   # score-bug point splits
 ```
 
 `t3` is a match id = a file in `data/matches/`. `all` fans out over
@@ -59,6 +62,15 @@ serve_detect:
   variant: ball                   # ball-adjudicated (clay) | stance (grass)
   center_tol_m: 4.3               # clay servers stand wide
 
+video: clips/t3_reel_30fps.mp4    # the full reel (staging stages only)
+court_detect:                     # fitcourt + probe: the court's color
+  hull_lo: [0, 60, 120]           # band (court AND its apron — boundary
+  hull_hi: [15, 255, 255]         # lines erode off a court-only hull),
+  fit_lo: 36240                   # plus a hand-picked STATIC court-view
+  fit_hi: 36540                   # run for the plate fit
+  # optional: hull2_lo/hull2_hi (second color band, e.g. USO's green
+  # apron), tophat_t / v_min (line-mask thresholds per lighting)
+
 eval:                             # changeover parity vs MCP ground truth
   mcp_map: data/mcp/t3_mcp_map.csv
   alignment: data/mcp/t3_clip_alignment.csv
@@ -67,9 +79,13 @@ eval:                             # changeover parity vs MCP ground truth
   tiebreak_states: ["0,0"]        # set states where 6-6 is a tiebreak
 ```
 
-Adding a match = adding a YAML (plus fitting its homography and
-transcribing the score-bug alignment; those steps remain
-experiment-tree work — see LOG.md for each match's recipe).
+Adding a match = adding a YAML and running the staging stages in the
+order above (t1-t4 staging predates them and stays frozen). Two steps
+remain by-eye work: picking the static fit window (and LOOKING at
+model_reprojection.png), and transcribing each clip's score bug into
+data/mcp/<id>_clip_alignment.csv. New score-bug layouts also need a
+CFG entry in courtvision/boundaries.py (measured per-broadcast crop
+windows stay in-module; see the docstring there).
 
 ## What comes out
 
