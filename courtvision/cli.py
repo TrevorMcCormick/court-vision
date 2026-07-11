@@ -5,6 +5,7 @@
     uv run python -m courtvision draft <match>       # chart + confidence + export
     uv run python -m courtvision calibrate           # fit + report the confidence layer
     uv run python -m courtvision export <match>      # charting-ready MCP-schema CSV
+    uv run python -m courtvision review <match> --mode review --session r1
 
 <match> is a config id from data/matches/ (t1, t2, t3, t4) or 'all'.
 """
@@ -71,6 +72,16 @@ def main(argv=None):
 
     sub.add_parser("decompose", help="edit-distance decomposition report")
 
+    p = sub.add_parser("review",
+                       help="correct drafts against clips (local web UI)")
+    p.add_argument("match")
+    p.add_argument("--mode", choices=["review", "cold"], required=True)
+    p.add_argument("--session", required=True)
+    p.add_argument("--seed", default=None)
+    p.add_argument("--n", type=int, default=10)
+    p.add_argument("--port", type=int, default=8765)
+    p.add_argument("--no-browser", action="store_true")
+
     args = parser.parse_args(argv)
 
     if args.cmd == "chart":
@@ -131,6 +142,11 @@ def main(argv=None):
     elif args.cmd == "decompose":
         from . import decompose
         decompose.report()
+    elif args.cmd == "review":
+        from . import review
+        review.run(config.load(args.match), args.mode, args.session,
+                   seed=args.seed, n=args.n, port=args.port,
+                   open_browser=not args.no_browser)
 
 
 if __name__ == "__main__":
