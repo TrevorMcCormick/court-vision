@@ -1,0 +1,223 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>cv-review</title>
+<style>
+  :root { --bg:#181818; --fg:#d2d2d2; --dim:#787878; --hi:#50ff78;
+          --amber:#ffa500; --card:#222; }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--bg); color:var(--fg);
+         font:14px/1.45 ui-monospace,Menlo,monospace; height:100vh;
+         display:grid; grid-template-columns:340px 1fr;
+         grid-template-rows:1fr auto; }
+  #rows { grid-row:1/3; overflow-y:auto; border-right:1px solid #333;
+          padding:8px; }
+  #rows h1 { font-size:14px; color:#fff; padding:4px 6px; }
+  #rows .prog { color:var(--dim); padding:0 6px 8px; }
+  .row { padding:3px 6px; cursor:pointer; white-space:nowrap;
+         overflow:hidden; text-overflow:ellipsis; }
+  .row.cur { background:#2e2e2e; }
+  .row.done { opacity:.45; }
+  .row .conf-high { color:var(--hi); }
+  .row .conf-low { color:var(--dim); }
+  .row .conf-none { color:var(--amber); }
+  #stage { display:flex; align-items:center; justify-content:center;
+           background:#000; min-height:0; }
+  video { max-width:100%; max-height:100%; }
+  #bar { background:var(--card); padding:10px 14px; border-top:1px solid #333;
+         display:grid; gap:6px;
+         grid-template-columns:auto 1fr auto 1fr auto; align-items:center; }
+  #bar label { color:var(--dim); }
+  #bar input[type=text] { background:#111; color:#fff; border:1px solid #444;
+         padding:6px 8px; font:16px ui-monospace,Menlo,monospace; width:100%; }
+  #meta { grid-column:1/6; color:var(--dim); }
+  #meta b { color:#fff; } #meta .hi { color:var(--hi); }
+  #lint { grid-column:1/6; color:var(--amber); min-height:1.3em; }
+  #notes { grid-column:1/5; }
+  #accept { background:var(--hi); color:#000; border:0; padding:8px 18px;
+            font-weight:bold; cursor:pointer; }
+  #overlay, #cheat { position:fixed; inset:0; background:rgba(0,0,0,.92);
+            display:none; z-index:9; padding:40px; color:#fff; }
+  #overlay { z-index:10; }
+  #overlay.on, #cheat.on { display:block; }
+  #overlay h1 { font-size:40px; margin-bottom:12px; }
+  #cheat pre { font-size:13px; color:var(--fg); }
+  kbd { background:#333; padding:0 5px; border-radius:3px; }
+</style>
+<div id="rows"></div>
+<div id="stage"><video id="v" preload="auto"></video></div>
+<div id="bar">
+  <div id="meta"></div>
+  <label>1st</label><input id="first" type="text" autocomplete="off">
+  <label>2nd</label><input id="second" type="text" autocomplete="off">
+  <button id="accept">accept ⏎</button>
+  <input id="notes" type="text" placeholder="notes" autocomplete="off">
+  <div id="lint"></div>
+</div>
+<div id="overlay"><h1>CLOCK PAUSED</h1><p>press <kbd>p</kbd> to resume</p></div>
+<div id="cheat"><pre>
+MCP CHEAT SHEET                                   (press c to close)
+serve   4 wide  5 body  6 T          faults: n net w wide d deep
+shots   f/b drive   r/s slice        x both  g footfault  ! shank
+        v/z volley  o/p overhead     let: c before the serve digit
+        u/y drop    l/m lob
+        h/i half-volley  j/k swinging volley  t trick  q unknown
+dir     1 to rh's forehand  2 middle  3 to rh's backhand
+depth   7 short  8 mid  9 deep       (optional, after direction)
+end     * winner   @ unforced error  # forced error
+        error letter (n/w/d/x/!/e) goes BEFORE @ or #
+example 4b28f1f3b2n@  = wide serve, deep bh cross, ... bh into net UE
+faulted 1st serve: put the fault in 1st (e.g. "4d"), point in 2nd
+</pre></div>
+<script>
+const $ = s => document.querySelector(s);
+const v = $("#v");
+const SPEEDS = [0.25,0.5,0.75,1,1.25,1.5,2];
+let S = null, cur = -1, paused = false, loop = false, lintT = null;
+let filt = "all", rowSeek = 0;
+
+const send = (event, payload={}) => fetch("/api/event", {method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body: JSON.stringify({ts_ms: Date.now(),
+    row: cur >= 0 ? S.rows[cur].clip : "", event, payload})});
+
+async function boot() {
+  S = await (await fetch("/api/state")).json();
+  document.title = `cv-review ${S.match} ${S.session} [${S.mode}]`;
+  renderRows();
+  openRow(S.rows.findIndex(r => !r.done) >= 0
+          ? S.rows.findIndex(r => !r.done) : 0);
+}
+
+function renderRows() {
+  const done = S.rows.filter(r => r.done).length;
+  const ftag = filt === "all" ? "" : ` · filter:${filt}`;
+  $("#rows").innerHTML =
+    `<h1>${S.match} · ${S.session} · ${S.mode}</h1>` +
+    `<div class="prog">${done}/${S.rows.length} done${ftag}</div>` +
+    S.rows.map((r, i) => {
+      if (filt !== "all" && r.confidence !== filt && i !== cur)
+        return "";
+      const conf = r.confidence === null ? "" :
+        ` <span class="conf-${r.pt ? r.confidence : "none"}">` +
+        `${r.confidence ?? ""}</span>`;
+      return `<div class="row ${i===cur?"cur":""} ${r.done?"done":""}"
+        data-i="${i}">${r.pt || "—"} · ${r.pts || "?"} · ${r.clip}` +
+        `${conf}${r.skipped ? " ⏭" : ""}</div>`;
+    }).join("");
+  document.querySelectorAll(".row").forEach(el =>
+    el.onclick = () => openRow(+el.dataset.i));
+}
+
+function openRow(i) {
+  cur = i;
+  const r = S.rows[i];
+  v.src = `/clip/${r.clip}.mp4`;
+  v.playbackRate = 1;
+  const seekTo = r.serve_s !== null
+    ? Math.max(0, parseFloat(r.serve_s) - 1.5) : 0;
+  rowSeek = seekTo;
+  v.onloadedmetadata = () => { v.currentTime = seekTo; v.play(); };
+  $("#first").value = r.corrected_1st || r.first_draft || "";
+  $("#second").value = r.corrected_2nd || "";
+  $("#notes").value = r.notes || "";
+  const conf = r.confidence !== null
+    ? ` · <span class="hi">${r.confidence} ${r.conf_p}</span>` : "";
+  const jump = r.serve_s !== null ? ` · serve @ ${r.serve_s}s` : "";
+  $("#meta").innerHTML = `<b>${r.clip}</b> · Pt ${r.pt || "—"} · ` +
+    `${r.pts || "?"} · Svr ${r.svr || "?"}${conf}${jump}`;
+  $("#lint").textContent = "";
+  renderRows();
+  send("row_open", {i});
+  lint();
+}
+
+function lint() {
+  clearTimeout(lintT);
+  lintT = setTimeout(async () => {
+    const res = await (await fetch("/api/lint", {method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({first: $("#first").value,
+                            second: $("#second").value})})).json();
+    $("#lint").textContent = res.issues.map(i =>
+      `${i.field}${i.pos !== null ? ":" + i.pos : ""} ${i.msg}`)
+      .join("   ");
+  }, 300);
+}
+
+async function accept(skipReason="") {
+  const r = S.rows[cur];
+  let res;
+  try {
+    res = await fetch("/api/accept", {method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({clip: r.clip,
+        corrected_1st: $("#first").value.trim(),
+        corrected_2nd: $("#second").value.trim(),
+        notes: $("#notes").value.trim(), skip_reason: skipReason})});
+  } catch (e) {
+    $("#lint").textContent = "SAVE FAILED (network) — row NOT accepted";
+    return;
+  }
+  if (!res.ok) {
+    $("#lint").textContent =
+      `SAVE FAILED (${res.status}) — row NOT accepted`;
+    return;
+  }
+  Object.assign(r, {done: true, skipped: skipReason,
+    corrected_1st: $("#first").value.trim(),
+    corrected_2nd: $("#second").value.trim(),
+    notes: $("#notes").value.trim()});
+  const next = S.rows.findIndex((x, j) => j > cur && !x.done);
+  openRow(next >= 0 ? next : cur);
+}
+
+["first", "second", "notes"].forEach(id =>
+  $("#" + id).addEventListener("input", () => {
+    send("edit", {field: id}); lint();
+  }));
+$("#accept").onclick = () => accept();
+v.onplay = () => send("play", {t: v.currentTime});
+v.onpause = () => send("pause", {t: v.currentTime});
+v.onseeked = () => send("seek", {t: v.currentTime});
+v.ontimeupdate = () => { if (loop && v.currentTime > v.duration - .05)
+  v.currentTime = rowSeek; };
+
+document.addEventListener("keydown", e => {
+  if (paused && e.key !== "p") { e.preventDefault(); return; }
+  const typing = ["INPUT"].includes(e.target.tagName);
+  if (e.key === "Escape") { e.target.blur(); return; }
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); accept();
+    return; }
+  if (typing) return;            // p/c/l/n/x are legal MCP letters
+  if (e.key === "p") { paused = !paused;
+    $("#overlay").classList.toggle("on", paused);
+    if (paused) { $("#cheat").classList.remove("on"); v.pause(); }
+    send(paused ? "clock_pause" : "clock_resume");
+    return; }
+  const rate = SPEEDS.indexOf(v.playbackRate);
+  const acts = {
+    "j": () => openRow(Math.min(cur + 1, S.rows.length - 1)),
+    "k": () => openRow(Math.max(cur - 1, 0)),
+    " ": () => v.paused ? v.play() : v.pause(),
+    "ArrowLeft":  () => { v.pause(); v.currentTime -= 1/30; },
+    "ArrowRight": () => { v.pause(); v.currentTime += 1/30; },
+    "[": () => { v.playbackRate = SPEEDS[Math.max(rate - 1, 0)];
+                 send("rate", {r: v.playbackRate}); },
+    "]": () => { v.playbackRate =
+                   SPEEDS[Math.min(rate + 1, SPEEDS.length - 1)];
+                 send("rate", {r: v.playbackRate}); },
+    "l": () => { loop = !loop; },
+    "f": () => { if (S.mode !== "review") return;
+                 const o = ["all", "high", "low"];
+                 filt = o[(o.indexOf(filt) + 1) % 3]; renderRows(); },
+    "1": () => $("#first").focus(),
+    "2": () => $("#second").focus(),
+    "n": () => $("#notes").focus(),
+    "x": () => { const why = prompt("skip reason:");
+                 if (why) accept(why); },
+    "c": () => { $("#cheat").classList.toggle("on"); send("cheat"); },
+  };
+  if (acts[e.key]) { e.preventDefault(); acts[e.key](); }
+});
+boot();
+</script>

@@ -888,6 +888,7 @@ Create `courtvision/review_ui.html` with exactly this content:
             font-weight:bold; cursor:pointer; }
   #overlay, #cheat { position:fixed; inset:0; background:rgba(0,0,0,.92);
             display:none; z-index:9; padding:40px; color:#fff; }
+  #overlay { z-index:10; }
   #overlay.on, #cheat.on { display:block; }
   #overlay h1 { font-size:40px; margin-bottom:12px; }
   #cheat pre { font-size:13px; color:var(--fg); }
@@ -996,12 +997,23 @@ function lint() {
 
 async function accept(skipReason="") {
   const r = S.rows[cur];
-  await fetch("/api/accept", {method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({clip: r.clip,
-      corrected_1st: $("#first").value.trim(),
-      corrected_2nd: $("#second").value.trim(),
-      notes: $("#notes").value.trim(), skip_reason: skipReason})});
+  let res;
+  try {
+    res = await fetch("/api/accept", {method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({clip: r.clip,
+        corrected_1st: $("#first").value.trim(),
+        corrected_2nd: $("#second").value.trim(),
+        notes: $("#notes").value.trim(), skip_reason: skipReason})});
+  } catch (e) {
+    $("#lint").textContent = "SAVE FAILED (network) — row NOT accepted";
+    return;
+  }
+  if (!res.ok) {
+    $("#lint").textContent =
+      `SAVE FAILED (${res.status}) — row NOT accepted`;
+    return;
+  }
   Object.assign(r, {done: true, skipped: skipReason,
     corrected_1st: $("#first").value.trim(),
     corrected_2nd: $("#second").value.trim(),
@@ -1030,7 +1042,8 @@ document.addEventListener("keydown", e => {
   if (typing) return;            // p/c/l/n/x are legal MCP letters
   if (e.key === "p") { paused = !paused;
     $("#overlay").classList.toggle("on", paused);
-    send(paused ? "clock_pause" : "clock_resume"); if (paused) v.pause();
+    if (paused) { $("#cheat").classList.remove("on"); v.pause(); }
+    send(paused ? "clock_pause" : "clock_resume");
     return; }
   const rate = SPEEDS.indexOf(v.playbackRate);
   const acts = {
