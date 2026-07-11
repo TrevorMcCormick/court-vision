@@ -1,0 +1,50 @@
+# t7 — Djokovic-Sinner, ATP Finals RR 2023 (indoor hard, Tennis TV feed)
+id: t7
+title: "t7 indoor ATP Finals"
+match: "Djokovic-Sinner, ATP Finals RR 2023 (indoor hard, Turin)"
+video: clips/t7_djokovic_sinner_30fps.mp4
+clips_dir: clips/points_t7
+out_dir: outputs/t7
+ball_dir: ball_wasb
+players_dir: players
+charts_dir: charts_wasb
+homography: H_img_to_court.npy
+serves: serves.csv
+clip_offsets: clip_offsets.csv
+
+lefty: {near: false, far: false}   # Djokovic, Sinner — looked up
+
+staging:
+  lock_serve: true
+  serve_zone_requires_side: true
+  near_ending_fill: true
+  coda_report: false
+
+serve_detect:
+  variant: ball
+  center_tol_m: 3.0
+
+players_detect:
+  near_top_m: 11.885
+  far_bottom_m: 11.885
+
+court_detect:                 # Turin: dark blue court + light blue apron
+  hull_lo: [100, 90, 100]     # in ONE band (V up to the apron's ~252):
+  hull_hi: [118, 210, 255]    # boundary lines erode off a court-only hull
+  fit_lo: 5700                # 190 s: static serve setup, crisp lines
+  fit_hi: 5850
+
+eval:
+  title: "t7: indoor hard, ATP Finals, Tennis TV feed"
+  mcp_map: data/mcp/t7_mcp_map.csv
+  alignment: data/mcp/t7_clip_alignment.csv
+  mcp_points: data/mcp/points_20231114_djokovic_sinner.csv
+  mcp_match_id: "20231114-M-Tour_Finals-RR-Novak_Djokovic-Jannik_Sinner"
+  start_end: near             # parity vote: 111 agree / 54 disagree vs far
+  set_priors:                 # set 1 = 12 games (5-7), set 2 = 12 + TB
+    "0,1": 12
+    "1,1": 24                 # NOT 25: the 7-4 TB (11 pts) has one internal
+                              # end-change at 6 pts; the set-end change cancels
+                              # it, so the TB set contributes EVEN swap parity.
+                              # Verified on video (Sinner serves set 3 g0 far).
+  tiebreak_states: ["0,1", "1,1"]   # sets 2 and 3 both reached 6-6

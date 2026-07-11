@@ -1,0 +1,167 @@
+clip,note,mcp_pt,svr,first,second,winner,status,gms,pts
+t7_point_01,bug Djokovic-top; transcribed player-1-first (bug hides pts col at 0-0),2,1,4b2n#,,1,matched,0-0,15-0
+t7_point_02,,3,1,4*,,1,matched,0-0,30-0
+t7_point_03,,4,1,6n,6f2n@,1,matched,0-0,40-0
+t7_point_04,,5,2,4f2n#,,2,matched,1-0,0-0
+t7_point_05,,6,2,4w,5b38b3b1f2f+3n@,2,matched,1-0,15-0
+t7_point_06,,7,2,6b1n#,,2,matched,1-0,30-0
+t7_point_07,,8,2,4*,,2,matched,1-0,40-0
+t7_point_08,,9,1,4+f28z3s1v1*,,1,matched,1-1,0-0
+t7_point_09,,10,1,4s27f2*,,1,matched,1-1,15-0
+t7_point_10,,13,2,4*,,2,matched,2-1,0-0
+t7_point_11,,15,2,6*,,2,matched,2-1,30-0
+t7_point_12,,16,2,6f29f3b2f1f1f2f2f1f3b2f1f2f+3s1w#,,1,matched,2-1,40-0
+t7_point_13,,17,2,5b29f2b3b2b1f1f3*,,1,matched,2-1,40-15
+t7_point_14,,18,2,6n,4b38b3b1w@,2,matched,2-1,40-30
+t7_point_15,,19,1,6b28y1n@,,2,matched,2-2,0-0
+t7_point_16,,20,1,4d,4+b28z1f3z2*,1,matched,2-2,0-15
+t7_point_17,,21,1,6*,,1,matched,2-2,15-15
+t7_point_18,,22,1,4s3d#,,1,matched,2-2,30-15
+t7_point_19,,23,1,4*,,1,matched,2-2,40-15
+t7_point_20,,24,2,5s;37b3d@,,1,matched,3-2,0-0
+t7_point_21,,25,2,c6f27f2f1f2b2b2b2f2b3b3s2f3s#,,2,matched,3-2,0-15
+t7_point_22,,26,2,4w,c5b18f3s2n#,2,matched,3-2,15-15
+t7_point_23,,27,2,6x,6f38s2d#,1,matched,3-2,30-15
+t7_point_24,,28,2,4f2n#,,2,matched,3-2,30-30
+t7_point_25,,29,2,6d,4b28f1f2b2s3f1f3b3b2b2f1f1w@,1,matched,3-2,40-30
+t7_point_26,deuce cycle A; order-resolved,30,2,4n,5b27b3s3b2f2f3b1f2f3b3b3b1f1f2b3b3s3f3b3b2f1r3s3s1n#,1,matched,3-2,40-40
+t7_point_27,deuce cycle B; order-resolved,32,2,4r2d#,,2,matched,3-2,40-40
+t7_point_28,Sinner AD,33,2,4d,5b38b2f3b3s1f2b2b2s2u3b3b2*,2,matched,3-2,AD-40
+t7_point_29,,35,1,6f38b2f1r1f3b3b2b1f2b3w@,,2,matched,3-3,15-0
+t7_point_30,,42,2,6s28f3*,,2,matched,4-3,0-0
+t7_point_31,,43,2,6r28f1f1d#,,2,matched,4-3,15-0
+t7_point_32,,44,2,6n,5b18f3b2f3w@,1,matched,4-3,30-0
+t7_point_33,,45,2,4*,,2,matched,4-3,30-15
+t7_point_34,,46,2,6n,4f1w@,2,matched,4-3,40-15
+t7_point_35,,47,1,6s28j3b1n#,,1,matched,4-4,0-0
+t7_point_36,,48,1,6*,,1,matched,4-4,15-0
+t7_point_37,,49,1,4n,4f18f3b3b1b1w@,1,matched,4-4,30-0
+t7_point_38,,50,1,6f1n#,,1,matched,4-4,40-0
+t7_point_39,,55,2,4w,6b37b2b2f1f2d@,2,matched,5-4,30-30
+t7_point_40,BREAK POINT,56,2,6r#,,2,matched,5-4,40-30
+t7_point_41,,57,1,4n,6b28f3b2n#,1,matched,5-5,0-0
+t7_point_42,,59,1,6*,,1,matched,5-5,30-0
+t7_point_43,,60,1,4b29*,,2,matched,5-5,40-0
+t7_point_44,,61,1,6b37b+2f2v2f3*,,2,matched,5-5,40-15
+t7_point_45,,62,1,6x,6f18f3b2f3b3b3f3s1j1*,2,matched,5-5,40-30
+t7_point_46,,63,1,4n,4n,2,matched,5-5,40-40
+t7_point_47,Sinner AD -> break for 5-6,64,1,6f39b3b3b#,,2,matched,5-5,40-AD
+t7_point_48,,65,2,5d,5b28f2b1f2f3b2f2b1f2f3b3n@,2,matched,5-6,0-0
+t7_point_49,,66,2,4b29f1f2f+3s2v3m2d#,,2,matched,5-6,15-0
+t7_point_50,,67,2,6d,4f3n#,2,matched,5-6,30-0
+t7_point_51,SET POINTS (Sinner serves out 7-5),68,2,4w,4b38b2f3b2f3n#,2,matched,5-6,40-0
+t7_point_52,adjudicated: first-serve fault 4w (MCP Pt69); second-serve point in 53,,,,,,NO MATCH,,
+t7_point_53,0-0 fragment pair with 52,69,1,4w,6b28b1f2f2f2f2f3b1f1f2f3*,2,matched,0-0,0-0
+t7_point_54,,70,1,6*,,1,matched,0-0,0-15
+t7_point_55,,71,1,4n,4f27f+3b3z1l2o3*,1,matched,0-0,15-15
+t7_point_56,,72,1,4n,4+b18v^1*,1,matched,0-0,30-15
+t7_point_57,,73,1,6n,4f1w@,1,matched,0-0,40-15
+t7_point_58,,74,2,6*,,2,matched,1-0,0-0
+t7_point_59,,76,2,6s28f3b1d#,,2,matched,1-0,15-15
+t7_point_60,,77,2,6f28f3w@,,1,matched,1-0,30-15
+t7_point_61,"adjudicated: walk-up/let fragment (near misdetect); point in 62 (parity far, MCP Pt80 1st in)",,,,,,NO MATCH,,
+t7_point_62,0-0 fragment pair with 61,80,1,4f28f3b2b2b1*,,2,matched,1-1,0-0
+t7_point_63,,82,1,6b29f1f2b2b2d@,,1,matched,1-1,15-15
+t7_point_64,,84,1,6*,,1,matched,1-1,40-15
+t7_point_65,,85,2,4x,5b38b3b+1l1o1*,1,matched,2-1,0-0
+t7_point_66,adjudicated: first-serve fault 6n (MCP Pt87); second-serve point in 67,,,,,,NO MATCH,,
+t7_point_67,same-score fragment pair with 66,87,2,6n,6b38b3b3b3b2f1f1f1f1f1*,2,matched,2-1,0-30
+t7_point_68,,93,1,4f2d#,,1,matched,2-2,0-0
+t7_point_69,,94,1,6f2d#,,1,matched,2-2,15-0
+t7_point_70,,95,1,4+f28v2b1*,,2,matched,2-2,30-0
+t7_point_71,,96,1,6*,,1,matched,2-2,30-15
+t7_point_72,,97,1,4+f18v3n@,,2,matched,2-2,40-15
+t7_point_73,,99,2,6n,4f28f2s2f2f1f1d@,1,matched,3-2,0-0
+t7_point_74,,100,2,6r3x#,,2,matched,3-2,0-15
+t7_point_75,,101,2,4f27u1*,,2,matched,3-2,15-15
+t7_point_76,,102,2,4*,,2,matched,3-2,30-15
+t7_point_77,adjudicated: first-serve fault 4w (MCP Pt103); second-serve point in 78,,,,,,NO MATCH,,
+t7_point_78,same-score fragment pair with 77,103,2,4w,6b38b3b1f1f3s1w#,1,matched,3-2,40-15
+t7_point_79,,104,2,4b18*,,1,matched,3-2,40-30
+t7_point_80,,105,2,4f1d#,,2,matched,3-2,40-40
+t7_point_81,Sinner AD,106,2,6f2d#,,2,matched,3-2,AD-40
+t7_point_82,0-0 fragment pair with 83,107,1,6s29f1f2f1f;2s3b2f3w@,,2,matched,3-3,0-0
+t7_point_83,adjudicated: aftermath fragment (3s); point in 82 (8.9s fits MCP Pt107 10 strikes),,,,,,NO MATCH,,
+t7_point_84,,110,1,4d,6f28f1*,1,matched,3-3,30-15
+t7_point_85,,111,1,6+f#,,1,matched,3-3,40-15
+t7_point_86,,112,2,c5b28f1f2f3*,,2,matched,4-3,0-0
+t7_point_87,,114,2,6s29f1f1f3b3b2f1n@,,2,matched,4-3,15-15
+t7_point_88,,116,2,6d,5b29f3b3b2f1w@,2,matched,4-3,40-15
+t7_point_89,,117,1,4f28b3b2n#,,1,matched,4-4,0-0
+t7_point_90,,118,1,6*,,1,matched,4-4,15-0
+t7_point_91,,119,1,4w,6s2d#,1,matched,4-4,30-0
+t7_point_92,,120,1,6d,4b37b3*,1,matched,4-4,40-0
+t7_point_93,,121,2,6n,5b2d@,2,matched,5-4,0-0
+t7_point_94,,122,2,4*,,2,matched,5-4,15-0
+t7_point_95,,123,2,4*,,2,matched,5-4,30-0
+t7_point_96,BREAK POINTS,124,2,6f2d#,,2,matched,5-4,40-0
+t7_point_97,,125,1,4+f28z3*,,1,matched,5-5,0-0
+t7_point_98,,131,2,5b28f3w@,,1,matched,6-5,15-0
+t7_point_99,,132,2,4w,6w,1,matched,6-5,15-15
+t7_point_100,,133,2,6f38f1f2f1f1f2f1f1f2f2f1f2f3d@,,2,matched,6-5,15-30
+t7_point_101,SET POINT,135,2,4w,5b37b3b1f1f1f2b2y1r3b3z1*,1,matched,6-5,40-30
+t7_point_102,SET POINT #2,137,2,4b28f2f3b2b1f2f1n@,,2,matched,6-5,AD-40
+t7_point_103,tiebreak; Djokovic serves first,138,1,6n,4+f37i2n#,2,matched,6-6,0-0
+t7_point_104,tiebreak,139,2,4w,6f3w#,2,matched,6-6,1-0
+t7_point_105,tiebreak,140,2,6b29f2f3b3b2f2f1f2b2f1w@,,1,matched,6-6,2-0
+t7_point_106,tiebreak,141,1,4b37b-3b#,,1,matched,6-6,1-2
+t7_point_107,tiebreak,142,1,4d,4+f27h3w@,2,matched,6-6,2-2
+t7_point_108,tiebreak,144,2,6n,5b18f3b3b3b2b2b2b2n@,1,matched,6-6,3-3
+t7_point_109,tiebreak,145,1,4d,5f38s2n#,2,matched,6-6,4-3
+t7_point_110,tiebreak,146,1,c6b27f1*,,1,matched,6-6,4-4
+t7_point_111,tiebreak,147,2,6f39b2f3b2f3b2f2f1d@,,1,matched,6-6,4-5
+t7_point_112,tiebreak; SET POINTS Djokovic,148,2,6w,5b28b3b2b2f3b2b2f2b2b2b2b2b1f1f1r3b2n@,2,matched,6-6,4-6
+t7_point_113,adjudicated: walk-up + first-serve deep fault 5d (MCP Pt150); second serve in 114,,,,,,NO MATCH,,
+t7_point_114,0-0 fragment trio,150,2,5d,5b29f3b3b2f3b3b3b2f1*,1,matched,0-0,0-0
+t7_point_115,adjudicated: rally tail of mid-rally split; serve+head in 114 (11-strike rally spans both),,,,,,NO MATCH,,
+t7_point_116,,151,2,4d,5b2d@,2,matched,0-0,0-15
+t7_point_117,,152,2,6d,4d,1,matched,0-0,15-15
+t7_point_118,,153,2,5b37b2s3f2b2b3b2f2f1f3b2b3b2b1r1w#,,2,matched,0-0,15-30
+t7_point_119,,154,2,4*,,2,matched,0-0,30-30
+t7_point_120,,155,2,4*,,2,matched,0-0,40-30
+t7_point_121,,156,1,6*,,1,matched,0-1,0-0
+t7_point_122,,158,1,4*,,1,matched,0-1,30-0
+t7_point_123,,159,1,4b1w#,,1,matched,0-1,40-0
+t7_point_124,,161,2,6w,5f27f2f3b3b3b3b2b2b2b2f2b3b3b3b1w#,2,matched,1-1,15-0
+t7_point_125,,162,2,4*,,2,matched,1-1,30-0
+t7_point_126,,163,2,4d,4b2n@,2,matched,1-1,40-0
+t7_point_127,,169,2,4f28b+3m2o3m2o=3*,,2,matched,2-2,0-0
+t7_point_128,,170,2,4s28j+3b2z3m2o1*,,2,matched,2-2,15-0
+t7_point_129,,171,2,4n,6s37b1f1f3b2b2f3*,1,matched,2-2,30-0
+t7_point_130,,172,2,4n,5f18f2f1f2f1f1f+3b1*,2,matched,2-2,30-15
+t7_point_131,,173,2,5b1w#,,2,matched,2-2,40-15
+t7_point_132,,179,2,6b38b3b3b3b2f1f1f3*,,2,matched,2-4,0-0
+t7_point_133,,180,2,4n,5b28f3n@,1,matched,2-4,15-0
+t7_point_134,,181,2,6b28f1f1f3s3f3b2f1f2f3w@,,1,matched,2-4,15-15
+t7_point_135,,182,2,6r28f+1l2f1f1u3*,,2,matched,2-4,15-30
+t7_point_136,,183,2,5b28b2b3b3b2f1w@,,1,matched,2-4,30-30
+t7_point_137,,184,2,6f38f3f3b1r1f+3b3x#,,2,matched,2-4,30-40
+t7_point_138,,185,2,4x,4f28f2f1f1f1f1f2b3b3b3b2b1d@,1,matched,2-4,40-40
+t7_point_139,Djokovic AD,186,2,4n,4b38b2b3b3b3b3b3b2n@,1,matched,2-4,40-AD
+t7_point_140,,187,1,4f17f1*,,1,matched,3-4,0-0
+t7_point_141,,188,1,6f2d#,,1,matched,3-4,15-0
+t7_point_142,,189,1,4n,4f1w@,1,matched,3-4,30-0
+t7_point_143,,190,1,4d,4b29f1f2d#,1,matched,3-4,40-0
+t7_point_144,adjudicated: first-serve fault 4d (MCP Pt191); second-serve point in 145,,,,,,NO MATCH,,
+t7_point_145,0-0 fragment pair with 144,191,2,4d,5f17f1f3b2s3f3b1f1f3d#,2,matched,4-4,0-0
+t7_point_146,,192,2,4b29f2f2f2f2b2f2f1f2b1*,,2,matched,4-4,15-0
+t7_point_147,,193,2,4f2n#,,2,matched,4-4,30-0
+t7_point_148,,194,2,4w,5b3w@,2,matched,4-4,40-0
+t7_point_149,,200,2,4r18f3n@,,1,matched,5-5,0-0
+t7_point_150,,201,2,4n,4b38b2f2b1r2j3*,2,matched,5-5,0-15
+t7_point_151,,202,2,4f28b2b2f1f3b3d@,,1,matched,5-5,15-15
+t7_point_152,,203,2,4w,5b37b3b2f3b3w@,2,matched,5-5,15-30
+t7_point_153,,204,2,4w,5b28f3b3b3b3f3b3s3b3b2f1f3*,2,matched,5-5,30-30
+t7_point_154,,205,2,4b2d#,,2,matched,5-5,40-30
+t7_point_155,,206,1,6b37f-3*,,1,matched,5-6,0-0
+t7_point_156,,207,1,6f2n#,,1,matched,5-6,15-0
+t7_point_157,,208,1,4f2n#,,1,matched,5-6,30-0
+t7_point_158,,209,1,4w,6f39b3b1n@,1,matched,5-6,40-0
+t7_point_159,tiebreak; Sinner serves first,210,2,4x,4f2n@,2,matched,6-6,0-0
+t7_point_160,tiebreak,211,1,4d,6f38s2n#,2,matched,6-6,0-1
+t7_point_161,tiebreak,212,1,6b37b+2f1*,,2,matched,6-6,0-2
+t7_point_162,tiebreak,213,2,c6f38b3b3b2f1f1f1f+3m3w#,,2,matched,6-6,3-0
+t7_point_163,tiebreak,214,2,4f1w#,,2,matched,6-6,4-0
+t7_point_164,tiebreak,215,1,4b28f1f2f+3m1o1*,,1,matched,6-6,0-5
+t7_point_165,tiebreak; CHAMPIONSHIP POINTS Sinner,217,2,4b28f2f2f3w@,,1,matched,6-6,6-1
+t7_point_166,tiebreak,218,2,4f18f+3m2o1*,,2,matched,6-6,6-2

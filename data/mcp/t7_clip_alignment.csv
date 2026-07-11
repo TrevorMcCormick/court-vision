@@ -1,0 +1,167 @@
+clip,set1,set2,gm1,gm2,pts,server_bug,note
+t7_point_01,0,0,0,0,15-0,1,bug Djokovic-top; transcribed player-1-first (bug hides pts col at 0-0)
+t7_point_02,0,0,0,0,30-0,1,
+t7_point_03,0,0,0,0,40-0,1,
+t7_point_04,0,0,1,0,0-0,2,
+t7_point_05,0,0,1,0,0-15,2,
+t7_point_06,0,0,1,0,0-30,2,
+t7_point_07,0,0,1,0,0-40,2,
+t7_point_08,0,0,1,1,0-0,1,
+t7_point_09,0,0,1,1,15-0,1,
+t7_point_10,0,0,2,1,0-0,2,
+t7_point_11,0,0,2,1,0-30,2,
+t7_point_12,0,0,2,1,0-40,2,
+t7_point_13,0,0,2,1,15-40,2,
+t7_point_14,0,0,2,1,30-40,2,
+t7_point_15,0,0,2,2,0-0,1,
+t7_point_16,0,0,2,2,0-15,1,
+t7_point_17,0,0,2,2,15-15,1,
+t7_point_18,0,0,2,2,30-15,1,
+t7_point_19,0,0,2,2,40-15,1,
+t7_point_20,0,0,3,2,0-0,2,
+t7_point_21,0,0,3,2,15-0,2,
+t7_point_22,0,0,3,2,15-15,2,
+t7_point_23,0,0,3,2,15-30,2,
+t7_point_24,0,0,3,2,30-30,2,
+t7_point_25,0,0,3,2,30-40,2,
+t7_point_26,0,0,3,2,40-40,2,deuce cycle A
+t7_point_27,0,0,3,2,40-40,2,deuce cycle B
+t7_point_28,0,0,3,2,40-AD,2,Sinner AD
+t7_point_29,0,0,3,3,15-0,1,
+t7_point_30,0,0,4,3,0-0,2,
+t7_point_31,0,0,4,3,0-15,2,
+t7_point_32,0,0,4,3,0-30,2,
+t7_point_33,0,0,4,3,15-30,2,
+t7_point_34,0,0,4,3,15-40,2,
+t7_point_35,0,0,4,4,0-0,1,
+t7_point_36,0,0,4,4,15-0,1,
+t7_point_37,0,0,4,4,30-0,1,
+t7_point_38,0,0,4,4,40-0,1,
+t7_point_39,0,0,5,4,30-30,2,
+t7_point_40,0,0,5,4,30-40,2,BREAK POINT
+t7_point_41,0,0,5,5,0-0,1,
+t7_point_42,0,0,5,5,30-0,1,
+t7_point_43,0,0,5,5,40-0,1,
+t7_point_44,0,0,5,5,40-15,1,
+t7_point_45,0,0,5,5,40-30,1,
+t7_point_46,0,0,5,5,40-40,1,
+t7_point_47,0,0,5,5,40-AD,1,Sinner AD -> break for 5-6
+t7_point_48,0,0,5,6,0-0,2,
+t7_point_49,0,0,5,6,0-15,2,
+t7_point_50,0,0,5,6,0-30,2,
+t7_point_51,0,0,5,6,0-40,2,SET POINTS (Sinner serves out 7-5)
+t7_point_52,,,,,,,adjudicated: first-serve fault 4w (MCP Pt69); second-serve point in 53
+t7_point_53,0,1,0,0,0-0,1,0-0 fragment pair with 52
+t7_point_54,0,1,0,0,0-15,1,
+t7_point_55,0,1,0,0,15-15,1,
+t7_point_56,0,1,0,0,30-15,1,
+t7_point_57,0,1,0,0,40-15,1,
+t7_point_58,0,1,1,0,0-0,2,
+t7_point_59,0,1,1,0,15-15,2,
+t7_point_60,0,1,1,0,15-30,2,
+t7_point_61,,,,,,,"adjudicated: walk-up/let fragment (near misdetect); point in 62 (parity far, MCP Pt80 1st in)"
+t7_point_62,0,1,1,1,0-0,1,0-0 fragment pair with 61
+t7_point_63,0,1,1,1,15-15,1,
+t7_point_64,0,1,1,1,40-15,1,
+t7_point_65,0,1,2,1,0-0,2,
+t7_point_66,,,,,,,adjudicated: first-serve fault 6n (MCP Pt87); second-serve point in 67
+t7_point_67,0,1,2,1,30-0,2,same-score fragment pair with 66
+t7_point_68,0,1,2,2,0-0,1,
+t7_point_69,0,1,2,2,15-0,1,
+t7_point_70,0,1,2,2,30-0,1,
+t7_point_71,0,1,2,2,30-15,1,
+t7_point_72,0,1,2,2,40-15,1,
+t7_point_73,0,1,3,2,0-0,2,
+t7_point_74,0,1,3,2,15-0,2,
+t7_point_75,0,1,3,2,15-15,2,
+t7_point_76,0,1,3,2,15-30,2,
+t7_point_77,,,,,,,adjudicated: first-serve fault 4w (MCP Pt103); second-serve point in 78
+t7_point_78,0,1,3,2,15-40,2,same-score fragment pair with 77
+t7_point_79,0,1,3,2,30-40,2,
+t7_point_80,0,1,3,2,40-40,2,
+t7_point_81,0,1,3,2,40-AD,2,Sinner AD
+t7_point_82,0,1,3,3,0-0,1,0-0 fragment pair with 83
+t7_point_83,,,,,,,adjudicated: aftermath fragment (3s); point in 82 (8.9s fits MCP Pt107 10 strikes)
+t7_point_84,0,1,3,3,30-15,1,
+t7_point_85,0,1,3,3,40-15,1,
+t7_point_86,0,1,4,3,0-0,2,
+t7_point_87,0,1,4,3,15-15,2,
+t7_point_88,0,1,4,3,15-40,2,
+t7_point_89,0,1,4,4,0-0,1,
+t7_point_90,0,1,4,4,15-0,1,
+t7_point_91,0,1,4,4,30-0,1,
+t7_point_92,0,1,4,4,40-0,1,
+t7_point_93,0,1,5,4,0-0,2,
+t7_point_94,0,1,5,4,0-15,2,
+t7_point_95,0,1,5,4,0-30,2,
+t7_point_96,0,1,5,4,0-40,2,BREAK POINTS
+t7_point_97,0,1,5,5,0-0,1,
+t7_point_98,0,1,6,5,0-15,2,
+t7_point_99,0,1,6,5,15-15,2,
+t7_point_100,0,1,6,5,30-15,2,
+t7_point_101,0,1,6,5,30-40,2,SET POINT
+t7_point_102,0,1,6,5,40-AD,2,SET POINT #2
+t7_point_103,0,1,6,6,0-0,1,tiebreak; Djokovic serves first
+t7_point_104,0,1,6,6,0-1,2,tiebreak
+t7_point_105,0,1,6,6,0-2,2,tiebreak
+t7_point_106,0,1,6,6,1-2,1,tiebreak
+t7_point_107,0,1,6,6,2-2,1,tiebreak
+t7_point_108,0,1,6,6,3-3,2,tiebreak
+t7_point_109,0,1,6,6,4-3,1,tiebreak
+t7_point_110,0,1,6,6,4-4,1,tiebreak
+t7_point_111,0,1,6,6,5-4,2,tiebreak
+t7_point_112,0,1,6,6,6-4,2,tiebreak; SET POINTS Djokovic
+t7_point_113,,,,,,,adjudicated: walk-up + first-serve deep fault 5d (MCP Pt150); second serve in 114
+t7_point_114,1,1,0,0,0-0,2,0-0 fragment trio
+t7_point_115,,,,,,,adjudicated: rally tail of mid-rally split; serve+head in 114 (11-strike rally spans both)
+t7_point_116,1,1,0,0,15-0,2,
+t7_point_117,1,1,0,0,15-15,2,
+t7_point_118,1,1,0,0,30-15,2,
+t7_point_119,1,1,0,0,30-30,2,
+t7_point_120,1,1,0,0,30-40,2,
+t7_point_121,1,1,0,1,0-0,1,
+t7_point_122,1,1,0,1,30-0,1,
+t7_point_123,1,1,0,1,40-0,1,
+t7_point_124,1,1,1,1,0-15,2,
+t7_point_125,1,1,1,1,0-30,2,
+t7_point_126,1,1,1,1,0-40,2,
+t7_point_127,1,1,2,2,0-0,2,
+t7_point_128,1,1,2,2,0-15,2,
+t7_point_129,1,1,2,2,0-30,2,
+t7_point_130,1,1,2,2,15-30,2,
+t7_point_131,1,1,2,2,15-40,2,
+t7_point_132,1,1,2,4,0-0,2,
+t7_point_133,1,1,2,4,0-15,2,
+t7_point_134,1,1,2,4,15-15,2,
+t7_point_135,1,1,2,4,30-15,2,
+t7_point_136,1,1,2,4,30-30,2,
+t7_point_137,1,1,2,4,40-30,2,
+t7_point_138,1,1,2,4,40-40,2,
+t7_point_139,1,1,2,4,AD-40,2,Djokovic AD
+t7_point_140,1,1,3,4,0-0,1,
+t7_point_141,1,1,3,4,15-0,1,
+t7_point_142,1,1,3,4,30-0,1,
+t7_point_143,1,1,3,4,40-0,1,
+t7_point_144,,,,,,,adjudicated: first-serve fault 4d (MCP Pt191); second-serve point in 145
+t7_point_145,1,1,4,4,0-0,2,0-0 fragment pair with 144
+t7_point_146,1,1,4,4,0-15,2,
+t7_point_147,1,1,4,4,0-30,2,
+t7_point_148,1,1,4,4,0-40,2,
+t7_point_149,1,1,5,5,0-0,2,
+t7_point_150,1,1,5,5,15-0,2,
+t7_point_151,1,1,5,5,15-15,2,
+t7_point_152,1,1,5,5,30-15,2,
+t7_point_153,1,1,5,5,30-30,2,
+t7_point_154,1,1,5,5,30-40,2,
+t7_point_155,1,1,5,6,0-0,1,
+t7_point_156,1,1,5,6,15-0,1,
+t7_point_157,1,1,5,6,30-0,1,
+t7_point_158,1,1,5,6,40-0,1,
+t7_point_159,1,1,6,6,0-0,2,tiebreak; Sinner serves first
+t7_point_160,1,1,6,6,0-1,1,tiebreak
+t7_point_161,1,1,6,6,0-2,1,tiebreak
+t7_point_162,1,1,6,6,0-3,2,tiebreak
+t7_point_163,1,1,6,6,0-4,2,tiebreak
+t7_point_164,1,1,6,6,0-5,1,tiebreak
+t7_point_165,1,1,6,6,1-6,2,tiebreak; CHAMPIONSHIP POINTS Sinner
+t7_point_166,1,1,6,6,2-6,2,tiebreak
