@@ -2129,11 +2129,14 @@ signal; that ceiling is t4's chart quality, not the calibration's.
 **Nothing in the pipeline ran.** The session turned outward — the
 first since t1 with zero perception, charting, or eval work. The
 seven draft exports are now published artifacts: all
-`t*_mcp_draft.csv` hosted at trmccormick.com/data/ (stable URLs via
+`t*_mcp_draft.csv` hosted at trmccormick.com/exports/ (stable URLs via
 Docusaurus `pathname://`, dodging the hashed-asset pipeline), and
 cv-17 ("The 33rd Charter") is the cover letter, addressed to the
 Match Charting Project's 32 active charters via Sackmann's Jan 2026
-plea. Reply channel: GitHub issues on this repo. This is the public
+plea. Reply channel: GitHub issues on this repo. (Dead-end kept: the
+CSVs went to static/data/ first — gitignored for build-time PageSpeed
+metrics, so they built locally and would have 404'd in CI. They live
+at static/exports/.) This is the public
 probe on landscape open question #1 (has anyone attempted assisted
 charting?) — if a charter answers, the question answers itself.
 
@@ -2161,7 +2164,7 @@ some rallies; "if you open one file to hunt over-confidence, open
 that one").
 
 - New: experiments/render_cv17_hero.py, outputs/cv17_hero{,_raw}.mp4
-  (untracked). Blog repo: cv-17 post, static/data/*.csv x7,
+  (untracked). Blog repo: cv-17 post, static/exports/*.csv x7,
   static/img/blog/the-review-copy.mp4, social card. Pipeline, charts,
   exports, model: untouched.
 - Session cost: $0.00. Project total: ~$16.
