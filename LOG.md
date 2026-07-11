@@ -2168,3 +2168,66 @@ that one").
   static/img/blog/the-review-copy.mp4, social card. Pipeline, charts,
   exports, model: untouched.
 - Session cost: $0.00. Project total: ~$16.
+
+## 2026-07-11 — cv-18 build: the review tool, by subagent assembly line
+
+**The charter-assist MVP exists.** `courtvision review <match> --mode
+review|cold --session NAME` serves a localhost three-pane UI — row
+list with confidence colors, clip player that jumps to the serve,
+keyboard-first edit bar with live MCP-legality lint — and logs every
+action to events.jsonl with a pause key that stops the clock. The two
+modes differ by exactly one thing (cold strips the draft string,
+confidence, and serve timestamp server-side), which is the whole
+stopwatch experiment's validity argument. `review-analyze` turns
+three sessions into the cv-18 tables: timing with a 180s idle-hole
+rule, accuracy vs MCP truth, the anchoring check, the correction
+histogram, triage honesty. Zero new runtime deps — stdlib http.server
+with a hand-rolled Range handler; the only addition is pytest (dev),
+and the repo now has a test suite: 34 tests.
+
+**Built by an assembly line, and the reviews earned their keep.**
+Seven tasks, each a fresh implementer subagent gated by a fresh
+reviewer; every blocking finding was real: (1) the plan's own lint
+sample code would have failed the plan's own test — implementer
+caught it; (2) an implementer's "helpful" setuptools build-system
+flipped the uv project to editable-install and left egg-info litter —
+reverted for pytest's pythonpath ini; (3) malformed POSTs crashed the
+handler thread, Range-past-EOF returned broken 206s — hardened with
+socket-level regression tests; (4) accept() could silently lose a
+correction on a failed save, and the pause overlay hid behind an
+open cheat sheet, a two-keystroke trap — both fixed; (5) the big one,
+CRITICAL: the analyzer tokenized corrected strings with the
+MCP-native tokenizer, so rubber-stamping a correct s-prefixed HIGH
+draft scored a phantom serve edit — every review-arm number cv-18
+would publish was biased against the draft. Fixed by tokenizing
+corrections with the s-tolerant draft grammar, projection imported
+from frozen mcp.py so the drift class is dead, regression tests
+pinning all of it. A naive median (upper-of-two) also died there.
+
+**The live smoke found what unit tests can't.** Playwright drove the
+real UI against t3: blank serve_s rows threw NaN into currentTime and
+silently killed autoplay — fixed. And a proper spook: phantom
+row_opens accepted a row I never reviewed. One tab, idle-quiet,
+events only during tool activity — the automation layer itself was
+the second driver. The tool's own telemetry reconstructed the whole
+incident to the millisecond, which is precisely the property the
+experiment needs. A real session has one human and no phantom.
+
+**Final review: merge, with one guard first.** The whole-branch pass
+(which independently re-verified the rubber-stamp fix empirically:
+43/128 exact on stamped drafts, ≈0 under the old code) demanded
+export_sha256 verification at analysis load — if the export is
+regenerated between charting and analysis, the numbers would
+silently grade against a draft the charter never saw. Wired, with
+corrupt-event-line tolerance, before Trevor spends the afternoon.
+
+- New: courtvision/{notation,review,review_analysis}.py,
+  courtvision/review_ui.html, tests/ (34), docs/cv18-protocol.md
+  (frozen seeds cv18-a/cv18-b), USAGE review section. Modified: cli
+  (+review, +review-analyze), pyproject (pytest dev-group), plan doc
+  kept byte-identical to shipped UI. Deferred to cv-19: notation↔mcp
+  vocab reconciliation ('g' foot-fault lint gap included), e2e
+  analyze() test, UI polish list in the SDD ledger.
+- Next: the experiment itself — docs/cv18-protocol.md, blocks 0-4.
+  Machine time is done; the stopwatch is Trevor's.
+- Session cost: $0.00. Project total: ~$16.
