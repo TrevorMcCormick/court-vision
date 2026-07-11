@@ -1,0 +1,72 @@
+clip,set1,set2,gm1,gm2,pts,server_bug,note
+t5_point_01,0,0,1,0,0-0,2,bug Sinner-top; transcribed player-1-first (AO bug hides 0-0 pts col)
+t5_point_02,0,0,1,0,15-40,2,
+t5_point_03,0,0,1,1,30-0,1,
+t5_point_04,0,0,1,1,40-0,1,
+t5_point_05,0,0,2,1,30-0,2,
+t5_point_06,0,0,2,1,30-15,2,
+t5_point_07,0,0,2,1,40-15,2,2 BREAK POINTS banner
+t5_point_08,0,0,2,1,40-30,2,
+t5_point_09,0,0,2,1,40-40,2,DEUCE banner
+t5_point_10,0,0,2,1,40-AD,2,
+t5_point_11,0,0,2,2,0-0,1,
+t5_point_12,0,0,2,2,0-15,1,
+t5_point_13,0,0,2,2,40-30,1,
+t5_point_14,0,0,2,2,40-40,1,DEUCE; cycle A
+t5_point_15,0,0,2,2,40-40,1,DEUCE #2; cycle B — distinct banner
+t5_point_16,0,0,2,2,AD-40,1,
+t5_point_17,0,0,3,3,0-0,1,
+t5_point_18,0,0,3,3,40-30,1,
+t5_point_19,0,0,4,3,0-0,2,
+t5_point_20,0,0,4,3,30-15,2,
+t5_point_21,0,0,4,3,40-30,2,BREAK POINT #2 banner
+t5_point_22,0,0,4,3,40-AD,2,
+t5_point_23,0,0,4,3,40-40,2,DEUCE #3
+t5_point_24,0,0,4,3,40-40,2,DEUCE #4
+t5_point_25,0,0,4,3,AD-40,2,BREAK POINT #4
+t5_point_26,0,0,5,3,30-0,1,
+t5_point_27,0,0,5,3,40-0,1,3 SET POINTS
+t5_point_28,1,0,0,0,15-40,2,set 2 era; games col hidden at 0-0
+t5_point_29,1,0,1,1,0-0,2,
+t5_point_30,1,0,1,1,40-15,2,2 BREAK POINTS
+t5_point_31,1,0,1,1,40-30,2,BREAK POINT #2
+t5_point_32,1,0,1,1,40-AD,2,
+t5_point_33,1,0,1,2,15-0,1,
+t5_point_34,1,0,1,2,40-0,1,
+t5_point_35,1,0,2,2,0-0,2,
+t5_point_36,1,0,2,2,30-40,2,
+t5_point_37,1,0,2,3,0-0,1,
+t5_point_38,1,0,2,3,40-30,1,
+t5_point_39,1,0,3,3,30-30,2,
+t5_point_40,1,0,3,4,0-0,1,
+t5_point_41,1,0,3,4,40-15,1,
+t5_point_42,1,0,4,5,0-30,1,
+t5_point_43,1,0,5,5,15-40,2,
+t5_point_44,1,0,5,6,30-15,1,
+t5_point_45,1,0,5,6,30-30,1,
+t5_point_46,1,0,5,6,40-30,1,
+t5_point_47,1,0,6,6,0-0,2,7 POINT TIEBREAK; Zverev serves first
+t5_point_48,1,0,6,6,0-1,1,tiebreak
+t5_point_49,1,0,6,6,2-2,2,tiebreak
+t5_point_50,1,0,6,6,3-2,1,tiebreak
+t5_point_51,1,0,6,6,4-3,2,tiebreak
+t5_point_52,1,0,6,6,4-4,2,tiebreak
+t5_point_53,2,0,0,0,0-0,1,set 3 era
+t5_point_54,2,0,0,0,15-0,1,
+t5_point_55,2,0,0,0,15-15,1,
+t5_point_56,2,0,0,0,30-15,1,
+t5_point_57,2,0,0,0,40-15,1,
+t5_point_58,2,0,1,0,0-15,2,
+t5_point_59,2,0,1,0,30-40,2,
+t5_point_60,2,0,1,1,15-0,1,
+t5_point_61,2,0,2,1,15-40,2,
+t5_point_62,2,0,2,2,15-0,1,
+t5_point_63,2,0,3,2,15-0,2,
+t5_point_64,2,0,3,2,40-15,2,2 BREAK POINTS
+t5_point_65,2,0,3,2,40-30,2,BREAK POINT #2
+t5_point_66,2,0,4,2,40-15,1,
+t5_point_67,2,0,4,2,AD-40,1,
+t5_point_68,2,0,5,3,0-15,1,
+t5_point_69,2,0,5,3,30-15,1,
+t5_point_70,2,0,5,3,30-30,1,
+t5_point_71,2,0,5,3,40-30,1,CHAMPIONSHIP POINT

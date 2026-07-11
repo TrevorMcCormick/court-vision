@@ -1,0 +1,72 @@
+clip,note,mcp_pt,svr,first,second,winner,status,gms,pts
+t5_point_01,bug Sinner-top; transcribed player-1-first (AO bug hides 0-0 pts col),5,2,5b29b1f1f1f;1f1f2b3b3b3b1w@,,2,matched,1-0,0-0
+t5_point_02,,9,2,c6s19f;3b3b3b3b1f1d#,,2,matched,1-0,40-15
+t5_point_03,,12,1,6x,5b29b3b2b3b3b2b2b2b2b1f3b3s3f2f1f2b3b3b3b3b2f1f3x#,1,matched,1-1,30-0
+t5_point_04,,13,1,4b37f-1*,,1,matched,1-1,40-0
+t5_point_05,,16,2,6s27k-3*,,2,matched,2-1,0-30
+t5_point_06,,17,2,6f28f3b3y+3b-1*,,1,matched,2-1,15-30
+t5_point_07,2 BREAK POINTS banner,18,2,4f3x#,,2,matched,2-1,15-40
+t5_point_08,,19,2,4s17f-1f#,,2,matched,2-1,30-40
+t5_point_09,DEUCE banner,20,2,4f27b+1f2v3*,,2,matched,2-1,40-40
+t5_point_10,,21,2,4b2d#,,2,matched,2-1,AD-40
+t5_point_11,,22,1,6d,5b37b3b3b1f1f1f3b3f1*,2,matched,2-2,0-0
+t5_point_12,,23,1,4s39f3b3b3b3b1f2f3b3b3b2f1f1w@,,1,matched,2-2,0-15
+t5_point_13,,27,1,6r27f+1f3z2n#,,2,matched,2-2,40-30
+t5_point_14,DEUCE; cycle A; order-resolved,28,1,4d,5b38b3b3b2f1f1f2b2f1f1f1w@,1,matched,2-2,40-40
+t5_point_15,DEUCE #2; cycle B — distinct banner; order-resolved,30,1,4w,4f18f1f3b3b3b3b2f2f2b2b1x#,1,matched,2-2,40-40
+t5_point_16,order-resolved,31,1,4b28b2f2d@,,1,matched,2-2,AD-40
+t5_point_17,,37,1,4r28f+3b3o=3*,,1,matched,3-3,0-0
+t5_point_18,,42,1,4x,5f19f1f1f1f1n@,1,matched,3-3,40-30
+t5_point_19,,43,2,4d,5b29b2f2f1f2f2b1f2b3b2d@,1,matched,4-3,0-0
+t5_point_20,,46,2,4s28j3b1v1f-3*,,1,matched,4-3,15-30
+t5_point_21,BREAK POINT #2 banner,48,2,4b1d#,,2,matched,4-3,30-40
+t5_point_22,order-resolved,50,2,6f38b+3b2z1d@,,1,matched,4-3,AD-40
+t5_point_23,DEUCE #3; order-resolved,51,2,6d,6s3n#,2,matched,4-3,40-40
+t5_point_24,DEUCE #4; order-resolved,53,2,4f27f+3b1*,,1,matched,4-3,40-40
+t5_point_25,BREAK POINT #4; order-resolved,54,2,4s37f+1f1w#,,2,matched,4-3,40-AD
+t5_point_26,,59,1,5b28f+3b2z2b1v1f3z3*,,1,matched,5-3,30-0
+t5_point_27,3 SET POINTS,60,1,4*,,1,matched,5-3,40-0
+t5_point_28,set 2 era; games col hidden at 0-0,65,2,4f28o3d@,,1,matched,0-0,40-15
+t5_point_29,,72,2,6w,5b29b2b2b3b2f3b3b3b2f1n#,1,matched,1-1,0-0
+t5_point_30,2 BREAK POINTS,76,2,4f18f+3s2o1*,,2,matched,1-1,15-40
+t5_point_31,BREAK POINT #2,77,2,4b28f1f2b+3b1o3*,,2,matched,1-1,30-40
+t5_point_32,,79,2,4s29f3b2f3s3f1f2y1f-1n#,,2,matched,1-1,AD-40
+t5_point_33,,81,1,5n,5b28b3s3f3*,1,matched,1-2,15-0
+t5_point_34,,83,1,6x,4b3w#,1,matched,1-2,40-0
+t5_point_35,,84,2,4f17f1f2f+3s3b;3s3b3b3b3b1w#,,2,matched,2-2,0-0
+t5_point_36,,89,2,4w,4b37b+3b2d#,2,matched,2-2,40-30
+t5_point_37,,90,1,5d,5b37b2b3b3b3b2f2b1r1u1*,1,matched,2-3,0-0
+t5_point_38,,95,1,4b39f3b2n@,,1,matched,2-3,40-30
+t5_point_39,,100,2,4d,5b38b3b3b2f2f2f3b3u3b-1*,2,matched,3-3,30-30
+t5_point_40,,102,1,4n,4f27f1f1f1r2f1f1f1f3b3b3b3b3s2f+1f1*,1,matched,3-4,0-0
+t5_point_41,,106,1,6b29f2f3b3b3b2b1f1f3d@,,1,matched,3-4,40-15
+t5_point_42,,114,1,4r17j1*,,1,matched,4-5,0-30
+t5_point_43,,122,2,6b39b2f3b2f1f1f2f1f1f1r3n#,,2,matched,5-5,40-15
+t5_point_44,,126,1,6w,5b38b2b2b1f1f2f1f1f1f1f3b3b2u3n@,2,matched,5-6,30-15
+t5_point_45,,127,1,6d,4f17f1f1u+3s-1v3f2o1f3b3s3f2f1f1f+3b2z1f3z3b-1*,1,matched,5-6,30-30
+t5_point_46,,128,1,4d,5b29f3b3b3b3b2f2b2b3b3b1f1f;1w@,1,matched,5-6,40-30
+t5_point_47,7 POINT TIEBREAK; Zverev serves first,129,2,c4f17f1f1f3b#,,2,matched,6-6,0-0
+t5_point_48,tiebreak,130,1,4s27j1*,,1,matched,6-6,0-1
+t5_point_49,tiebreak,133,2,5b28f3b2f2f1r2f1f1w@,,1,matched,6-6,2-2
+t5_point_50,tiebreak,134,1,4b29f2f1f2f3b3b3b3b3b2b1f1f3b3b3b3b2b2f1f1w#,,2,matched,6-6,3-2
+t5_point_51,tiebreak,136,2,4n,5f3w#,2,matched,6-6,3-4
+t5_point_52,tiebreak,137,2,4f29b2f;3*,,1,matched,6-6,4-4
+t5_point_53,set 3 era,140,1,4f19f1f3b2b3b3b2b1f2f1f1n@,,1,matched,0-0,0-0
+t5_point_54,,141,1,6w,4b39b2f1f2f3*,2,matched,0-0,15-0
+t5_point_55,,142,1,4r19f2b3b3b3b2f3b3f1f2f3b3b3b3b1w@,,1,matched,0-0,15-15
+t5_point_56,,143,1,4w,5f39b3b3b3b3b1f2b1r1f1f1f2b+3b3*,1,matched,0-0,30-15
+t5_point_57,,144,1,6s28f3b3b3b2f2f1n@,,1,matched,0-0,40-15
+t5_point_58,,146,2,4b39f3s3f1f1f1f2f3b2f1f1f2f3s#,,1,matched,1-0,15-0
+t5_point_59,,150,2,6f#,,2,matched,1-0,40-30
+t5_point_60,,152,1,6w,5b38b2b3b2b3b2f3b3b1f1f1f1f2d@,1,matched,1-1,15-0
+t5_point_61,,159,2,4f3n#,,2,matched,2-1,40-15
+t5_point_62,,161,1,5d,5b28f1f1f3*,1,matched,2-2,15-0
+t5_point_63,,165,2,4d,4b39b3b2f3b2f2f1f1f1f1d@,1,matched,3-2,0-15
+t5_point_64,2 BREAK POINTS,168,2,6d,4f17f2b2b1f2f3b3f3b3b1*,2,matched,3-2,15-40
+t5_point_65,BREAK POINT #2,169,2,4w,6f28b2f1f1d#,1,matched,3-2,30-40
+t5_point_66,,174,1,5d,5f29f1f1f1f3*,2,matched,4-2,40-15
+t5_point_67,order-resolved,177,1,6f29f1f1f1f3b2d@,,2,matched,4-2,AD-40
+t5_point_68,,186,1,4b29f1f1f+3*,,1,matched,5-3,0-15
+t5_point_69,,188,1,6f19f1f1f1f2b2b2f1f1f2d@,,2,matched,5-3,30-15
+t5_point_70,,189,1,6d,4f19f1f2b1f1f2b2f1f1f1f3w@,1,matched,5-3,30-30
+t5_point_71,CHAMPIONSHIP POINT,190,1,4d,5b38b3b3b1f2b2b2b1f1u1f-3b3*,1,matched,5-3,40-30

@@ -1,0 +1,49 @@
+# t5 — Sinner-Zverev, Australian Open F 2025 (hard, night, AO feed)
+id: t5
+title: "t5 hard AO"
+match: "Sinner-Zverev, Australian Open F 2025 (hard, night)"
+video: clips/t5_sinner_zverev_30fps.mp4
+clips_dir: clips/points_t5
+out_dir: outputs/t5
+ball_dir: ball_wasb
+players_dir: players
+charts_dir: charts_wasb
+homography: H_img_to_court.npy
+serves: serves.csv
+clip_offsets: clip_offsets.csv
+
+lefty: {near: false, far: false}   # Sinner, Zverev — looked up
+
+staging:
+  lock_serve: true
+  serve_zone_requires_side: true
+  near_ending_fill: true
+  coda_report: false
+
+serve_detect:
+  variant: ball               # yellow ball on blue: WASB adjudicates
+  center_tol_m: 3.0
+
+players_detect:
+  near_top_m: 11.885
+  far_bottom_m: 11.885
+
+court_detect:                 # AO: blue court inside a blue apron. The
+  hull_lo: [95, 55, 120]      # hull takes BOTH (t3 lesson: lines on the
+  hull_hi: [112, 165, 190]    # hull boundary get eroded off) — court
+  tophat_t: 14                # bright near-court coating: line-vs-court
+                              # V contrast ~30; the default 25 starves it
+  fit_lo: 4650                # 155-160 s: static return-setup, crisp lines
+  fit_hi: 4800
+
+eval:
+  title: "t5: hard, AO feed, night"
+  mcp_map: data/mcp/t5_mcp_map.csv
+  alignment: data/mcp/t5_clip_alignment.csv
+  mcp_points: data/mcp/points_20250126_sinner_zverev.csv
+  mcp_match_id: "20250126-M-Australian_Open-F-Jannik_Sinner-Alexander_Zverev"
+  start_end: near             # parity vote: 53 agree / 17 disagree vs far
+  set_priors:                 # set 1 = 9 games, set 2 = 12 + TB (13 units)
+    "1,0": 9
+    "2,0": 22
+  tiebreak_states: ["1,0"]    # only set 2 reached 6-6
