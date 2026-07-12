@@ -181,6 +181,11 @@ def analyze(specs, out_path=None):
     R = _load_session(rv_cfg, rv)
     B = _load_session(cb_cfg, cb)
     contaminated = set(A["man"]["rows"])
+    for xcfg, xname in specs.get("contaminated", []):
+        xman = json.loads(
+            (xcfg.out_dir / "review" / xname / "manifest.json")
+            .read_text())
+        contaminated |= set(xman["rows"])
 
     L = ["# cv-18 analysis", ""]
     L.append(f"sessions: cold_a={ca} review={rv} cold_b={cb}")
@@ -208,8 +213,8 @@ def analyze(specs, out_path=None):
     L.append(_fmt_arm("cold-B (t7)", [secs["cold_b"][c]
              for c in B["man"]["rows"] if c in secs["cold_b"]
              and c in B["corr"]]))
-    L.append(f"contaminated (cold-A rows in review timing): "
-             f"{len(contaminated)} excluded")
+    L.append(f"contaminated (cold-A + practice rows) excluded from "
+             f"review timing: {len(contaminated)}")
     if all_holes:
         L.append("idle holes (excluded): " + ", ".join(
             f"{t}:{c} {s:.0f}s" for t, c, s in all_holes))

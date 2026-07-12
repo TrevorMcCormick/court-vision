@@ -107,3 +107,37 @@ def test_load_session_skips_corrupt_event_lines(cfg):
                     "event": "accept", "payload": {}})
     loaded = _load_session(cfg, "bad-lines")
     assert [e["event"] for e in loaded["events"]] == ["row_open", "accept"]
+
+
+def test_analyze_unions_extra_contaminated_sessions(cfg):
+    from courtvision.review import ReviewSession
+    from courtvision.review_analysis import analyze
+
+    def stamp(s, ts0):
+        for k, clip in enumerate(s.manifest["rows"]):
+            s.append_event({"ts_ms": ts0 + k * 10_000, "row": clip,
+                            "event": "row_open", "payload": {}})
+            s.append_event({"ts_ms": ts0 + k * 10_000 + 5_000,
+                            "row": clip, "event": "accept",
+                            "payload": {}})
+            s.accept(clip, "6b2f1*", "", "")
+
+    a = ReviewSession(cfg, "cold", "an-a", seed="s", n=2)
+    stamp(a, 0)
+    r = ReviewSession(cfg, "review", "an-r")
+    stamp(r, 100_000)
+    # practice session: whatever rows it drew, its rows must ALSO be
+    # excluded from review timing
+    p = ReviewSession(cfg, "cold", "an-p", seed="other", n=2)
+    stamp(p, 200_000)
+
+    base = analyze({"cold_a": (cfg, "an-a"), "review": (cfg, "an-r"),
+                    "cold_b": (cfg, "an-a")},
+                   out_path=cfg.out_dir / "an1.md")
+    extra = analyze({"cold_a": (cfg, "an-a"), "review": (cfg, "an-r"),
+                     "cold_b": (cfg, "an-a"),
+                     "contaminated": [(cfg, "an-p")]},
+                    out_path=cfg.out_dir / "an2.md")
+    union = set(a.manifest["rows"]) | set(p.manifest["rows"])
+    assert f"review timing: {len(set(a.manifest['rows']))}" in base
+    assert f"review timing: {len(union)}" in extra

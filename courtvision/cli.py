@@ -87,6 +87,10 @@ def main(argv=None):
     p.add_argument("--cold-a", required=True, metavar="MATCH:SESSION")
     p.add_argument("--review", required=True, metavar="MATCH:SESSION")
     p.add_argument("--cold-b", required=True, metavar="MATCH:SESSION")
+    p.add_argument("--contaminated", action="append", default=[],
+                   metavar="MATCH:SESSION",
+                   help="extra sessions whose rows are excluded from "
+                        "review-pass timing (e.g. voided practice)")
 
     args = parser.parse_args(argv)
 
@@ -160,7 +164,9 @@ def main(argv=None):
             return (config.load(mid), name)
         review_analysis.analyze({"cold_a": _spec(args.cold_a),
                                  "review": _spec(args.review),
-                                 "cold_b": _spec(args.cold_b)})
+                                 "cold_b": _spec(args.cold_b),
+                                 "contaminated": [_spec(s) for s in
+                                                  args.contaminated]})
 
 
 if __name__ == "__main__":

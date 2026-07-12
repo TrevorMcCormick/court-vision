@@ -17,7 +17,15 @@ Chart all 5. Nothing here is analyzed.
 ## 1. Cold-A — 10 t6 points, drafts hidden
 
     uv run python -m courtvision review t6 --mode cold \
-        --session cv18-cold-a --seed cv18-a --n 10
+        --session cv18-cold-a2 --seed cv18-a2 --n 10
+
+Protocol amendment, on the record: the first Cold-A attempt
+(session cv18-cold-a, seed cv18-a, 8.5 min wall) was charted without
+direction digits — sub-MCP-grade work, so its timing would flatter
+the cold arm and its accuracy is incomparable. It is kept as a
+labeled practice block, voided for the arms. The redo uses seed
+cv18-a2 (verified disjoint draw). Both sessions' rows are excluded
+from review-pass timing via --contaminated in step 4.
 
 ## 2. Review pass — all 134 t6 rows, drafts shown
 
@@ -38,8 +46,8 @@ rows (Ctrl-C and rerun the same command — sessions resume).
 ## 4. Analysis
 
     uv run python -m courtvision review-analyze \
-        --cold-a t6:cv18-cold-a --review t6:cv18-review \
-        --cold-b t7:cv18-cold-b
+        --cold-a t6:cv18-cold-a2 --review t6:cv18-review \
+        --cold-b t7:cv18-cold-b --contaminated t6:cv18-cold-a
 
 Output: outputs/t6/review/cv18-review/analysis.md — the cv-18 tables.
 
