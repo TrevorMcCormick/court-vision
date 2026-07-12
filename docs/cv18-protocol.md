@@ -47,7 +47,10 @@ Output: outputs/t6/review/cv18-review/analysis.md — the cv-18 tables.
 
 Strict MCP throughout, faults included: if the point was played on a
 second serve, the fault goes in 1st (e.g. "4d") and the point string
-in 2nd. The in-tool cheat sheet (c) has the vocabulary; warnings are
+in 2nd. Directions (1/2/3) are scored — write one per shot when you
+saw where the ball went; omit when you couldn't tell (scores as
+unknown, same cost as wrong). Depth digits (7/8/9) are charting
+detail the eval drops — include only if effortless. The in-tool cheat sheet (c) has the vocabulary; warnings are
 advisory and never block accept.
 
 ## Charting rules for imperfect clips
