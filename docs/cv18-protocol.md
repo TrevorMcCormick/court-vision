@@ -65,7 +65,12 @@ never what it implies:
    (unknown), chart ONLY the shots you can see, ending as seen,
    and note "joins mid-rally" (press n). Never guess hidden shots
    or faults.
-4. Replay / second showing of the same point → chart the first
+4. Clip cuts out before the point ends (ball still live at the
+   final frame) → chart the shots you saw and end the string with
+   `?` (unknown ending), note "cut before ending". Never infer the
+   ending from the score bug — who won is not how it ended. The
+   lint will warn on `?`; that is expected and advisory.
+5. Replay / second showing of the same point → chart the first
    full live showing, ignore the repeat.
-5. `x` (skip + reason) only when there is no chartable tennis at
+6. `x` (skip + reason) only when there is no chartable tennis at
    all — pure cutaway, wrong point, broken video.
