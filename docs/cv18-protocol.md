@@ -49,3 +49,23 @@ Strict MCP throughout, faults included: if the point was played on a
 second serve, the fault goes in 1st (e.g. "4d") and the point string
 in 2nd. The in-tool cheat sheet (c) has the vocabulary; warnings are
 advisory and never block accept.
+
+## Charting rules for imperfect clips
+
+The condensed-match editors cut into points (documented since t3/t4:
+the clay and grass editors both do it; two confidence gates exist
+because of it). The machine drafts from the same clips, so these
+rules keep the arms comparable — chart what the video supports,
+never what it implies:
+
+1. Scrub the whole clip before concluding anything — in cold mode
+   the serve is often a few seconds in (space, arrows, ] speed).
+2. Serve visible anywhere in the clip → chart normally from it.
+3. Clip joins mid-rally (no serve shown) → serve digit `0`
+   (unknown), chart ONLY the shots you can see, ending as seen,
+   and note "joins mid-rally" (press n). Never guess hidden shots
+   or faults.
+4. Replay / second showing of the same point → chart the first
+   full live showing, ignore the repeat.
+5. `x` (skip + reason) only when there is no chartable tennis at
+   all — pure cutaway, wrong point, broken video.
