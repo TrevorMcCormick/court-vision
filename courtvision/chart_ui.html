@@ -335,11 +335,18 @@ function insertUnseen(){
 // ---- editing an accepted point (chart modes) --------------------------
 function beginEdit(i){
   if(MODE==="review") return;
-  if(editIdx!==null && i!==editIdx){
+  // whatever is mid-flight in the entry bar — an edit OR a fresh
+  // point being typed — gets confirmed and CLEARED before anything
+  // else loads, so edit mode can never silently leak.
+  if(editIdx!==null){
     const q=S.points[editIdx];
     const dirty = str1()!==(q.first||"") || str2()!==(q.second||"");
     if(dirty && !confirm(`discard the unsaved edit of point `+
       `${q.pt}?`)) return;
+    editIdx=null; newEntry(); warn("");
+  } else if(entry && (entry.first.length || entry.second.length)){
+    if(!confirm("discard the point you're typing?")) return;
+    newEntry(); warn("");
   }
   const p=S.points[i];
   if(p.flags==="unseen"){
@@ -417,7 +424,8 @@ function render(){
 function renderPts(){
   if(MODE==="review"){ renderReviewRows(); return; }
   $("#pts").innerHTML = (S.points??[]).map((p,i)=>
-    `<div class="pt ${i===editIdx?"cur":""}${p._conflict?" conf":""}"`+
+    `<div class="${["pt", i===editIdx?"cur":"",
+        p._conflict?"conf":""].filter(Boolean).join(" ")}"`+
     ` data-i="${i}">${p._conflict?"⚠ ":""}${p.pt} · ${p.Pts} · `+
     (p.flags==="unseen" ? `<span class="unseen">unseen</span>`
       : (p.second?`${p.first}|${p.second}`:p.first))+`</div>`
