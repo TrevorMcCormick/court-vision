@@ -44,6 +44,14 @@ eval:
   mcp_match_id: "20250126-M-Australian_Open-F-Jannik_Sinner-Alexander_Zverev"
   start_end: near             # parity vote: 53 agree / 17 disagree vs far
   set_priors:                 # set 1 = 9 games, set 2 = 12 + TB (13 units)
-    "1,0": 9
+    "1,0": 10                 # NOT 9: after the odd-total set 1 (6-3),
+                              # the set-end change and the change after
+                              # game 1 of set 2 are CONSECUTIVE; prior 9
+                              # gives set-2 games 0 and 1 the same end.
+                              # Crosstab receipt: set-2 odd-game-sum clips
+                              # scored 2/10 right vs 12/3 even — truth
+                              # inverted, not detector noise. Pixel-
+                              # verified on points 40/44/45
+                              # (experiments/diag2_t5_server_end.py).
     "2,0": 22
   tiebreak_states: ["1,0"]    # only set 2 reached 6-6

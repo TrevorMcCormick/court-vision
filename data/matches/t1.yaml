@@ -42,7 +42,11 @@ eval:
   mcp_match_id: "20170810-M-Canada_Masters-R16-Rafael_Nadal-Denis_Shapovalov"
   start_end: far              # established: Nadal began the match far-end
   set_priors:                 # set 1 went 6-3 (9 games), set 2 4-6 (10)
-    "1,0": 9
-    "0,1": 9
-    "1,1": 19
+    "1,0": 10                 # NOT 9: odd-total set 1 makes the set-end
+    "0,1": 10                 # change and next game-1 change consecutive;
+    "1,1": 20                 # 9 hands set-2 games 0/1 the same end. 19
+                              # inherits the same off-by-one through the
+                              # even set 2. The t5/t3 parity-truth class
+                              # (2026-07-20), pixel-verified there;
+                              # experiments/parity_audit.py.
   tiebreak_states: any        # 6-6 game is a tiebreak in any set

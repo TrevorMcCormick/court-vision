@@ -556,4 +556,53 @@ Exports NOT regenerated: the cv-18 review-tool artifacts are frozen
 (export_sha256 verification), so draft CSVs stay at the 99-HIGH
 edition until the stopwatch experiment closes.
 
+## Truth correction: the changeover-parity prior class (2026-07-20)
+
+Two parked diagnoses (t4 sane-box letters, t5 serve-end) came back
+with a shared surprise: part of the server-end "error" was the ANSWER
+KEY. p1_end's swaps=(g+1)//2 needs each set-state's game prior to
+carry the right parity, and after an odd-total set the staged prior
+was off by one — with it, set-2 games 0 and 1 get the SAME end though
+a changeover sits between them. t7 was hand-corrected for exactly this
+class at staging (25 -> 24, the tiebreak-set lesson); four more priors
+carried it: t5 "1,0" 9->10, t3 "*,1" 13->12 (the TB set contributes
+EVEN parity), t1 "1,0"/"0,1" 9->10 and "1,1" 19->20, t2 "1,0" 9->10.
+
+Receipts: the audit crosstab (experiments/parity_audit.py) — a wrong
+prior flips truth for exactly one within-set parity class, so
+agreement INVERTS there while the sibling cell stays high (t5: 2/10
+vs 12/3; t3: 2/6 vs 4/4) — a signature detector noise cannot produce.
+Pixel-verified on t5 points 40/44/45 (scorebug + serve end) and t3's
+4-2 Djokovic service game (points 31/32: far-end serve on frames,
+detector's near calls were the masked errors). t4/t6/t7 audit clean;
+t4's lone cold cell (0/3 at state 0,0) is prior-free by construction —
+that one really is the detector (the dissolve-cut serve calls).
+
+Server end, corrected truth (all other metrics byte-identical):
+
+| | t1 | t2 | t3 | t5 | pooled (7) |
+|---|:---:|:---:|:---:|:---:|:---:|
+| before | 10/22 | 2/5 | 48/59 | 53/71 | 404/491 (82.3%) |
+| after  | 11/22 | 3/5 | 50/59 (85%) | 59/71 (83%) | **414/491 (84.3%)** |
+
+The t5 note in "Three matches in one pass" ("weak server end traces
+to the AO night feed's serve-end detection") is therefore half right:
+8 of its 18 misses were this truth bug; the genuine residual (11
+clips) is return-mistaken-for-serve — the night track misses the
+serve's own net crossing, find_launch's gates reject the truncated
+run, and the first PASSING run is the return, flipping the end. A
+guarded earliest-crossing arbitration measured t5 59->62/71 and t6/t7
+no-damage (experiments/diag2_first_crossing_guarded.py) — pipeline,
+so it waits for cv-18. Same session, t4's "sane-box letter disease"
+dissolved under pixels: the stance serve detector fires 20-40 frames
+early on grass, chart.py appends a synth serve AND charts the real
+serve as rally shot 1, the length coincidentally re-matches, and
+every letter is scored against the MCP stroke one slot ahead — 13 of
+t4's 14 wrong aligned letters sit in the 3 clips with this defect (6
+were pixel-CORRECT reads). The genuine letter residue is box-center
+displacement on motion-smeared "sane" boxes (4-5 cases) — the audit's
+sanity checks size and location, never center-vs-body. Fix leads
+(serve absorption in chart.py, smear-aware letter refusal) are
+pipeline: cv-18 gate. Full mechanism tables in the session log.
+
 Full history: LOG.md. Landscape context: docs/landscape-2026-07.md.

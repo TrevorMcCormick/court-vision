@@ -36,7 +36,7 @@ eval:
   mcp_match_id: "20170812-M-Canada_Masters-SF-Roger_Federer-Robin_Haase"
   start_end: near             # established by parity vote 5-1 at staging
   set_priors:                 # set 1 went 6-3 (9 games)
-    "1,0": 9
-    "0,1": 9
-    "1,1": 9
+    "1,0": 10                 # NOT 9: the t5/t3 odd-set parity-truth
+    "0,1": 10                 # class (2026-07-20). Match ended 2-0 so
+    "1,1": 9                  # "1,1" never fires; left as staged.
   tiebreak_states: any

@@ -37,6 +37,13 @@ eval:
   mcp_match_id: "20230611-M-Roland_Garros-F-Casper_Ruud-Novak_Djokovic"
   start_end: far              # parity vote 9/14; Djokovic near in game 1
   set_priors:                 # set 1 = 12 games + TB (13 units), set 2 = 9
-    "*,1": 13
+    "*,1": 12                 # NOT 13: the TB set contributes EVEN swap
+                              # parity (t7 lesson), so 13 inverts set-2
+                              # truth for even game-sums. Pixel-verified
+                              # on the 4-2 Djokovic service game (points
+                              # 31/32: far-end serve, scorebug receipt);
+                              # experiments/parity_audit.py flagged 2/6
+                              # vs sibling 4/4. "*,2" = 22 is parity-
+                              # correct as-is (odd set 2 restores it).
     "*,2": 22
   tiebreak_states: ["0,0"]    # only the first set reached 6-6

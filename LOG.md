@@ -2296,3 +2296,72 @@ the drafts stay at the 99-HIGH edition until the stopwatch closes.
   flags 250/491 in-sample), docs/benchmark.md (+section). Exports,
   charts, review tool: untouched.
 - Session cost: $0.00 (no SAM-3 needed). Project total: ~$16.
+
+## 2026-07-20 — Two parked diagnoses, and the answer key confesses again
+
+**The assignment was two unowned diseases; both dissolved under
+pixels into something else.** Parallel diagnosis agents (analysis
+only, house rule: mechanisms named from pixels) took the two parked
+items from the roadmap critique.
+
+**t4's "sane-box letter disease" is mostly not a letter disease.**
+The stance serve detector fires 20-40 frames before true contact on
+grass (serves.csv frame 64 vs pixel-true ~93 on point_30; frame 4 —
+during a broadcast dissolve — vs ~20 on point_42). chart.py then
+appends a SYNTH serve and charts the real serve as rally shot 1; a
+late stroke drops off, total length coincidentally re-matches MCP,
+the eval's length-match gate passes, and every rally letter is
+scored against the MCP stroke one slot ahead — the OTHER player's
+stroke, since strokes alternate. 13 of the 14 wrong aligned letters
+sit in the 3 clips with this defect; 6 of them were pixel-CORRECT
+reads charged as wrong by the index shift. It also owns a slice of
+t4's outlier insertion bin (1.24 phantom edits/pt). The genuine
+residue: 4-5 letters read against motion-smeared or sliver boxes
+whose CENTER sits tens of px off the torso — boxes the audit calls
+sane because it checks size and location, never center-vs-body.
+Refuted with receipts: striker misattribution (every checked machine
+striker was pixel-correct), handedness, two-hander geometry. Fix
+leads (serve absorption when the first hit lands 15-45 f after a
+synth serve with no net crossing between; smear-aware letter
+refusal) are pipeline — cv-18 gate holds.
+
+**t5's weak server end was half answer key.** The eval's
+changeover-parity prior for set 2 was 9; set 1 went 6-3 = 9 games,
+ODD, and after an odd set the set-end change and the game-1 change
+are consecutive — prior 9 hands set-2 games 0 and 1 the same end.
+The crosstab tell: set-2 odd-game-sum clips scored 2/10 while even
+scored 12/3 — truth inversion, not noise (detector noise dilutes
+both cells). Pixel receipts: scorebug + serve end on points 40/44,
+plus point_45 as the masked class (detector wrong, scored right).
+Fixed 9 -> 10: t5 server end 53 -> 59/71. Then the audit swept all
+seven matches (experiments/parity_audit.py) and found the class in
+three more staging files: t3 "*,1" 13 -> 12 (the TB set contributes
+EVEN parity — t7's own lesson, unapplied one file over),
+pixel-verified on the 4-2 Djokovic service game; t1 9/9/19 ->
+10/10/20; t2 9 -> 10. Pooled server end 404 -> 414/491 (84.3%);
+every other metric byte-identical (p1_end feeds only the server
+tally). t4/t6/t7 audit clean — t4's cold cell is prior-free state
+0,0, which really is the detector (the dissolve-cut class from the
+letter diagnosis, same clips).
+
+**The genuine t5 detector residual has a measured fix, parked.** 11
+clips: the night track misses the serve's own crossing (hole-
+truncated runs fail LAUNCH_SPAN/MONO/GAP), so find_launch's first
+PASSING run is the RETURN — end flips. Guarded earliest-crossing
+arbitration reaches t5 62/71, t6/t7 no-damage; unguarded reaches 91%
+but pays t6 -6 on clip-start teleport junk. Also measured: a stance-
+settle vote lifts t7 133 -> 147/157 but DAMAGES t5 (56%) and t6 —
+per-feed staging or nothing. All pipeline; all wait for cv-18.
+
+- Dead ends kept: naive first-crossing recovery (teleport junk),
+  stance vote as a global rule, serve_s-based launch-gate repair
+  (condensed feeds cut tight to the serve — yesterday's lesson
+  reconfirmed from the other side).
+- New: experiments/{t4_letter_diag,t4_letter_frames,
+  diag2_t5_server_end,diag2_t5_launch_forensics,diag2_render_launch,
+  diag2_end_recovery,diag2_first_crossing,
+  diag2_first_crossing_guarded,parity_audit}.py; frame receipts in
+  outputs/diag/ (untracked). Modified: data/matches/{t1,t2,t3,t5}
+  .yaml (priors + receipts), docs/benchmark.md (+truth-correction
+  section). Pipeline, charts, exports, model: untouched.
+- Session cost: $0.00. Project total: ~$16.
