@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build `courtvision chart` — a single-page MCP charting app (palette-driven entry, self-running scoreboard, boundaries-as-byproduct, training-bundle export) with a serverless-static core and local power-ups.
+**Goal:** Build `courtvision charter` — a single-page MCP charting app (palette-driven entry, self-running scoreboard, boundaries-as-byproduct, training-bundle export) with a serverless-static core and local power-ups.
 
 **Architecture:** Static-first: the page (`chart_ui.html`) is built and tested against a browser adapter (localStorage + drag-in video) before any server exists; the server flavor then adds ChartSession persistence, pre-cut clips, machine drafts, and telemetry. Scoring exists twice by necessity (Python reference + in-page JS); a generated conformance fixture, oracle-tested against three real MCP points files, makes drift a test failure.
 
@@ -1756,7 +1756,7 @@ git commit -m "Charting app: conformance fixture plumbing for the page selftest"
 
 ---
 
-### Task 7: chartapp HTTP half + `courtvision chart` CLI
+### Task 7: chartapp HTTP half + `courtvision charter` CLI
 
 **Files:**
 - Modify: `courtvision/chartapp.py` (append the HTTP half)
@@ -1768,9 +1768,9 @@ git commit -m "Charting app: conformance fixture plumbing for the page selftest"
 - Produces:
   - `make_chart_server(session, video_path, port) -> ThreadingHTTPServer` with routes: `GET /` (chart_ui.html with `window.SERVER_MODE="chart"` injected), `GET /grammar.json`, `GET /conformance.json`, `GET /video` (Range), `GET /api/chart-state`, `POST /api/lint`, `POST /api/event`, `POST /api/point` (`{"action": "add"|"unseen"|"update", ...}` — add: `first,second,notes,winner,start_s,end_s`; unseen: `winner`; update: `idx` + raw fields), `GET /export/bundle` (a single .txt response with the three files concatenated with `--- FILE: name ---` separators — simple, curl-able; the browser flavor's three-download path is the primary UX).
   - CLI:
-    - `courtvision chart <match> [--mode review|cold] [--session S] [--port] [--no-browser]` → serves the FROZEN bench server (`review.ReviewSession` + `review.make_server`) but with the NEW page: implemented by monkeypatching? NO — `review.make_server` reads module-global `UI_PATH`; instead `chartapp.run_staged(...)` builds its own handler that reuses the review session object and mirrors the bench's routes via httpkit, serving chart_ui.html with `window.SERVER_MODE="review"`. Bench code untouched.
-    - `courtvision chart --new ID --video PATH [--port] [--no-browser] [--setup JSON]` → ChartSession; if the session is new and `--setup` absent, serve anyway — the page shows the setup screen and POSTs `/api/point {"action":"setup", ...}`? NO — keep it simple and explicit: `--setup '{"player1":...}'` JSON is REQUIRED for a new chart-along id (documented in USAGE; resume needs no setup). The page's setup screen is the static flavor's path only.
-    - `courtvision chart --emit-static OUT.html` → Task 8.
+    - `courtvision charter <match> [--mode review|cold] [--session S] [--port] [--no-browser]` → serves the FROZEN bench server (`review.ReviewSession` + `review.make_server`) but with the NEW page: implemented by monkeypatching? NO — `review.make_server` reads module-global `UI_PATH`; instead `chartapp.run_staged(...)` builds its own handler that reuses the review session object and mirrors the bench's routes via httpkit, serving chart_ui.html with `window.SERVER_MODE="review"`. Bench code untouched.
+    - `courtvision charter --new ID --video PATH [--port] [--no-browser] [--setup JSON]` → ChartSession; if the session is new and `--setup` absent, serve anyway — the page shows the setup screen and POSTs `/api/point {"action":"setup", ...}`? NO — keep it simple and explicit: `--setup '{"player1":...}'` JSON is REQUIRED for a new chart-along id (documented in USAGE; resume needs no setup). The page's setup screen is the static flavor's path only.
+    - `courtvision charter --emit-static OUT.html` → Task 8.
 
 - [ ] **Step 1: Append route tests to `tests/test_chart_server.py`**
 
@@ -2114,8 +2114,8 @@ dispatch imports cleanly: `def emit_static(out): raise SystemExit("Task 8")` —
 Docstring line to add at the top of cli.py's module docstring list:
 
 ```python
-    uv run python -m courtvision chart t6 --session r1      # palette UI
-    uv run python -m courtvision chart --new m1 --video v.mp4 --setup '{...}'
+    uv run python -m courtvision charter t6 --session r1      # palette UI
+    uv run python -m courtvision charter --new m1 --video v.mp4 --setup '{...}'
 ```
 
 - [ ] **Step 5: Run tests + suite + headless staged smoke**
@@ -2124,7 +2124,7 @@ Run: `uv run pytest tests/test_chart_server.py -q` → 4 passed.
 Run: `uv run pytest -q` → 59 passed.
 Staged flavor headless:
 ```bash
-uv run python -m courtvision chart t3 --mode cold --session chart-smoke --seed x --n 2 --no-browser --port 8767 &
+uv run python -m courtvision charter t3 --mode cold --session chart-smoke --seed x --n 2 --no-browser --port 8767 &
 sleep 2
 curl -s http://127.0.0.1:8767/ | head -c 80          # SERVER_MODE="review"
 curl -s http://127.0.0.1:8767/api/state | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['mode']=='cold'; print('staged ok')"
@@ -2136,7 +2136,7 @@ Expected: injected mode visible, `staged ok`.
 
 ```bash
 git add courtvision/chartapp.py courtvision/cli.py tests/test_chart_server.py
-git commit -m "Charting app: HTTP half + courtvision chart CLI (chart-along, staged review flavor)"
+git commit -m "Charting app: HTTP half + courtvision charter CLI (chart-along, staged review flavor)"
 ```
 
 ---
@@ -2196,24 +2196,24 @@ def emit_static(out_path):
 ```markdown
 ## The charting app
 
-`chart` is the palette-driven charting surface (docs/specs/
+`charter` is the palette-driven charting surface (docs/specs/
 2026-07-19-charting-app-design.md): the legal MCP marks are always on
 screen as keys/buttons, the scoreboard runs itself and challenges you
 at every game boundary, and every accepted point stamps its own video
 segment. Three ways in:
 
     # staged match, machine drafts pre-filled (review flavor)
-    uv run python -m courtvision chart t6 --session r1
+    uv run python -m courtvision charter t6 --session r1
 
     # chart-along a brand-new match from a local video
-    uv run python -m courtvision chart --new m1 --video match.mp4 \
+    uv run python -m courtvision charter --new m1 --video match.mp4 \
         --setup '{"player1":"A","player2":"B","best_of":3,
                   "final_set":"tb7","first_server":1,
                   "video":"match.mp4"}'
 
     # emit the serverless single-file app (drag a video in, chart,
     # download the training bundle)
-    uv run python -m courtvision chart --emit-static chart.html
+    uv run python -m courtvision charter --emit-static chart.html
 
 Chart-along sessions live in outputs/charting/<id>/ (raw inputs only;
 scores are always replayed). Exports: points CSV (MCP columns),
@@ -2225,7 +2225,7 @@ the Python engine's conformance fixture through the page's JS scorer.
 
 Run: `uv run pytest -q` → 60 passed.
 ```bash
-uv run python -m courtvision chart --emit-static /tmp/cvchart.html
+uv run python -m courtvision charter --emit-static /tmp/cvchart.html
 python3 -c "print(open('/tmp/cvchart.html').read()[:60])"
 ```
 Expected: emit line + doctype visible. Controller's browser smoke

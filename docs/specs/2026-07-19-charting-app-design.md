@@ -36,16 +36,18 @@ surface, not a thing consulted.
    charting (accepted points stamp their own video boundaries), not
    a prerequisite. Pipeline pre-cut clips and machine drafts are
    power-ups when a match is staged, never requirements.
+5. **CLI name (post-review amendment):** the app is `courtvision
+   charter` — the pipeline's historical `chart` stage keeps its name.
 
 ## Shape and modes
 
 One single-page app, two data flavors behind one adapter interface:
 
 - **Local flavor** (default): served by the courtvision CLI.
-  - `courtvision chart <match>` — staged match: pre-cut clips,
+  - `courtvision charter <match>` — staged match: pre-cut clips,
     machine drafts loadable per point (review-mode), sessions +
     events.jsonl telemetry via the existing session API.
-  - `courtvision chart --video <path> --new <id>` — unstaged match:
+  - `courtvision charter --new <id> --video <path>` — unstaged match:
     one continuous video, chart-along.
 - **Static flavor** (public-ready core): same page, zero server.
   Drag a video file in; localStorage autosave; exports are file
@@ -169,6 +171,6 @@ command yet.
 
 The plan following this spec covers: grammar.json + palette engine,
 the chart page (both flavors), score engine, session-API extensions,
-training-bundle export, CLI wiring (`courtvision chart`), tests, and
+training-bundle export, CLI wiring (`courtvision charter`), tests, and
 the static smoke. The experiment restart, `courtvision import`, and
 publishing to trmccormick.com are separate later cycles.

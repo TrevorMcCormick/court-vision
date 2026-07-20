@@ -16,10 +16,12 @@ Layout, under outputs/charting/<match_id>/:
 import csv
 import json
 import time
+import webbrowser
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from .config import ROOT
-from . import notation
+from . import httpkit, notation
 from .score import Score, winner_from_strings
 
 UI_PATH = Path(__file__).with_name("chart_ui.html")
@@ -176,3 +178,207 @@ class ChartSession:
         evt["server_ts_ms"] = int(time.time() * 1000)
         with open(self.dir / "events.jsonl", "a") as f:
             f.write(json.dumps(evt) + "\n")
+
+
+# ---------------------------------------------------------------------------
+# The HTTP half. Two flavors: the chart-along server (this session class)
+# and the staged review flavor (reuses the frozen review.ReviewSession,
+# serving this app's page instead of the bench's).
+# ---------------------------------------------------------------------------
+
+
+def _ui_bytes(server_mode, match_id=""):
+    t = UI_PATH.read_text()
+    inject = (f'<script>window.SERVER_MODE="{server_mode}";'
+              f'window.MATCH_ID="{match_id}";</script>')
+    return t.replace("<!doctype html>",
+                     "<!doctype html>" + inject, 1).encode()
+
+
+def make_chart_server(session, video_path, port):
+    class Handler(BaseHTTPRequestHandler):
+        def log_message(self, *a):
+            pass
+
+        def do_GET(self):
+            if self.path.startswith("/?") or self.path == "/":
+                body = _ui_bytes("chart", session.match_id)
+                self.send_response(200)
+                self.send_header("Content-Type",
+                                 "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+            elif self.path == "/grammar.json":
+                httpkit.send_file_ranged(
+                    self, notation.GRAMMAR_PATH, "application/json")
+            elif self.path == "/conformance.json":
+                httpkit.send_file_ranged(
+                    self, CONFORMANCE_PATH, "application/json")
+            elif self.path == "/video":
+                httpkit.send_file_ranged(self, video_path,
+                                         "video/mp4")
+            elif self.path == "/api/chart-state":
+                httpkit.send_json(self, session.state())
+            elif self.path == "/export/bundle":
+                parts = []
+                rows = session.export_rows()
+                out = [",".join(EXPORT_FIELDS)]
+                for r in rows:
+                    out.append(",".join(
+                        '"%s"' % r[c].replace('"', '""')
+                        if any(x in r[c] for x in ',"\n') else r[c]
+                        for c in EXPORT_FIELDS))
+                parts.append(("points.csv", "\n".join(out) + "\n"))
+                segs = ["clip,start_s,end_s"] + [
+                    f"{s2['clip']},{s2['start_s']},{s2['end_s']}"
+                    for s2 in session.segments()]
+                parts.append(("segments.csv", "\n".join(segs) + "\n"))
+                parts.append(("manifest.json", json.dumps(
+                    {"match_id": session.match_id,
+                     "setup": session.setup,
+                     "points": len(session.points)}, indent=1)))
+                body = "\n".join(f"--- FILE: {n} ---\n{c}"
+                                 for n, c in parts).encode()
+                self.send_response(200)
+                self.send_header("Content-Type", "text/plain")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+            else:
+                self.send_error(404)
+
+        def do_POST(self):
+            body = httpkit.read_json(self)
+            if body is None:
+                self.send_error(400, "invalid JSON")
+                return
+            if self.path == "/api/lint":
+                httpkit.send_json(self, {"issues": notation.lint(
+                    body.get("first", ""), body.get("second", ""))})
+            elif self.path == "/api/event":
+                session.append_event(body)
+                httpkit.send_json(self, {"ok": True})
+            elif self.path == "/api/point":
+                try:
+                    act = body.get("action")
+                    if act == "add":
+                        session.add_point(
+                            body.get("first", ""),
+                            body.get("second", ""),
+                            notes=body.get("notes", ""),
+                            winner=body.get("winner"),
+                            start_s=body.get("start_s"),
+                            end_s=body.get("end_s"))
+                    elif act == "unseen":
+                        session.insert_unseen(body["winner"])
+                    elif act == "update":
+                        idx = body.pop("idx")
+                        body.pop("action")
+                        session.update_point(idx, **body)
+                    else:
+                        raise ValueError(f"unknown action {act!r}")
+                except (ValueError, KeyError, IndexError) as e:
+                    httpkit.send_json(self, {"error": str(e)}, 400)
+                    return
+                httpkit.send_json(self, {"ok": True})
+            else:
+                self.send_error(404)
+
+    return ThreadingHTTPServer(("127.0.0.1", port), Handler)
+
+
+def run_chart(match_id, video, setup=None, port=8766,
+              open_browser=True):
+    session = ChartSession(match_id, setup)
+    httpd = make_chart_server(session, video, port)
+    url = f"http://127.0.0.1:{httpd.server_port}/"
+    print(f"chart '{match_id}' {len(session.points)} pts -> {url}")
+    if open_browser:
+        webbrowser.open(url)
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        print("\nsaved:", session.dir)
+
+
+def run_staged(cfg, mode, name, seed=None, n=None, port=8766,
+               open_browser=True):
+    """The bench's session + routes, but the NEW page (review flavor).
+    review.py stays frozen; we reuse its session object only."""
+    from .review import ReviewSession
+    session = ReviewSession(cfg, mode, name, seed=seed, n=n)
+
+    class Handler(BaseHTTPRequestHandler):
+        def log_message(self, *a):
+            pass
+
+        def do_GET(self):
+            if self.path == "/" or self.path.startswith("/?"):
+                body = _ui_bytes("review")
+                self.send_response(200)
+                self.send_header("Content-Type",
+                                 "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+            elif self.path == "/grammar.json":
+                httpkit.send_file_ranged(
+                    self, notation.GRAMMAR_PATH, "application/json")
+            elif self.path == "/conformance.json":
+                httpkit.send_file_ranged(
+                    self, CONFORMANCE_PATH, "application/json")
+            elif self.path == "/api/state":
+                httpkit.send_json(self, session.state())
+            elif self.path.startswith("/clip/"):
+                stem = self.path[len("/clip/"):-len(".mp4")]
+                if not stem.replace("_", "").isalnum():
+                    self.send_error(404)
+                    return
+                httpkit.send_file_ranged(
+                    self, session.cfg.clip_path(stem), "video/mp4")
+            else:
+                self.send_error(404)
+
+        def do_POST(self):
+            body = httpkit.read_json(self)
+            if body is None:
+                self.send_error(400, "invalid JSON")
+                return
+            if self.path == "/api/lint":
+                httpkit.send_json(self, {"issues": notation.lint(
+                    body.get("first", ""), body.get("second", ""))})
+            elif self.path == "/api/event":
+                session.append_event(body)
+                httpkit.send_json(self, {"ok": True})
+            elif self.path == "/api/accept":
+                if "clip" not in body:
+                    self.send_error(400, "missing clip")
+                    return
+                session.accept(body["clip"],
+                               body.get("corrected_1st", ""),
+                               body.get("corrected_2nd", ""),
+                               body.get("notes", ""),
+                               body.get("skip_reason", ""))
+                session.append_event(
+                    {"ts_ms": int(time.time() * 1000),
+                     "row": body["clip"],
+                     "event": ("skip" if body.get("skip_reason")
+                               else "accept"), "payload": {}})
+                httpkit.send_json(self, {"ok": True})
+            else:
+                self.send_error(404)
+
+    httpd = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    url = f"http://127.0.0.1:{httpd.server_port}/"
+    print(f"{cfg.id} '{name}' [{mode}] -> {url}")
+    if open_browser:
+        webbrowser.open(url)
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        print("\nsession saved:", session.dir)
+
+
+def emit_static(out):
+    raise SystemExit("Task 8")

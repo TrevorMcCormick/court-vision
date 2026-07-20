@@ -1,6 +1,8 @@
 """Command-line entrypoints.
 
     uv run python -m courtvision chart <match> [clips...] [--charts-dir D]
+    uv run python -m courtvision charter t6 --session r1    # palette UI
+    uv run python -m courtvision charter --new m1 --video v.mp4 --setup '{...}'
     uv run python -m courtvision eval  <match> [--charts-dir D]
     uv run python -m courtvision draft <match>       # chart + confidence + export
     uv run python -m courtvision calibrate           # fit + report the confidence layer
@@ -92,6 +94,25 @@ def main(argv=None):
                    help="extra sessions whose rows are excluded from "
                         "review-pass timing (e.g. voided practice)")
 
+    p = sub.add_parser("charter",
+                       help="the charting app (palette UI)")
+    p.add_argument("match", nargs="?", default=None,
+                   help="staged match id (review flavor)")
+    p.add_argument("--mode", choices=["review", "cold"],
+                   default="review")
+    p.add_argument("--session", default=None)
+    p.add_argument("--seed", default=None)
+    p.add_argument("--n", type=int, default=10)
+    p.add_argument("--new", default=None, metavar="ID",
+                   help="chart-along a new (unstaged) match")
+    p.add_argument("--video", type=Path, default=None)
+    p.add_argument("--setup", default=None,
+                   help='JSON setup for a NEW chart-along id')
+    p.add_argument("--emit-static", type=Path, default=None,
+                   metavar="OUT_HTML")
+    p.add_argument("--port", type=int, default=8766)
+    p.add_argument("--no-browser", action="store_true")
+
     args = parser.parse_args(argv)
 
     if args.cmd == "chart":
@@ -167,6 +188,27 @@ def main(argv=None):
                                  "cold_b": _spec(args.cold_b),
                                  "contaminated": [_spec(s) for s in
                                                   args.contaminated]})
+    elif args.cmd == "charter":
+        from . import chartapp
+        if args.emit_static:
+            chartapp.emit_static(args.emit_static)
+        elif args.new:
+            import json as _json
+            setup = (_json.loads(args.setup) if args.setup else None)
+            if not args.video:
+                parser.error("charter --new requires --video")
+            chartapp.run_chart(args.new, args.video, setup=setup,
+                               port=args.port,
+                               open_browser=not args.no_browser)
+        elif args.match:
+            if not args.session:
+                parser.error("charter <match> requires --session")
+            chartapp.run_staged(config.load(args.match), args.mode,
+                                args.session, seed=args.seed,
+                                n=args.n, port=args.port,
+                                open_browser=not args.no_browser)
+        else:
+            parser.error("charter needs <match> or --new ID --video")
 
 
 if __name__ == "__main__":
