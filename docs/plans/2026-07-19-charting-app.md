@@ -1117,7 +1117,7 @@ transcribed exactly. (It reuses the bench's visual language: dark
   <span id="mode"></span><span id="hint"></span>
   <span id="warn" class="warn"></span>
 </div>
-<div id="overlay"><h1>CLOCK PAUSED</h1><p>press p to resume</p></div>
+<div id="overlay"><h1>CLOCK PAUSED</h1><p>press P to resume</p></div>
 <div id="nudge"></div>
 <div id="setup">
   <h1>new match</h1><br>
@@ -1321,13 +1321,12 @@ function press(ch){
   send("palette_key",{k:ch}); render();
 }
 function pop(){
-  const t=tokens();
+  let t=tokens();
+  if(!t.length && entry.field===2){ entry.field=1; t=tokens(); }
   if(t.length){ t.pop(); send("chip_pop"); }
-  else if(entry.field===2){ entry.field=1; }
-  entry.state = t.length===0 ? "serve"
-    : "rsvzopuylmhijktqfb123789".includes(t[t.length-1]) ? "rally"
-    : G.vocab.error_letters.includes(t[t.length-1]) ? "err-mark"
-    : "rally";
+  const last=t[t.length-1];
+  entry.state = !t.length ? "serve"
+    : G.vocab.error_letters.includes(last) ? "err-mark" : "rally";
   render();
 }
 
@@ -1349,7 +1348,9 @@ async function accept(){
     }
   }
   await adapter.acceptPoint({first, second, winner,
-    start_s: entry.startS, end_s: v.currentTime || null});
+    start_s: entry.startS,
+    end_s: Number.isFinite(v.currentTime)? v.currentTime : null,
+  });
   newEntry(); await refresh();
 }
 function insertUnseen(){
@@ -1370,11 +1371,11 @@ function renderScore(){
     `<b>${S.setup.player1} v ${S.setup.player2}</b>`+
     `<span class="hi">${sc.display}</span>`+
     `<span>${S.points.length} pts</span>`+
-    `<span style="color:var(--dim)">m mark · u unseen · ⏎ accept</span>`;
+    `<span style="color:var(--dim)">M mark · U unseen · X export · ⏎ accept</span>`;
   if(sc.gameNo!==lastGameNo){
     lastGameNo=sc.gameNo;
     $("#nudge").innerHTML=`chart says <b>${sc.display}</b> — screen
-      agree? <button onclick="nudgeOk()">yes (y)</button>
+      agree? <button onclick="nudgeOk()">yes (Y)</button>
       <button onclick="nudgeNo()">no</button>`;
     $("#nudge").classList.add("on");
     send("nudge_shown",{score:sc.display});
@@ -1473,17 +1474,18 @@ const browserAdapter = {
   async init(setup){
     let st=await this.state();
     if(!st){ st={match_id:window.MATCH_ID||"local", setup,
-      points:[]}; await this.save(st); }
+      points:[]}; await this.save(st);
+      localStorage.setItem("cvchart:last", window.MATCH_ID||"local"); }
     return st;
   },
-  async acceptPoint({first,second,winner,start_s,end_s}){
+  async acceptPoint({first,second,winner,start_s,end_s,flags=""}){
     const st=await this.state();
     const scx=new JsScore(st.setup.best_of, st.setup.final_set,
       st.setup.first_server);
     for(const p of st.points) scx.point(+p.PtWinner);
     const ctx=scx.rowContext();
     st.points.push({...ctx, pt:st.points.length+1, first, second,
-      notes:"", flags:"", PtWinner:String(winner),
+      notes:"", flags, PtWinner:String(winner),
       start_s:start_s??"", end_s:end_s??""});
     await this.save(st);
   },
@@ -1530,7 +1532,8 @@ function exportBundle(){
   }).map(x=>esc(String(x))).join(","));
   dl(`${S.match_id}_points.csv`, cols.join(",")+"\n"+
      rows.join("\n")+"\n");
-  const segs=S.points.filter(p=>p.start_s&&p.end_s).map(p=>
+  const segs=S.points.filter(p=>p.start_s!==""&&p.start_s!=null
+    &&p.end_s!==""&&p.end_s!=null).map(p=>
     `${S.match_id}_point_${String(p.pt).padStart(3,"0")},`+
     `${p.start_s},${p.end_s}`);
   dl(`${S.match_id}_segments.csv`,
@@ -1543,7 +1546,7 @@ function exportBundle(){
 
 // ---- keyboard ---------------------------------------------------------
 document.addEventListener("keydown", e=>{
-  if(paused && e.key!=="p"){ e.preventDefault(); return; }
+  if(paused && e.key!=="P"){ e.preventDefault(); return; }
   const typing = e.target.tagName==="INPUT"
     || e.target.tagName==="SELECT";
   if(e.key==="Escape"){ e.target.blur(); return; }
@@ -1555,12 +1558,12 @@ document.addEventListener("keydown", e=>{
       // raw edit: re-parse into chips
       const [f,s=""]=$("#raw").value.split("|").map(x=>x.trim());
       entry.first=[...f]; entry.second=[...s];
-      entry.field = s? 2:1; entry.state="rally"; render();
+      entry.field = s? 2:1; entry.state = f? "rally":"serve"; render();
       e.target.blur();
     }
     return;
   }
-  if(e.key==="p" && MODE!=="static"){ paused=!paused;
+  if(e.key==="P" && MODE!=="static"){ paused=!paused;
     $("#overlay").classList.toggle("on",paused);
     if(paused) v.pause();
     send(paused?"clock_pause":"clock_resume"); return; }
@@ -1571,12 +1574,12 @@ document.addEventListener("keydown", e=>{
     "[": ()=>{ v.playbackRate=Math.max(.25,v.playbackRate-.25); },
     "]": ()=>{ v.playbackRate=Math.min(2,v.playbackRate+.25); },
     "Backspace": ()=> pop(),
-    "m": ()=>{ entry.startS=v.currentTime; send("point_mark",
+    "M": ()=>{ entry.startS=v.currentTime; send("point_mark",
       {t:v.currentTime}); warn(`point start marked @ `+
       `${v.currentTime.toFixed(1)}s`); },
-    "u": ()=> MODE!=="review" && insertUnseen(),
-    "y": ()=> $("#nudge").classList.contains("on") && nudgeOk(),
-    "x": ()=> exportBundle(),
+    "U": ()=> MODE!=="review" && insertUnseen(),
+    "Y": ()=> $("#nudge").classList.contains("on") && nudgeOk(),
+    "X": ()=> exportBundle(),
   };
   if(acts[e.key]){ e.preventDefault(); acts[e.key](); return; }
   // palette keys
@@ -1623,11 +1626,14 @@ async function boot(){
   $("#mode").textContent = `mode: ${MODE}`;
   if(MODE==="review"){
     S=await adapter.state(); newEntry(); render();
-    openReviewRow(Math.max(0,S.rows.findIndex(r=>!r.done)));
+    const first=S.rows.findIndex(r=>!r.done);
+    if(S.rows.length) openReviewRow(first>=0?first:0);
     return;
   }
   if(MODE==="chart"){ newEntry(); await refresh(); wireVideo(); return; }
   // static: setup screen or resume
+  const last=localStorage.getItem("cvchart:last");
+  if(last) window.MATCH_ID=last;
   const existing=await browserAdapter.state();
   if(existing){ S=existing; newEntry(); await refresh(); wireVideo(); }
   else $("#setup").classList.add("on");
