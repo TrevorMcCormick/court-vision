@@ -16,10 +16,15 @@ Layout, under outputs/charting/<match_id>/:
 import csv
 import json
 import time
+from pathlib import Path
 
 from .config import ROOT
 from . import notation
 from .score import Score, winner_from_strings
+
+UI_PATH = Path(__file__).with_name("chart_ui.html")
+CONFORMANCE_PATH = (Path(__file__).resolve().parent.parent / "tests"
+                    / "fixtures" / "score_conformance.json")
 
 CHARTING_ROOT = ROOT / "outputs" / "charting"
 RAW_FIELDS = ["first", "second", "notes", "winner", "start_s",
