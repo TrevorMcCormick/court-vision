@@ -103,6 +103,7 @@ let S = null;        // app state (points, setup, ...)
 let sc = null;       // live jsScore instance (chart modes)
 let cur = -1;        // current point index (review) / editing pt
 let paused = false;
+let editIdx = null;  // chart modes: index of point being edited
 
 const send = (event, payload={}) => {
   if (MODE === "static") return;
@@ -295,16 +296,25 @@ async function accept(){
   const first=str1(), second=str2();
   let winner=null;
   if(MODE!=="review"){
-    winner = jsWinner(first, second);
-    if(winner===null){
+    const rel = jsWinner(first, second);
+    if(rel===null){
       const p=prompt("who won the point? 1="+S.setup.player1
         +"  2="+S.setup.player2);
       if(p!=="1"&&p!=="2"){ warn("accept cancelled: winner needed");
         return; }
       winner=+p;                        // player numbering
     } else {
-      winner = jsWinner(first,second)===1 ? sc.server
-        : (sc.server===1?2:1);
+      // an edit's server is the POINT's server, not the live one
+      const svr = editIdx!==null ? +S.points[editIdx].Svr : sc.server;
+      winner = rel===1 ? svr : (svr===1?2:1);
+    }
+    if(editIdx!==null){
+      const i=editIdx;
+      const ok = await adapter.updatePoint(i, {first, second, winner});
+      if(!ok){ warn("SAVE FAILED — edit not saved, still editing");
+        return; }
+      send("point_edit",{pt:S.points[i].pt});
+      editIdx=null; newEntry(); warn(""); await refresh(); return;
     }
   }
   await adapter.acceptPoint({first, second, winner,
@@ -319,6 +329,31 @@ function insertUnseen(){
   if(p!=="1"&&p!=="2") return;
   adapter.insertUnseen(+p).then(refresh);
   send("unseen_insert");
+}
+
+// ---- editing an accepted point (chart modes) --------------------------
+function beginEdit(i){
+  if(MODE==="review") return;
+  const p=S.points[i];
+  if(p.flags==="unseen"){
+    const w=prompt("unseen point "+p.pt+" — who won? 1="
+      +S.setup.player1+"  2="+S.setup.player2, p.PtWinner);
+    if(w!=="1"&&w!=="2") return;
+    adapter.updatePoint(i,{winner:+w}).then(ok=>{
+      if(!ok){ warn("SAVE FAILED — edit not saved"); return; }
+      send("point_edit",{pt:p.pt}); refresh();
+    });
+    return;
+  }
+  editIdx=i;
+  entry={field: p.second?2:1, first:[...p.first],
+         second:[...(p.second||"")], state:"rally", startS:null};
+  warn(`EDITING point ${p.pt} — Enter saves, Esc cancels`);
+  send("edit_open",{pt:p.pt});
+  render();
+}
+function cancelEdit(){
+  editIdx=null; newEntry(); warn(""); render();
 }
 
 // ---- score strip & nudge ----------------------------------------------
@@ -372,10 +407,13 @@ function render(){
 function renderPts(){
   if(MODE==="review"){ renderReviewRows(); return; }
   $("#pts").innerHTML = (S.points??[]).map((p,i)=>
-    `<div class="pt" data-i="${i}">${p.pt} · ${p.Pts} · `+
+    `<div class="pt ${i===editIdx?"cur":""}" data-i="${i}">`+
+    `${p.pt} · ${p.Pts} · `+
     (p.flags==="unseen" ? `<span class="unseen">unseen</span>`
       : (p.second?`${p.first}|${p.second}`:p.first))+`</div>`
   ).reverse().join("");
+  document.querySelectorAll("#pts .pt").forEach(el=>
+    el.onclick=()=>beginEdit(+el.dataset.i));
 }
 function renderReviewRows(){
   $("#pts").innerHTML = (S.rows??[]).map((r,i)=>
@@ -453,6 +491,22 @@ const browserAdapter = {
     return this.acceptPoint({first:"",second:"",winner,
       start_s:null,end_s:null,flags:"unseen"});
   },
+  async updatePoint(idx, fields){
+    const st=await this.state();
+    const p=st.points[idx];
+    if(!p) return false;
+    if(fields.first!==undefined) p.first=fields.first;
+    if(fields.second!==undefined) p.second=fields.second;
+    if(fields.winner!==undefined) p.PtWinner=String(fields.winner);
+    // rewrite the cached display ctx of EVERY point by replay
+    const scx=new JsScore(st.setup.best_of, st.setup.final_set,
+      st.setup.first_server);
+    for(const q of st.points){
+      Object.assign(q, scx.rowContext());
+      scx.point(+q.PtWinner);
+    }
+    await this.save(st); return true;
+  },
 };
 const serverAdapter = {
   async state(){ return (await fetch("/api/chart-state")).json(); },
@@ -464,6 +518,11 @@ const serverAdapter = {
     await fetch("/api/point",{method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({action:"unseen",winner})}); },
+  async updatePoint(idx, fields){
+    const res=await fetch("/api/point",{method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({action:"update", idx, ...fields})});
+    return res.ok; },
 };
 const reviewAdapter = {
   async state(){ return (await fetch("/api/state")).json(); },
@@ -516,7 +575,10 @@ document.addEventListener("keydown", e=>{
   if(paused && e.key!=="P"){ e.preventDefault(); return; }
   const typing = e.target.tagName==="INPUT"
     || e.target.tagName==="SELECT";
-  if(e.key==="Escape"){ e.target.blur(); return; }
+  if(e.key==="Escape"){
+    if(editIdx!==null && !typing) cancelEdit();
+    else e.target.blur();
+    return; }
   if(e.key==="Enter" && !e.shiftKey && !typing){
     e.preventDefault();
     MODE==="review" ? acceptReview() : accept(); return; }

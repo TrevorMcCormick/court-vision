@@ -104,9 +104,15 @@ class ChartSession:
         bad = set(fields) - set(RAW_FIELDS)
         if bad:
             raise ValueError(f"unknown fields {sorted(bad)}")
+        old = dict(self.points[idx])
         self.points[idx].update(
             {k: str(v) if v is not None else "" for k, v in
              fields.items()})
+        try:
+            self._replay()          # an edit must never brick replay
+        except ValueError:
+            self.points[idx] = old
+            raise
         self._save_points()
 
     # -- replay ---------------------------------------------------------

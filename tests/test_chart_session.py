@@ -89,3 +89,16 @@ def test_resume_preserves_points(root):
     s.add_point("6*", "")
     s2 = ChartSession("m1")
     assert len(s2.state()["points"]) == 1
+
+
+def test_update_rejects_underivable_and_reverts(root):
+    s = ChartSession("m1", SETUP)
+    s.add_point("6*", "")
+    with pytest.raises(ValueError):
+        s.update_point(0, first="4b2f1?", second="", winner="")
+    assert s.state()["points"][0]["first"] == "6*"    # reverted
+    s.update_point(0, first="4b2f1?", second="", winner="2")
+    assert s.state()["points"][0]["PtWinner"] == "2"
+    # and the file on disk matches the accepted edit, not the rejected one
+    s2 = ChartSession("m1")
+    assert s2.state()["points"][0]["first"] == "4b2f1?"
