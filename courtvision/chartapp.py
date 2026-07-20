@@ -1,11 +1,16 @@
 """The charting app — chart-along sessions + (Task 7) the HTTP app.
 
 ChartSession is the ground-truth factory's memory: it stores RAW
-inputs only (strings, winner override, boundary stamps, notes,
-flags); every score column is recomputed by replaying score.Score
-over the points, so an edit to point 5 automatically rescores point
-50. Staged-match charting reuses the frozen review.ReviewSession —
-this module never duplicates it.
+inputs only (strings, the ATTESTED winner, boundary stamps, notes,
+flags). The winner is what the charter watched happen — it is truth,
+never re-derived. Every bookkeeping column (score, server, games) is
+recomputed by replaying score.Score over the points, so an edit to
+point 5 automatically rescores point 50's context; where the replay
+then contradicts an attested winner (string says the server won, but
+the replayed server isn't who the charter saw win), the point is
+flagged `conflict` and export refuses until the chart is reconciled.
+Staged-match charting reuses the frozen review.ReviewSession — this
+module never duplicates it.
 
 Layout, under outputs/charting/<match_id>/:
   manifest.json   setup (players, format, first server, video name)
@@ -148,14 +153,31 @@ class ChartSession:
             d.update(ctx)
             d["pt"] = i + 1
             d["PtWinner"] = str(w)
+            # consistency audit: the stored winner is the charter's
+            # attested fact; if the string derives a winner under the
+            # REPLAYED server and they disagree, something in the
+            # chart is wrong somewhere — flag it, never hide it.
+            rel = winner_from_strings(row["first"], row["second"])
+            conflict = False
+            if rel is not None and row["flags"] != "unseen":
+                svr = int(ctx["Svr"])
+                derived = svr if rel == 1 else (2 if svr == 1 else 1)
+                conflict = derived != w
+            d["conflict"] = conflict
             pts.append(d)
         return {"match_id": self.match_id, "setup": self.setup,
                 "points": pts, "score_now": sc.display,
-                "over": sc.over, "next_server": sc.server}
+                "over": sc.over, "next_server": sc.server,
+                "conflicts": sum(p["conflict"] for p in pts)}
 
     def export_rows(self):
+        st = self.state()
+        if st["conflicts"]:
+            raise ValueError(
+                f"{st['conflicts']} point(s) contradict the score "
+                f"replay - edit them (amber in the app) before export")
         rows = []
-        for p in self.state()["points"]:
+        for p in st["points"]:
             notes = p["notes"]
             if p["flags"] == "unseen":
                 notes = f"unseen;{notes}" if notes else "unseen;"
@@ -230,7 +252,11 @@ def make_chart_server(session, video_path, port):
                 httpkit.send_json(self, session.state())
             elif self.path == "/export/bundle":
                 parts = []
-                rows = session.export_rows()
+                try:
+                    rows = session.export_rows()
+                except ValueError as e:
+                    self.send_error(400, str(e))
+                    return
                 out = [",".join(EXPORT_FIELDS)]
                 for r in rows:
                     out.append(",".join(

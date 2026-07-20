@@ -18,6 +18,7 @@
   .pt { padding:2px 6px; cursor:pointer; white-space:nowrap;
         overflow:hidden; text-overflow:ellipsis; }
   .pt.cur { background:#2e2e2e; }
+  .pt.conf { color:var(--amber); }
   .pt .unseen { color:var(--amber); }
   #stage { display:flex; align-items:center; justify-content:center;
            background:#000; min-height:0; }
@@ -334,6 +335,12 @@ function insertUnseen(){
 // ---- editing an accepted point (chart modes) --------------------------
 function beginEdit(i){
   if(MODE==="review") return;
+  if(editIdx!==null && i!==editIdx){
+    const q=S.points[editIdx];
+    const dirty = str1()!==(q.first||"") || str2()!==(q.second||"");
+    if(dirty && !confirm(`discard the unsaved edit of point `+
+      `${q.pt}?`)) return;
+  }
   const p=S.points[i];
   if(p.flags==="unseen"){
     const w=prompt("unseen point "+p.pt+" — who won? 1="
@@ -367,6 +374,9 @@ function renderScore(){
     `<span class="hi">${sc.display}</span>`+
     `<span>${S.points.length} pts</span>`+
     `<span style="color:var(--dim)">M mark · U unseen · X export · ⏎ accept</span>`+
+    (S._conflicts ? `<span class="warn" style="color:var(--amber)">`+
+      `⚠ ${S._conflicts} conflict(s) — a string disagrees with its `+
+      `attested winner; click amber points to fix</span>` : ``)+
     `<a href="?new=1" style="color:var(--dim)">+ new match</a>`;
   if(sc.gameNo!==lastGameNo){
     lastGameNo=sc.gameNo;
@@ -407,8 +417,8 @@ function render(){
 function renderPts(){
   if(MODE==="review"){ renderReviewRows(); return; }
   $("#pts").innerHTML = (S.points??[]).map((p,i)=>
-    `<div class="pt ${i===editIdx?"cur":""}" data-i="${i}">`+
-    `${p.pt} · ${p.Pts} · `+
+    `<div class="pt ${i===editIdx?"cur":""}${p._conflict?" conf":""}"`+
+    ` data-i="${i}">${p._conflict?"⚠ ":""}${p.pt} · ${p.Pts} · `+
     (p.flags==="unseen" ? `<span class="unseen">unseen</span>`
       : (p.second?`${p.first}|${p.second}`:p.first))+`</div>`
   ).reverse().join("");
@@ -428,7 +438,16 @@ async function refresh(){
   if(MODE!=="review"){
     sc = new JsScore(S.setup.best_of, S.setup.final_set,
                      S.setup.first_server);
-    for(const p of S.points) sc.point(+p.PtWinner);
+    let nConf=0;
+    for(const p of S.points){
+      const ctx=sc.rowContext();
+      const rel=jsWinner(p.first, p.second);
+      p._conflict = rel!==null && p.flags!=="unseen" &&
+        ((rel===1 ? +ctx.Svr : (+ctx.Svr===1?2:1)) !== +p.PtWinner);
+      if(p._conflict) nConf++;
+      sc.point(+p.PtWinner);
+    }
+    S._conflicts=nConf;
   }
   render();
 }
@@ -538,6 +557,8 @@ function dl(name, text){
 }
 function exportBundle(){
   if(MODE==="review"){ warn("export is chart-mode only"); return; }
+  if(S._conflicts){ warn(`export blocked: ${S._conflicts} `+
+    `conflict(s) to resolve first (amber points)`); return; }
   if(MODE==="chart"){ location.href="/export/bundle"; return; }
   const cols=["match_id","Pt","Set1","Set2","Gm1","Gm2","Pts","Gm#",
     "TbSet","Svr","1st","2nd","Notes","PtWinner"];
@@ -603,7 +624,10 @@ document.addEventListener("keydown", e=>{
     "[": ()=>{ v.playbackRate=Math.max(.25,v.playbackRate-.25); },
     "]": ()=>{ v.playbackRate=Math.min(2,v.playbackRate+.25); },
     "Backspace": ()=> pop(),
-    "M": ()=>{ entry.startS=v.currentTime; send("point_mark",
+    "M": ()=>{ if(editIdx!==null){
+        warn("marks don't apply to edits (stamps are preserved)");
+        return; }
+      entry.startS=v.currentTime; send("point_mark",
       {t:v.currentTime}); warn(`point start marked @ `+
       `${v.currentTime.toFixed(1)}s`); },
     "U": ()=> MODE!=="review" && insertUnseen(),

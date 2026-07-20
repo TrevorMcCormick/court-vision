@@ -102,3 +102,30 @@ def test_update_rejects_underivable_and_reverts(root):
     # and the file on disk matches the accepted edit, not the rejected one
     s2 = ChartSession("m1")
     assert s2.state()["points"][0]["first"] == "4b2f1?"
+
+
+def test_conflict_detection_and_export_gate(root):
+    """Attested winners are truth; when an edit shifts game
+    boundaries so a string+replayed-server contradicts an attested
+    winner, the point is flagged and export refuses."""
+    s = ChartSession("m1", SETUP)
+    for _ in range(4):
+        s.add_point("6*", "", winner=1)      # P1 holds at love
+    s.add_point("6*", "", winner=2)          # P2 opens game 2, ace
+    assert s.state()["conflicts"] == 0
+    # correction: point 1 was actually a return winner by P2
+    # ("4b2*": serve + b = 2 shots, even -> returner hit last, *)
+    s.update_point(0, first="4b2*", second="", winner="2")
+    st = s.state()
+    # game 1 no longer completes at point 4 -> point 5's replayed
+    # server is P1, but its attested winner (P2) + ace string say
+    # the server won: contradiction, flagged, export blocked
+    assert st["points"][4]["conflict"] is True
+    assert st["conflicts"] == 1
+    with pytest.raises(ValueError):
+        s.export_rows()
+    # charter reconciles: the pt-5 ace was actually P1's
+    s.update_point(4, winner="1")
+    st = s.state()
+    assert st["conflicts"] == 0
+    assert len(s.export_rows()) == 5
