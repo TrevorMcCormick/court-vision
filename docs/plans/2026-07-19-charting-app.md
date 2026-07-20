@@ -1593,7 +1593,17 @@ async function selftest(){
   for(const m of conf){
     const s=new JsScore(m.best_of, m.final_set, m.first_server);
     for(const p of m.points){
-      const ctx=s.point(p.winner); n++;
+      // fixture winners are RELATIVE to the server (1=server won)
+      const svr=s.server;
+      const winner = p.winner_rel===1 ? svr : (svr===1?2:1);
+      const der = jsWinner(p.first, p.second);
+      if(der!==null && der!==p.winner_rel){
+        document.body.innerHTML=`<pre>SELFTEST FAIL ${m.match} pt `+
+          `${n+1}: jsWinner=${der} fixture=${p.winner_rel} `+
+          `(${p.first}|${p.second})</pre>`;
+        return;
+      }
+      const ctx=s.point(winner); n++;
       for(const k in p.expect){
         if(String(ctx[k])!==String(p.expect[k])){
           document.body.innerHTML=`<pre>SELFTEST FAIL ${m.match} `+
