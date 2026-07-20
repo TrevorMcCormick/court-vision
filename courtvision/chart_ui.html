@@ -1,0 +1,613 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>cv-chart</title>
+<style>
+  :root { --bg:#181818; --fg:#d2d2d2; --dim:#787878; --hi:#50ff78;
+          --amber:#ffa500; --card:#222; }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--bg); color:var(--fg);
+         font:14px/1.45 ui-monospace,Menlo,monospace; height:100vh;
+         display:grid; grid-template-columns:330px 1fr;
+         grid-template-rows:auto 1fr auto auto; }
+  #score { grid-column:1/3; background:var(--card); padding:8px 14px;
+           display:flex; gap:18px; align-items:baseline;
+           border-bottom:1px solid #333; }
+  #score b { color:#fff; } #score .hi { color:var(--hi); }
+  #pts { grid-row:2/5; overflow-y:auto; border-right:1px solid #333;
+         padding:8px; }
+  .pt { padding:2px 6px; cursor:pointer; white-space:nowrap;
+        overflow:hidden; text-overflow:ellipsis; }
+  .pt.cur { background:#2e2e2e; }
+  .pt .unseen { color:var(--amber); }
+  #stage { display:flex; align-items:center; justify-content:center;
+           background:#000; min-height:0; }
+  video { max-width:100%; max-height:100%; }
+  #entry { background:var(--card); border-top:1px solid #333;
+           padding:8px 14px; }
+  #chips { min-height:34px; display:flex; gap:6px; flex-wrap:wrap;
+           align-items:center; padding:4px 0; }
+  .chip { background:#333; color:#fff; padding:3px 9px;
+          border-radius:4px; font-size:15px; }
+  .chip.f2 { outline:1px solid var(--amber); }
+  #raw { background:#111; color:#fff; border:1px solid #444;
+         padding:5px 8px; font:15px ui-monospace,Menlo,monospace;
+         width:340px; }
+  #palette { display:flex; gap:8px; flex-wrap:wrap; padding:8px 0 2px; }
+  .pk { background:#2a2a2a; border:1px solid #444; color:var(--fg);
+        padding:6px 10px; cursor:pointer; font:inherit;
+        border-radius:4px; }
+  .pk b { color:var(--hi); margin-right:6px; }
+  .pk:hover { background:#383838; }
+  #pstate { color:var(--dim); padding:2px 0; }
+  #bar { grid-column:1/3; background:var(--card); color:var(--dim);
+         padding:6px 14px; border-top:1px solid #333;
+         display:flex; gap:18px; }
+  #bar .warn { color:var(--amber); }
+  #overlay { position:fixed; inset:0; background:rgba(0,0,0,.92);
+             display:none; z-index:10; padding:40px; color:#fff; }
+  #overlay.on { display:block; }
+  #setup { position:fixed; inset:0; background:var(--bg); z-index:20;
+           padding:60px; display:none; }
+  #setup.on { display:block; }
+  #setup input, #setup select { background:#111; color:#fff;
+           border:1px solid #444; padding:6px 8px; font:inherit;
+           margin:4px 12px 12px 0; }
+  #setup button { background:var(--hi); color:#000; border:0;
+           padding:8px 18px; font-weight:bold; cursor:pointer; }
+  #nudge { position:fixed; right:20px; bottom:70px; background:#262;
+           color:#fff; padding:12px 16px; border-radius:6px;
+           display:none; z-index:5; }
+  #nudge.on { display:block; }
+  #nudge button { margin-left:10px; }
+</style>
+<div id="score"></div>
+<div id="pts"></div>
+<div id="stage"><video id="v" preload="auto" controls></video></div>
+<div id="entry">
+  <div id="chips"></div>
+  <div id="pstate"></div>
+  <div id="palette"></div>
+  <div style="padding-top:6px">
+    raw <input id="raw" autocomplete="off">
+    <span id="fault2" style="color:var(--dim)"></span>
+  </div>
+</div>
+<div id="bar">
+  <span id="mode"></span><span id="hint"></span>
+  <span id="warn" class="warn"></span>
+</div>
+<div id="overlay"><h1>CLOCK PAUSED</h1><p>press p to resume</p></div>
+<div id="nudge"></div>
+<div id="setup">
+  <h1>new match</h1><br>
+  <label>player 1 (serves first? set below)
+    <input id="su-p1" value=""></label>
+  <label>player 2 <input id="su-p2" value=""></label><br>
+  <label>best of <select id="su-bo"><option>3</option>
+    <option>5</option></select></label>
+  <label>final set <select id="su-fs"><option value="tb7">TB7
+    </option><option value="adv">advantage</option>
+    <option value="tb10">TB10</option></select></label>
+  <label>first server <select id="su-sv"><option value="1">player 1
+    </option><option value="2">player 2</option></select></label><br>
+  <label>video <input id="su-file" type="file"
+    accept="video/*"></label><br><br>
+  <button id="su-go">start charting</button>
+</div>
+<script>
+// ---- boot & adapters ------------------------------------------------
+const $ = s => document.querySelector(s);
+const MODE = window.SERVER_MODE || "static";     // static|chart|review
+let G = window.GRAMMAR || null;                  // grammar.json
+let S = null;        // app state (points, setup, ...)
+let sc = null;       // live jsScore instance (chart modes)
+let cur = -1;        // current point index (review) / editing pt
+let paused = false;
+
+const send = (event, payload={}) => {
+  if (MODE === "static") return;
+  fetch("/api/event", {method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ts_ms: Date.now(),
+      row: rowId(), event, payload})});
+};
+const rowId = () => MODE === "review"
+  ? (cur >= 0 ? S.rows[cur].clip : "")
+  : `pt_${(S?.points?.length ?? 0) + 1}`;
+
+// ---- js score engine (must mirror courtvision/score.py) -------------
+const PTSD = ["0","15","30","40"];
+function jsWinner(first, second) {
+  first = (first||"").trim(); second = (second||"").trim();
+  const OM = new Set(G.vocab.other_marks);
+  const core = s => { let e = s.length;
+    while (e > 0 && OM.has(s[e-1])) e--; return s.slice(0, e); };
+  if (second) {
+    const c = core(second);
+    const F = new Set(G.vocab.fault_letters);
+    const E = new Set(G.vocab.ending_marks);
+    if (c && F.has(c[c.length-1]) && ![...second].some(ch=>E.has(ch)))
+      return 2;
+  }
+  const played = second || first;
+  if (!played) return null;
+  const c = core(played);
+  if (!c) return null;
+  const end = c[c.length-1];
+  const SH = new Set(G.vocab.shot_letters);
+  let shots = 1;
+  for (const ch of played.slice(1)) if (SH.has(ch)) shots++;
+  const last = shots % 2 === 1 ? 1 : 2;
+  if (end === "*") return last;
+  if (end === "@" || end === "#") return last === 1 ? 2 : 1;
+  return null;
+}
+class JsScore {
+  constructor(bestOf=3, finalSet="tb7", firstServer=1) {
+    this.bestOf=+bestOf; this.finalSet=finalSet;
+    this.sets=[[0,0]]; this.pts=[0,0]; this.server=+firstServer;
+    this.gameNo=1; this.tb=false; this.tbOpener=null; this.tbTarget=7;
+    this.setWinners=[];
+  }
+  deciding(){ return this.sets.length === this.bestOf; }
+  tbThisSet(){ return !(this.finalSet==="adv" && this.deciding()); }
+  ptsDisplay(){
+    let [a,b]=this.pts; if(this.server===2)[a,b]=[b,a];
+    if(this.tb) return `${a}-${b}`;
+    if(a>=3&&b>=3){ if(a===b) return "40-40";
+      return a>b ? "AD-40" : "40-AD"; }
+    return `${PTSD[Math.min(a,3)]}-${PTSD[Math.min(b,3)]}`;
+  }
+  rowContext(){
+    const g=this.sets[this.sets.length-1];
+    const w1=this.setWinners.filter(w=>w===1).length;
+    const w2=this.setWinners.filter(w=>w===2).length;
+    return {Set1:String(w1),Set2:String(w2),Gm1:String(g[0]),
+      Gm2:String(g[1]),Pts:this.ptsDisplay(),
+      ["Gm#"]:String(this.gameNo),TbSet:this.tbThisSet()?"True":"False",
+      Svr:String(this.server)};
+  }
+  get over(){ const need=Math.floor(this.bestOf/2)+1;
+    return this.setWinners.filter(w=>w===1).length>=need
+        || this.setWinners.filter(w=>w===2).length>=need; }
+  get display(){
+    return this.sets.map(([a,b])=>`${a}-${b}`).join(" ")
+      + ` ${this.ptsDisplay()} (svr P${this.server})`; }
+  swap(){ this.server = this.server===1?2:1; }
+  point(winner){
+    const ctx=this.rowContext();
+    this.pts[winner-1]++;
+    const [a,b]=this.pts;
+    if(this.tb){
+      if(Math.max(a,b)>=this.tbTarget && Math.abs(a-b)>=2)
+        this.gameWon(winner,true);
+      else if((a+b)%2===1) this.swap();
+    } else if(Math.max(a,b)>=4 && Math.abs(a-b)>=2)
+      this.gameWon(winner,false);
+    return ctx;
+  }
+  gameWon(winner,fromTb){
+    const g=this.sets[this.sets.length-1];
+    g[winner-1]++; this.pts=[0,0]; this.gameNo++;
+    const [a,b]=g; let setDone=false;
+    if(fromTb){ setDone=true; this.server=this.tbOpener;
+      this.tb=false; this.tbOpener=null; }
+    else if(Math.max(a,b)>=6 && Math.abs(a-b)>=2) setDone=true;
+    else if(a===6&&b===6&&this.tbThisSet()){
+      this.tb=true; this.tbOpener=this.server===1?2:1;
+      this.server=this.tbOpener;
+      this.tbTarget=(this.finalSet==="tb10"&&this.deciding())?10:7;
+      return;
+    }
+    this.swap();
+    if(setDone){ this.setWinners.push(winner);
+      if(!this.over) this.sets.push([0,0]); }
+  }
+}
+// NOTE: if the oracle test forced score.py changes in Task 2, mirror
+// them here EXACTLY — the ?selftest=1 replay is the enforcement.
+
+// ---- palette engine ---------------------------------------------------
+// states: serve -> rally <-> (dir/depth implicit) -> done(ending)
+//         serve -fault-> fault (letters) -> back to serve (2nd)
+let entry = null;
+function newEntry(){ entry = {field:1, first:[], second:[],
+  state:"serve", startS:null}; }
+function tokens(){ return entry.field===1 ? entry.first : entry.second; }
+function str1(){ return entry.first.join(""); }
+function str2(){ return entry.second.join(""); }
+function legal(){
+  const L=G.labels, V=G.vocab, out=[];
+  const add=(ch,extra)=>out.push({ch,label:L[ch]||ch,extra});
+  if(entry.state==="serve"){
+    for(const c of "456") add(c);
+    add("0");
+    if(entry.field===1)
+      out.push({ch:"FAULT",label:"fault (to 2nd serve)"});
+  } else if(entry.state==="rally" && entry.field===1
+            && tokens().length===1){
+    // serve direction entered, nothing else: fault still declarable
+    out.push({ch:"FAULT",label:"serve was a fault"});
+    for(const c of V.shot_letters) add(c);
+    for(const c of "123") add(c);
+    for(const c of V.depths) add(c);
+    add("*"); for(const c of V.error_letters) add(c);
+    add("?");
+    return out;
+  } else if(entry.state==="fault"){
+    for(const c of V.fault_letters) add(c);
+  } else if(entry.state==="rally"){
+    for(const c of V.shot_letters) add(c);
+    for(const c of "123") add(c);
+    for(const c of V.depths) add(c);
+    add("*"); for(const c of V.error_letters) add(c);
+    add("?");
+  } else if(entry.state==="err-mark"){
+    add("@"); add("#");
+  }
+  return out;
+}
+function press(ch){
+  const V=G.vocab;
+  if(ch==="FAULT" && entry.field===1
+     && (entry.state==="serve"
+         || (entry.state==="rally" && tokens().length===1))){
+    entry.state="fault"; send("palette_key",{k:"FAULT"});
+    render(); return;
+  }
+  if(entry.state==="serve"){
+    if(!V.serve_digits.includes(ch)) return;
+    tokens().push(ch); entry.state="rally";
+    if(entry.startS===null && !isNaN(v.currentTime))
+      entry.startS=v.currentTime;
+  } else if(entry.state==="fault"){
+    if(!V.fault_letters.includes(ch)) return;
+    entry.first.push(entry.first.length? ch : "0"+ch);
+    // fault with unseen direction: if a serve digit was already
+    // entered it's in first; else prefix 0. Then move to 2nd serve.
+    entry.field=2; entry.state="serve";
+  } else if(entry.state==="rally"){
+    if(V.shot_letters.includes(ch) || "123".includes(ch)
+       || V.depths.includes(ch)) tokens().push(ch);
+    else if(ch==="*" || ch==="?"){ tokens().push(ch); accept(); return; }
+    else if(V.error_letters.includes(ch)){
+      tokens().push(ch); entry.state="err-mark"; }
+    else return;
+  } else if(entry.state==="err-mark"){
+    if(ch!=="@" && ch!=="#") return;
+    tokens().push(ch); accept(); return;
+  }
+  send("palette_key",{k:ch}); render();
+}
+function pop(){
+  const t=tokens();
+  if(t.length){ t.pop(); send("chip_pop"); }
+  else if(entry.field===2){ entry.field=1; }
+  entry.state = t.length===0 ? "serve"
+    : "rsvzopuylmhijktqfb123789".includes(t[t.length-1]) ? "rally"
+    : G.vocab.error_letters.includes(t[t.length-1]) ? "err-mark"
+    : "rally";
+  render();
+}
+
+// ---- accept / who-won / unseen ---------------------------------------
+async function accept(){
+  const first=str1(), second=str2();
+  let winner=null;
+  if(MODE!=="review"){
+    winner = jsWinner(first, second);
+    if(winner===null){
+      const p=prompt("who won the point? 1="+S.setup.player1
+        +"  2="+S.setup.player2);
+      if(p!=="1"&&p!=="2"){ warn("accept cancelled: winner needed");
+        return; }
+      winner=+p;                        // player numbering
+    } else {
+      winner = jsWinner(first,second)===1 ? sc.server
+        : (sc.server===1?2:1);
+    }
+  }
+  await adapter.acceptPoint({first, second, winner,
+    start_s: entry.startS, end_s: v.currentTime || null});
+  newEntry(); await refresh();
+}
+function insertUnseen(){
+  const p=prompt("UNSEEN point — who won? 1="+S.setup.player1
+    +"  2="+S.setup.player2);
+  if(p!=="1"&&p!=="2") return;
+  adapter.insertUnseen(+p).then(refresh);
+  send("unseen_insert");
+}
+
+// ---- score strip & nudge ----------------------------------------------
+let lastGameNo=1;
+function renderScore(){
+  if(MODE==="review"){ $("#score").innerHTML=
+    `<b>review flavor</b><span>${S.rows?.filter(r=>r.done).length??0}
+     /${S.rows?.length??0} done</span>`; return; }
+  $("#score").innerHTML =
+    `<b>${S.setup.player1} v ${S.setup.player2}</b>`+
+    `<span class="hi">${sc.display}</span>`+
+    `<span>${S.points.length} pts</span>`+
+    `<span style="color:var(--dim)">m mark · u unseen · ⏎ accept</span>`;
+  if(sc.gameNo!==lastGameNo){
+    lastGameNo=sc.gameNo;
+    $("#nudge").innerHTML=`chart says <b>${sc.display}</b> — screen
+      agree? <button onclick="nudgeOk()">yes (y)</button>
+      <button onclick="nudgeNo()">no</button>`;
+    $("#nudge").classList.add("on");
+    send("nudge_shown",{score:sc.display});
+  }
+}
+function nudgeOk(){ $("#nudge").classList.remove("on");
+  send("nudge_ok"); }
+function nudgeNo(){ $("#nudge").classList.remove("on");
+  send("nudge_mismatch");
+  warn("mismatch: check last game for a missed fault, or press u "+
+       "to insert an unseen point"); }
+window.nudgeOk=nudgeOk; window.nudgeNo=nudgeNo;
+
+// ---- render ------------------------------------------------------------
+const v = $("#v");
+function warn(t){ $("#warn").textContent=t; }
+function render(){
+  const chips = [...entry.first.map(c=>({c,f:1})),
+                 ...entry.second.map(c=>({c,f:2}))];
+  $("#chips").innerHTML = chips.map(({c,f})=>
+    `<span class="chip${f===2?" f2":""}">${c}</span>`).join("")
+    || `<span style="color:var(--dim)">— new point —</span>`;
+  $("#raw").value = str2() ? `${str1()} | ${str2()}` : str1();
+  $("#fault2").textContent = entry.field===2 ? "entering 2nd serve" : "";
+  $("#pstate").textContent = `state: ${entry.state}`
+    + (entry.field===2 ? " (2nd)" : "");
+  $("#palette").innerHTML = legal().map(o=>
+    `<button class="pk" data-ch="${o.ch}"><b>${o.ch==="FAULT"?"F":
+      o.ch}</b>${o.label}</button>`).join("");
+  document.querySelectorAll(".pk").forEach(b=>
+    b.onclick=()=>press(b.dataset.ch));
+  renderScore(); renderPts();
+}
+function renderPts(){
+  if(MODE==="review"){ renderReviewRows(); return; }
+  $("#pts").innerHTML = (S.points??[]).map((p,i)=>
+    `<div class="pt" data-i="${i}">${p.pt} · ${p.Pts} · `+
+    (p.flags==="unseen" ? `<span class="unseen">unseen</span>`
+      : (p.second?`${p.first}|${p.second}`:p.first))+`</div>`
+  ).reverse().join("");
+}
+function renderReviewRows(){
+  $("#pts").innerHTML = (S.rows??[]).map((r,i)=>
+    `<div class="pt ${i===cur?"cur":""}" data-i="${i}"
+      style="${r.done?"opacity:.45":""}">${r.pt||"—"} · ${r.pts||"?"}
+      · ${r.clip} ${r.confidence??""}</div>`).join("");
+  document.querySelectorAll("#pts .pt").forEach(el=>
+    el.onclick=()=>openReviewRow(+el.dataset.i));
+}
+async function refresh(){
+  S = await adapter.state();
+  if(MODE!=="review"){
+    sc = new JsScore(S.setup.best_of, S.setup.final_set,
+                     S.setup.first_server);
+    for(const p of S.points) sc.point(+p.PtWinner);
+  }
+  render();
+}
+
+// ---- review flavor ------------------------------------------------------
+function openReviewRow(i){
+  cur=i; const r=S.rows[i];
+  v.src=`/clip/${r.clip}.mp4`;
+  const sN=parseFloat(r.serve_s);
+  v.onloadedmetadata=()=>{ v.currentTime=Number.isFinite(sN)?
+    Math.max(0,sN-1.5):0; v.play(); };
+  newEntry();
+  // preload draft chips from the s-prefixed draft string
+  const d=(r.corrected_1st||r.first_draft||"").replace(/^s/,"");
+  entry.first=[...d]; entry.state = d? "rally":"serve";
+  if(r.corrected_2nd){ entry.second=[...r.corrected_2nd];
+    entry.field=2; }
+  send("row_open",{i}); render();
+}
+async function acceptReview(){
+  const r=S.rows[cur];
+  const res=await fetch("/api/accept",{method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({clip:r.clip, corrected_1st:str1(),
+      corrected_2nd:str2(), notes:"", skip_reason:""})});
+  if(!res.ok){ warn(`SAVE FAILED (${res.status})`); return; }
+  await refresh();
+  const next=S.rows.findIndex((x,j)=>j>cur&&!x.done);
+  openReviewRow(next>=0?next:cur);
+}
+
+// ---- adapters -------------------------------------------------------------
+const browserAdapter = {
+  key(){ return "cvchart:"+(window.MATCH_ID||"local"); },
+  async state(){
+    const raw=localStorage.getItem(this.key());
+    return raw? JSON.parse(raw) : null;
+  },
+  async save(st){ localStorage.setItem(this.key(),
+    JSON.stringify(st)); },
+  async init(setup){
+    let st=await this.state();
+    if(!st){ st={match_id:window.MATCH_ID||"local", setup,
+      points:[]}; await this.save(st); }
+    return st;
+  },
+  async acceptPoint({first,second,winner,start_s,end_s}){
+    const st=await this.state();
+    const scx=new JsScore(st.setup.best_of, st.setup.final_set,
+      st.setup.first_server);
+    for(const p of st.points) scx.point(+p.PtWinner);
+    const ctx=scx.rowContext();
+    st.points.push({...ctx, pt:st.points.length+1, first, second,
+      notes:"", flags:"", PtWinner:String(winner),
+      start_s:start_s??"", end_s:end_s??""});
+    await this.save(st);
+  },
+  async insertUnseen(winner){
+    return this.acceptPoint({first:"",second:"",winner,
+      start_s:null,end_s:null,flags:"unseen"});
+  },
+};
+const serverAdapter = {
+  async state(){ return (await fetch("/api/chart-state")).json(); },
+  async acceptPoint(body){
+    await fetch("/api/point",{method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({action:"add",...body})}); },
+  async insertUnseen(winner){
+    await fetch("/api/point",{method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({action:"unseen",winner})}); },
+};
+const reviewAdapter = {
+  async state(){ return (await fetch("/api/state")).json(); },
+};
+let adapter = MODE==="chart" ? serverAdapter
+  : MODE==="review" ? reviewAdapter : browserAdapter;
+
+// ---- exports (browser flavor) ----------------------------------------
+function dl(name, text){
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([text],{type:"text/csv"}));
+  a.download=name; a.click();
+}
+function exportBundle(){
+  if(MODE==="chart"){ location.href="/export/bundle"; return; }
+  const cols=["match_id","Pt","Set1","Set2","Gm1","Gm2","Pts","Gm#",
+    "TbSet","Svr","1st","2nd","Notes","PtWinner"];
+  const esc=s=>/[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;
+  const rows=S.points.map(p=>cols.map(c=>{
+    if(c==="match_id") return S.match_id;
+    if(c==="Pt") return p.pt; if(c==="1st") return p.first;
+    if(c==="2nd") return p.second;
+    if(c==="Notes") return (p.flags==="unseen"?"unseen;":"")+
+      (p.notes||"");
+    return p[c]??"";
+  }).map(x=>esc(String(x))).join(","));
+  dl(`${S.match_id}_points.csv`, cols.join(",")+"\n"+
+     rows.join("\n")+"\n");
+  const segs=S.points.filter(p=>p.start_s&&p.end_s).map(p=>
+    `${S.match_id}_point_${String(p.pt).padStart(3,"0")},`+
+    `${p.start_s},${p.end_s}`);
+  dl(`${S.match_id}_segments.csv`,
+     "clip,start_s,end_s\n"+segs.join("\n")+"\n");
+  dl(`${S.match_id}_manifest.json`, JSON.stringify({
+    match_id:S.match_id, setup:{...S.setup},
+    grammar_version:G.version, points:S.points.length,
+    exported: new Date().toISOString()}, null, 1));
+}
+
+// ---- keyboard ---------------------------------------------------------
+document.addEventListener("keydown", e=>{
+  if(paused && e.key!=="p"){ e.preventDefault(); return; }
+  const typing = e.target.tagName==="INPUT"
+    || e.target.tagName==="SELECT";
+  if(e.key==="Escape"){ e.target.blur(); return; }
+  if(e.key==="Enter" && !e.shiftKey && !typing){
+    e.preventDefault();
+    MODE==="review" ? acceptReview() : accept(); return; }
+  if(typing){
+    if(e.key==="Enter" && e.target.id==="raw"){
+      // raw edit: re-parse into chips
+      const [f,s=""]=$("#raw").value.split("|").map(x=>x.trim());
+      entry.first=[...f]; entry.second=[...s];
+      entry.field = s? 2:1; entry.state="rally"; render();
+      e.target.blur();
+    }
+    return;
+  }
+  if(e.key==="p" && MODE!=="static"){ paused=!paused;
+    $("#overlay").classList.toggle("on",paused);
+    if(paused) v.pause();
+    send(paused?"clock_pause":"clock_resume"); return; }
+  const acts={
+    " ": ()=> v.paused? v.play():v.pause(),
+    "ArrowLeft": ()=>{ v.pause(); v.currentTime-=1/30; },
+    "ArrowRight": ()=>{ v.pause(); v.currentTime+=1/30; },
+    "[": ()=>{ v.playbackRate=Math.max(.25,v.playbackRate-.25); },
+    "]": ()=>{ v.playbackRate=Math.min(2,v.playbackRate+.25); },
+    "Backspace": ()=> pop(),
+    "m": ()=>{ entry.startS=v.currentTime; send("point_mark",
+      {t:v.currentTime}); warn(`point start marked @ `+
+      `${v.currentTime.toFixed(1)}s`); },
+    "u": ()=> MODE!=="review" && insertUnseen(),
+    "y": ()=> $("#nudge").classList.contains("on") && nudgeOk(),
+    "x": ()=> exportBundle(),
+  };
+  if(acts[e.key]){ e.preventDefault(); acts[e.key](); return; }
+  // palette keys
+  const lg=legal().find(o=>o.ch===e.key
+    || (o.ch==="FAULT" && e.key==="F"));
+  if(lg){ e.preventDefault(); press(lg.ch); }
+});
+
+// ---- selftest ---------------------------------------------------------
+async function selftest(){
+  const conf = window.CONFORMANCE
+    || await (await fetch("/conformance.json")).json();
+  let n=0;
+  for(const m of conf){
+    const s=new JsScore(m.best_of, m.final_set, m.first_server);
+    for(const p of m.points){
+      // fixture winners are RELATIVE to the server (1=server won)
+      const svr=s.server;
+      const winner = p.winner_rel===1 ? svr : (svr===1?2:1);
+      const der = jsWinner(p.first, p.second);
+      if(der!==null && der!==p.winner_rel){
+        document.body.innerHTML=`<pre>SELFTEST FAIL ${m.match} pt `+
+          `${n+1}: jsWinner=${der} fixture=${p.winner_rel} `+
+          `(${p.first}|${p.second})</pre>`;
+        return;
+      }
+      const ctx=s.point(winner); n++;
+      for(const k in p.expect){
+        if(String(ctx[k])!==String(p.expect[k])){
+          document.body.innerHTML=`<pre>SELFTEST FAIL ${m.match} `+
+            `pt ${n}: ${k} js=${ctx[k]} py=${p.expect[k]}</pre>`;
+          return;
+        }
+      }
+    }
+  }
+  document.body.innerHTML=`<pre>SELFTEST PASS n=${n}</pre>`;
+}
+
+// ---- boot -------------------------------------------------------------
+async function boot(){
+  if(!G) G = await (await fetch("grammar.json")).json();
+  if(location.search.includes("selftest=1")){ selftest(); return; }
+  $("#mode").textContent = `mode: ${MODE}`;
+  if(MODE==="review"){
+    S=await adapter.state(); newEntry(); render();
+    openReviewRow(Math.max(0,S.rows.findIndex(r=>!r.done)));
+    return;
+  }
+  if(MODE==="chart"){ newEntry(); await refresh(); wireVideo(); return; }
+  // static: setup screen or resume
+  const existing=await browserAdapter.state();
+  if(existing){ S=existing; newEntry(); await refresh(); wireVideo(); }
+  else $("#setup").classList.add("on");
+  $("#su-go").onclick=async ()=>{
+    const f=$("#su-file").files[0];
+    const setup={player1:$("#su-p1").value||"P1",
+      player2:$("#su-p2").value||"P2", best_of:+$("#su-bo").value,
+      final_set:$("#su-fs").value, first_server:+$("#su-sv").value,
+      video: f? f.name : ""};
+    window.MATCH_ID=(setup.player1+"-"+setup.player2)
+      .toLowerCase().replace(/[^a-z0-9]+/g,"-");
+    await browserAdapter.init(setup);
+    if(f) v.src=URL.createObjectURL(f);
+    $("#setup").classList.remove("on");
+    newEntry(); await refresh();
+  };
+}
+function wireVideo(){
+  if(MODE==="chart"){ v.src="/video"; }
+  // static resume: user re-drags the file via the setup input if the
+  // object URL is gone; keep it simple (documented limitation).
+}
+boot();
+</script>
