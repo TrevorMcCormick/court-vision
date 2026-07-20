@@ -2451,3 +2451,50 @@ fresh entries could be clobbered by row clicks — beginEdit now
 confirms-and-clears ALL mid-flight work before loading anything.
 - Suite 68. Charting continues toward the first MCP submission.
 - Session cost: $0.00. Project total: ~$16.
+
+## 2026-07-20 — The doc set: Court Vision becomes legible as a data product
+
+**Trevor's steer: "follow data product management best practices,
+research them if you need to."** Three research agents swept the
+2024-2026 practitioner literature (data-as-a-product / DATSIS, Model
+Cards and Datasheets lineage, data-quality SLOs and scorecards); the
+converged advice, scaled to a solo repo: consumer-first product
+statement, the calibrated operating point AS the SLO, traffic lights
+only with declared thresholds and prescribed actions, a gaps register
+with a closed status vocabulary, an automation-bias warning as "the
+single most consequential sentence," versioned benchmarks with
+non-comparable markings, and no enterprise ceremony.
+
+**Three new docs plus a README refresh.** docs/scorecard.md (what to
+trust / verify / re-key, per component and per feed, with the gaps
+register), docs/model-card.md (system card: intended use, explicit
+out-of-scope topped by "never submit uncorrected drafts to MCP,"
+factors, limitations with mechanisms, license chain), and
+docs/data-product.md (consumers and jobs, data contracts, SLO-style
+quality table with a correction-budget promotion rule, DATSIS
+self-audit, lifecycle gates, risk register). The benchmark's
+truth-corrected state is now formally **benchmark-v2** (v1→v2 =
+today's parity correction; pre-correction server-end numbers
+non-comparable). README updated from the stale M0-M4/SAM-ball era.
+
+**Every claim adversarially verified before commit.** Four checker
+agents audited 217 claims against benchmark.md/LOG.md/source; 18
+discrepancies found and fixed, including three of my own inventions
+the process caught red-handed: a "~92% real t4 letters" number the
+record doesn't support (it supports ~84-87%), a "designed scorecard
+generator" that was only ever my proposal, and a 10-15-minute
+hand-charting estimate contradicted two paragraphs later by my own
+"2 hours" (the record says ~1 min/point). Also caught: the shipped
+cv-17 exports still carry the frozen 99-HIGH flags — the 92%@48%
+contract exists only in the recalibrated scorer until cv-18 closes —
+and the probe count (67) I'd quoted was the retired t1-era detector
+(shipped: 50 interior + 96 line probes). The docs that preach
+"hand-typed numbers eventually lie" were themselves the proof.
+
+- Open decisions surfaced for Trevor: no LICENSE/NOTICE file (code
+  all-rights-reserved by default; data implies CC BY-NC-SA — needs an
+  explicit license map), and whether to build the scorecard-table
+  generator so the numbers can never drift.
+- New: docs/{scorecard,model-card,data-product}.md. Modified:
+  README.md. Pipeline, charts, exports, model: untouched.
+- Session cost: $0.00. Project total: ~$16.
