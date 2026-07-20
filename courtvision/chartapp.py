@@ -380,5 +380,19 @@ def run_staged(cfg, mode, name, seed=None, n=None, port=8766,
         print("\nsession saved:", session.dir)
 
 
-def emit_static(out):
-    raise SystemExit("Task 8")
+def emit_static(out_path):
+    """One self-contained file: grammar + conformance baked in."""
+    ui = UI_PATH.read_text()
+    grammar = notation.GRAMMAR_PATH.read_text()
+    conf = (CONFORMANCE_PATH.read_text()
+            if CONFORMANCE_PATH.exists() else "[]")
+    inject = ("<script>\n"
+              f"window.GRAMMAR = {grammar};\n"
+              f"window.CONFORMANCE = {conf};\n"
+              "</script>\n")
+    out_path = Path(out_path)
+    result = ui.replace("<!doctype html>",
+                        "<!doctype html>" + inject, 1)
+    out_path.write_text(result)
+    print(f"-> {out_path} ({out_path.stat().st_size} bytes, "
+          f"open it from anywhere)")

@@ -148,3 +148,29 @@ under the inputs are advisory MCP-legality checks and never block.
 
 writes the timing/accuracy/anchoring/histogram report to the review
 session's directory.
+
+## The charting app
+
+`charter` is the palette-driven charting surface (docs/specs/
+2026-07-19-charting-app-design.md): the legal MCP marks are always on
+screen as keys/buttons, the scoreboard runs itself and challenges you
+at every game boundary, and every accepted point stamps its own video
+segment. Three ways in:
+
+    # staged match, machine drafts pre-filled (review flavor)
+    uv run python -m courtvision charter t6 --session r1
+
+    # chart-along a brand-new match from a local video
+    uv run python -m courtvision charter --new m1 --video match.mp4 \
+        --setup '{"player1":"A","player2":"B","best_of":3,
+                  "final_set":"tb7","first_server":1,
+                  "video":"match.mp4"}'
+
+    # emit the serverless single-file app (drag a video in, chart,
+    # download the training bundle)
+    uv run python -m courtvision charter --emit-static chart.html
+
+Chart-along sessions live in outputs/charting/<id>/ (raw inputs only;
+scores are always replayed). Exports: points CSV (MCP columns),
+segments CSV, manifest — the training bundle. `?selftest=1` replays
+the Python engine's conformance fixture through the page's JS scorer.

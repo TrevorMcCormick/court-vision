@@ -89,3 +89,15 @@ def test_bad_point_returns_400_not_crash(served):
                   {"action": "add", "first": "4b2f1?",
                    "second": "", "winner": None})
     assert st == 400
+
+
+def test_emit_static_is_self_contained(tmp_path):
+    from courtvision.chartapp import emit_static
+    out = tmp_path / "chart.html"
+    emit_static(out)
+    t = out.read_text()
+    assert "window.GRAMMAR =" in t
+    assert "window.CONFORMANCE =" in t
+    assert 'fetch("grammar.json")' in t     # fallback still present
+    assert t.count("<!doctype html>") == 1
+    assert len(t) > 40_000
