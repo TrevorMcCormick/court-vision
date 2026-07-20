@@ -269,13 +269,14 @@ function press(ch){
   } else if(entry.state==="rally"){
     if(V.shot_letters.includes(ch) || "123".includes(ch)
        || V.depths.includes(ch)) tokens().push(ch);
-    else if(ch==="*" || ch==="?"){ tokens().push(ch); accept(); return; }
+    else if(ch==="*" || ch==="?"){ tokens().push(ch);
+      send("palette_key",{k:ch}); accept(); return; }
     else if(V.error_letters.includes(ch)){
       tokens().push(ch); entry.state="err-mark"; }
     else return;
   } else if(entry.state==="err-mark"){
     if(ch!=="@" && ch!=="#") return;
-    tokens().push(ch); accept(); return;
+    tokens().push(ch); send("palette_key",{k:ch}); accept(); return;
   }
   send("palette_key",{k:ch}); render();
 }
@@ -482,18 +483,24 @@ function exportBundle(){
   const cols=["match_id","Pt","Set1","Set2","Gm1","Gm2","Pts","Gm#",
     "TbSet","Svr","1st","2nd","Notes","PtWinner"];
   const esc=s=>/[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;
-  const rows=S.points.map(p=>cols.map(c=>{
-    if(c==="match_id") return S.match_id;
-    if(c==="Pt") return p.pt; if(c==="1st") return p.first;
-    if(c==="2nd") return p.second;
-    if(c==="Notes") return (p.flags==="unseen"?"unseen;":"")+
-      (p.notes||"");
-    return p[c]??"";
-  }).map(x=>esc(String(x))).join(","));
+  const scx=new JsScore(S.setup.best_of, S.setup.final_set,
+    S.setup.first_server);
+  const rows=S.points.map(p=>{
+    const ctx=scx.rowContext(); scx.point(+p.PtWinner);
+    return cols.map(c=>{
+      if(c==="match_id") return S.match_id;
+      if(c==="Pt") return p.pt; if(c==="1st") return p.first;
+      if(c==="2nd") return p.second;
+      if(c==="Notes") return (p.flags==="unseen"?"unseen;":"")+
+        (p.notes||"");
+      if(c==="PtWinner") return p.PtWinner;
+      return ctx[c]??"";
+    }).map(x=>esc(String(x))).join(",");
+  });
   dl(`${S.match_id}_points.csv`, cols.join(",")+"\n"+
      rows.join("\n")+"\n");
   const segs=S.points.filter(p=>p.start_s!==""&&p.start_s!=null
-    &&p.end_s!==""&&p.end_s!=null && !(+p.start_s===0 && +p.end_s===0)).map(p=>
+    &&p.end_s!==""&&p.end_s!=null&&+p.start_s<+p.end_s).map(p=>
     `${S.match_id}_point_${String(p.pt).padStart(3,"0")},`+
     `${p.start_s},${p.end_s}`);
   dl(`${S.match_id}_segments.csv`,

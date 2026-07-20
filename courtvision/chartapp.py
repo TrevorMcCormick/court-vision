@@ -71,7 +71,8 @@ class ChartSession:
         p = self._points_path()
         if not p.exists():
             return []
-        return list(csv.DictReader(open(p)))
+        with open(p) as f:
+            return list(csv.DictReader(f))
 
     def _save_points(self):
         with open(self._points_path(), "w", newline="") as f:
@@ -165,7 +166,8 @@ class ChartSession:
     def segments(self):
         out = []
         for p in self.state()["points"]:
-            if p["start_s"] and p["end_s"]:
+            if (p["start_s"] and p["end_s"]
+                    and float(p["start_s"]) < float(p["end_s"])):
                 out.append({"clip": f"{self.match_id}_point_"
                                     f"{p['pt']:03d}",
                             "start_s": float(p["start_s"]),

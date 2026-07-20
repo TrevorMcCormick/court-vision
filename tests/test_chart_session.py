@@ -74,6 +74,9 @@ def test_segments_and_events(root):
     segs = s.segments()
     assert segs == [{"clip": "m1_point_001",
                      "start_s": 3.5, "end_s": 9.1}]
+    s.add_point("6*", "", start_s=0, end_s=0)      # degenerate stamp
+    s.add_point("6*", "", start_s=9.0, end_s=3.0)  # inverted stamp
+    assert s.segments() == segs                    # both filtered out
     s.append_event({"ts_ms": 1, "row": "m1_point_001",
                     "event": "palette_key", "payload": {"k": "6"}})
     line = json.loads(
