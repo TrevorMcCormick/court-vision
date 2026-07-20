@@ -2231,3 +2231,68 @@ corrupt-event-line tolerance, before Trevor spends the afternoon.
 - Next: the experiment itself — docs/cv18-protocol.md, blocks 0-4.
   Machine time is done; the stopwatch is Trevor's.
 - Session cost: $0.00. Project total: ~$16.
+
+## 2026-07-19 — The launch gate learns what a serve looks like on other feeds
+
+**The HIGH tier was starving on the newest matches, and the blocker
+had a name.** A workflow pass over the whole record (4 readers +
+synthesis + adversarial critique) ranked the model-quality levers;
+the top implementable one was pure diagnosis: t5+t7 hold 228 scored
+points and yielded 6 LOMO HIGH flags between them, while t7 posts the
+best structural scorecard on record. The autopsy
+(experiments/conf_coverage_autopsy.py) instrumented the LOMO loop and
+blamed each good-but-LOW point: on t7, 69 of 71 gate-blocked good
+points died on the launch-plausibility gate alone. Pass rates: t7
+11.5%, t5 16.9% vs t4 89.8%. The gate zeroed the tier before the
+model ever voted — and serve_launch_plausible sits in MODEL_FEATURES
+too, so it double-punished as a feature.
+
+**The mechanism is track acquisition, not mid-rally joins.** launch_cy
+is the ball's court-y at the START of the first sustained crossing
+run. On feeds where WASB picks the serve up late — AO night ball,
+Turin's small far-end ball — the run starts over the court and a real
+serve reads "inside." The absolute band (cy <= -10 or >= 30) was read
+off t3, where launch-inside genuinely meant the clay editor had cut
+into a rally. The original insight was a conjunction — "a serve
+called 0 s into the clip whose launch cy sits INSIDE the court" — and
+the shipped gate kept only the cy half. Dead end, kept: re-adding the
+TIME clause does not transfer either — Tennis TV cuts condensed clips
+tight to the serve (t7 median serve_s 0.60 s), so serve_s < 1.0 still
+blocks 59 good t7 points. What transfers is the STANCE read: 116 of
+t7's 138 launch-inside clips carry a verified pre-launch baseline
+stance (margin_m — the server settled at the baseline for 1.2 s
+before the launch, which a mid-rally join cannot produce).
+
+**The fix is one clause, and it survived its own discipline.**
+implausible = launch inside the band AND no stance read
+(courtvision/confidence.py). LOMO A/B over four candidate rules
+(experiments/launch_gate_repair.py): the stance rule wins — pooled
+94%@19.6% -> 92%@47.7%, t7 7.6% -> 58.6% at 93%, t6 28.1% -> 54.7%
+at 97%, and the LOW tier's stranded good points (<=2 edits) fall
+66 -> 13. Costs on the record: disasters in HIGH 6 -> 19 (of 234),
+and two folds under-deliver — t5 77% (genuinely weak feed; part of
+its old 4.2% coverage was honest triage) and t3 80% (the cy-only band
+was accidentally protective against the editor's cuts). A
+precision-target sweep (0.93, 0.95) starves healthy folds without
+rescuing either — their disease is invisible to the signals, which is
+the t4 lesson again from the other side. `courtvision calibrate`
+reproduces the harness numbers exactly; 54 tests pass. Exports NOT
+regenerated — the cv-18 artifacts are frozen behind export_sha256, so
+the drafts stay at the 99-HIGH edition until the stopwatch closes.
+
+- Roadmap (workflow synthesis + critique, full trace in session):
+  1. finish charting app + run cv-18 (the gate for pipeline work) —
+  in flight on the other branch; 2. THIS session's gate repair;
+  3. WASB crossing recall (deletions 1.95/pt, the ceiling-raiser);
+  4. player boxes for letters (bgsub far-half cut first, SAM-3 only
+  where box-driven); 5. bounce-first endings (far-end ~1 px/frame
+  resolution risk named); 6. t4 phantom insertions; 7. MCP-legal
+  grammar (awaits cv-17 charter answer); 8. calibration n via the
+  app's ground-truth factory. Unowned diagnoses parked: t4's
+  sane-box letter disease, t5 serve-end on the AO night feed.
+- New: experiments/{conf_coverage_autopsy,launch_gate_transfer,
+  launch_gate_repair}.py. Modified: courtvision/confidence.py (one
+  clause + docstring), data/confidence_model.json (t_high=0.744,
+  flags 250/491 in-sample), docs/benchmark.md (+section). Exports,
+  charts, review tool: untouched.
+- Session cost: $0.00 (no SAM-3 needed). Project total: ~$16.

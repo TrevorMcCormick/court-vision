@@ -491,4 +491,69 @@ shippable n; still not shipped. Shipped scorer refit on all 491
 (t_high=0.753) flags 97/491 high at 96% in-sample; exports
 regenerated for all seven matches — 508 draft points, 99 flagged high.
 
+## The launch-gate repair: coverage starvation autopsy (2026-07-19)
+
+The 7-match table hid a mechanism: t5+t7 hold 228 scored points and
+yielded 6 LOMO HIGH flags between them (4.2% / 7.6% coverage) while t7
+posts the best structural scorecard on record. The autopsy
+(experiments/conf_coverage_autopsy.py) instrumented the exact LOMO loop
+and named the blocker per good-but-LOW point: on t7, 71 of 114 good
+points were gate-blocked — 69 by the launch-plausibility gate alone.
+Gate pass rates told the whole story: t7 11.5%, t5 16.9%, t6 35.9% vs
+t4 89.8%.
+
+The mechanism (experiments/launch_gate_transfer.py): launch_cy is the
+ball's court-y at the START of the first sustained crossing run, and on
+feeds where WASB acquires the serve late — AO night ball, Turin's small
+far-end ball — that start sits INSIDE the court on a real serve. The
+absolute band (cy <= -10 or >= 30) was read off t3, where launch-inside
+really did mean the clay editor had cut into a rally. The original
+insight was a conjunction ("a serve called 0 s into the clip whose
+launch cy sits inside the court") and the shipped gate had kept only
+the cy half. The time clause does NOT restore transfer — Tennis TV's
+condensed cut starts at the serve (t7 median serve_s 0.60 s), so
+serve_s < 1.0 still blocks 59 good t7 points. What does: the stance
+read. 116 of t7's 138 launch-inside clips carry a verified pre-launch
+baseline stance (margin_m) — a mid-rally join has no server settled at
+the baseline for the 1.2 s before the launch. Repaired rule, still a
+rule from geometry: implausible = launch inside the band AND no stance.
+
+LOMO A/B (experiments/launch_gate_repair.py; time-clause and combined
+variants measured and rejected — V1 90%@42.4% with t3 82%, V3 89%@50.3%
+— and a precision-target sweep showed 0.93/0.95 just starve healthy
+folds without rescuing t5/t3):
+
+| LOMO (held-out) | before (cy-only) | after (cy AND no stance) |
+|---|:---:|:---:|
+| t1 night   | 100% (10/10) @ 45.5% | 100% (10/10) @ 45.5% |
+| t2 ctrl    | 100% (3/3) @ 60.0%   | 100% (3/3) @ 60.0% |
+| t3 clay    | 92% (11/12) @ 20.3%  | 80% (16/20) @ 33.9% |
+| t4 grass   | 85% (17/20) @ 40.8%  | 88% (15/17) @ 34.7% |
+| t5 AO      | 100% (3/3) @ 4.2%    | **77% (17/22) @ 31.0%** |
+| t6 USO     | 97% (35/36) @ 28.1%  | 97% (68/70) @ 54.7% |
+| t7 Turin   | 92% (11/12) @ 7.6%   | **93% (86/92) @ 58.6%** |
+| **pooled** | **94% (90/96) @ 19.6%** | **92% (215/234) @ 47.7%** |
+
+Flag × edit-distance confusion (LOMO, pooled, after):
+
+| flag | 0-1 | 2 | 3-5 | 6+ | total |
+|---|:---:|:---:|:---:|:---:|:---:|
+| high | 25 | 57 | 133 | 19 | 234 |
+| low  | 3  | 10 | 101 | 143 | 257 |
+
+Read it honestly, both ways. The tier's usable mass rose 2.4x — 215
+usable drafts flagged vs 90, and the LOW tier's stranded good points
+(<=2 edits buried in "re-chart") fell 66 -> 13. The costs are on the
+record: pooled precision paid 2 points (94 -> 92), disasters in HIGH
+rose 6 -> 19 (of 234, 8.1% vs 6.3%), and two folds under-deliver the
+contract — t5 at 77% (the weak-feed match: rally ±1 66%, acceptance
+2/71 — part of its old 4.2% coverage was honest triage) and t3 at 80%
+(the editor's mid-rally cuts, only partially observable; the old gate's
+cy-only band was accidentally protective there). The strict <=2-edit
+tier still dies in LOMO (67% at 1.2%); still not shipped. Shipped
+scorer refit on all 491 (t_high=0.744) flags 250/491 in-sample at 92%.
+Exports NOT regenerated: the cv-18 review-tool artifacts are frozen
+(export_sha256 verification), so draft CSVs stay at the 99-HIGH
+edition until the stopwatch experiment closes.
+
 Full history: LOG.md. Landscape context: docs/landscape-2026-07.md.

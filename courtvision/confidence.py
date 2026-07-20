@@ -53,9 +53,12 @@ precision at <=6% coverage — 135 points at an 11% base rate cannot
 support it, full record in docs/benchmark.md. What survives:
 
   HIGH  P(<=5 edits) past the fold's 90%-train-precision threshold AND
-        all three mechanistic gates pass. LOMO (7 matches, 491 points):
-        ~94% of high-flagged points are within 5 edits, at ~20%
-        coverage — the table in docs/benchmark.md.
+        all three mechanistic gates pass. LOMO (7 matches, 491 points,
+        stance-repaired launch gate): ~92% of high-flagged points are
+        within 5 edits, at ~48% coverage — the table in
+        docs/benchmark.md. Per-fold honesty: t5 (77%) and t3 (80%)
+        under-deliver the contract — their disease (weak feed; editor
+        cuts into rallies) is only partially visible to the signals.
   LOW   everything else — expect heavy correction or a re-chart.
 
 Usage:
@@ -185,9 +188,20 @@ def point_signals(cfg, clip, mc, Hm, offsets, serves, charts_dir=None):
     # beyond the baselines (04's far serve reads cy -20.3). Stance-based
     # calls (src=players) verified a real serve posture.
     serve_s = float(s["serve_s"]) if s.get("serve_s") else 5.0
+    # launch_cy is the ball's court-y at the START of the first sustained
+    # crossing run — on feeds where WASB acquires the serve late (AO
+    # night, Turin's small far-end ball) it reads inside the court on
+    # REAL serves (t7: 116 of 138 launch-inside clips carry a verified
+    # pre-launch baseline stance). The stance read (margin_m) is direct
+    # evidence someone was serving — a mid-rally join has no server
+    # settled at the baseline for the 1.2 s before the launch — so
+    # implausibility requires BOTH: launch inside the band AND no stance.
+    # LOMO receipt (experiments/launch_gate_repair.py): 94%@19.6% ->
+    # 92%@47.7% pooled; t7 7.6% -> 58.6% at 93%.
     if s.get("src") == "ball" and s.get("launch_cy"):
         cy0 = float(s["launch_cy"])
-        launch_plausible = 1.0 if (cy0 <= -10.0 or cy0 >= 30.0) else 0.0
+        launch_plausible = (1.0 if (cy0 <= -10.0 or cy0 >= 30.0
+                                    or s.get("margin_m")) else 0.0)
     else:
         launch_plausible = serve_committed
 
