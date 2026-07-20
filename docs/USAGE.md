@@ -110,21 +110,22 @@ first-serve point; fixing that is part of the charter's pass.
 
 ## What the confidence flags mean
 
-Calibrated leave-one-match-out on the 4 benchmark matches against
+Calibrated leave-one-match-out on the 7 benchmark matches against
 token edit distance to MCP truth (full tables in `docs/benchmark.md`):
 
-- **high** — start from the draft. ~93% of high-flagged points are
-  within 5 token edits (LOMO pooled; 84-100% per held-out match), at
-  ~1/3 coverage. It does NOT mean the point is right: only ~27% of
-  high-flagged points are within 2 edits.
+- **high** — start from the draft. ~92% of high-flagged points are
+  within 5 token edits (LOMO pooled; 77-100% per held-out match — t5
+  and t3 under-deliver, their disease is only partially visible to
+  the signals), at ~48% coverage. It does NOT mean the point is
+  right: only ~35% of high-flagged points are within 2 edits.
 - **low** — expect heavy correction; more than half of low-flagged
   points are 6+ edits out. Treat as "re-chart with the draft as a
   hint."
 
 There is deliberately no "sign-off" tier: a within-2-edits flag at
-≥85% precision did not survive leave-one-match-out (50% at 1.5%
-coverage) — 135 points at an 11% base rate cannot support it. When
-the benchmark grows, `calibrate` refits and reports honestly.
+≥85% precision did not survive leave-one-match-out (latest attempt
+67% at 1.2% coverage) — 491 points at a 19% base rate cannot support
+it. When the benchmark grows, `calibrate` refits and reports honestly.
 
 ## Correcting drafts: the review tool
 
