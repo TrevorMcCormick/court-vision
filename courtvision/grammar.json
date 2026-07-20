@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "vocab": {
+    "serve_digits": "0456",
+    "shot_letters": "fbrsvzopuylmhijktq",
+    "directions": "0123",
+    "depths": "789",
+    "error_letters": "nwdx!e",
+    "ending_marks": "*@#",
+    "fault_letters": "nwdxg!e",
+    "other_marks": "+-=;^c"
+  },
+  "labels": {
+    "0": "unknown", "4": "wide", "5": "body", "6": "T",
+    "f": "fh drive", "b": "bh drive", "r": "fh slice",
+    "s": "bh slice", "v": "fh volley", "z": "bh volley",
+    "o": "fh overhead", "p": "bh overhead", "u": "fh drop",
+    "y": "bh drop", "l": "fh lob", "m": "bh lob",
+    "h": "fh half-volley", "i": "bh half-volley",
+    "j": "fh swing-volley", "k": "bh swing-volley",
+    "t": "trick shot", "q": "unknown shot",
+    "1": "to fh side", "2": "middle", "3": "to bh side",
+    "7": "short", "8": "mid-court", "9": "deep",
+    "n": "net", "w": "wide", "d": "deep", "x": "wide+deep",
+    "!": "shank", "e": "unknown error", "g": "foot fault",
+    "*": "winner", "@": "unforced", "#": "forced",
+    "?": "unknown ending",
+    "+": "approach", "-": "at net", "=": "at baseline",
+    ";": "let", "^": "stop volley", "c": "let cord"
+  }
+}

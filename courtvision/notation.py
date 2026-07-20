@@ -14,14 +14,21 @@ An empty list means nothing to warn about. `pos` is a 0-based index
 into the offending field's string, or None for whole-string issues.
 """
 
-SERVE_DIGITS = set("0456")           # 4 wide, 5 body, 6 T; 0 unknown
-SHOT_LETTERS = set("fbrsvzopuylmhijktq")
-DIRECTIONS = set("0123")             # 1 rh-fh side, 2 middle, 3 rh-bh
-DEPTHS = set("789")                  # 7 short, 8 mid, 9 deep
-ERROR_LETTERS = set("nwdx!e")        # net, wide, deep, both, shank, unk
-ENDING_MARKS = set("*@#")            # winner, unforced, forced
-FAULT_LETTERS = set("nwdxg!e")       # serve faults incl. foot fault
-OTHER_MARKS = set("+-=;^c")          # approach, net pos, stop, let...
+import json
+from pathlib import Path
+
+GRAMMAR_PATH = Path(__file__).with_name("grammar.json")
+GRAMMAR = json.loads(GRAMMAR_PATH.read_text())
+_V = GRAMMAR["vocab"]
+
+SERVE_DIGITS = set(_V["serve_digits"])   # 4 wide, 5 body, 6 T; 0 unk
+SHOT_LETTERS = set(_V["shot_letters"])
+DIRECTIONS = set(_V["directions"])
+DEPTHS = set(_V["depths"])
+ERROR_LETTERS = set(_V["error_letters"])
+ENDING_MARKS = set(_V["ending_marks"])   # winner, unforced, forced
+FAULT_LETTERS = set(_V["fault_letters"])
+OTHER_MARKS = set(_V["other_marks"])
 
 
 def _lint_field(s, field, is_fault_string):
@@ -34,7 +41,8 @@ def _lint_field(s, field, is_fault_string):
         issues.append({"field": field, "pos": 0,
                        "msg": "no serve digit (0/4/5/6) at start"})
     known = (SERVE_DIGITS | SHOT_LETTERS | DIRECTIONS | DEPTHS |
-             ERROR_LETTERS | ENDING_MARKS | OTHER_MARKS)
+             ERROR_LETTERS | ENDING_MARKS | FAULT_LETTERS |
+             OTHER_MARKS)
     last_shot_idx = None
     for i, c in enumerate(s):
         if c not in known:
