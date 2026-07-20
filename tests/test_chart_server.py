@@ -101,3 +101,16 @@ def test_emit_static_is_self_contained(tmp_path):
     assert 'fetch("grammar.json")' in t     # fallback still present
     assert t.count("<!doctype html>") == 1
     assert len(t) > 40_000
+
+
+def test_state_carries_ui_rev_matching_page_hash(served):
+    import hashlib
+    from courtvision.chartapp import UI_PATH
+    _, conn = served
+    conn.request("GET", "/api/chart-state")
+    st = json.loads(conn.getresponse().read())
+    expect = hashlib.sha256(UI_PATH.read_bytes()).hexdigest()[:8]
+    assert st["ui_rev"] == expect
+    conn.request("GET", "/")
+    body = conn.getresponse().read().decode()
+    assert f'window.APP_REV="{expect}"' in body[:400]

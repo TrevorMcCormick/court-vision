@@ -443,6 +443,10 @@ function renderReviewRows(){
 }
 async function refresh(){
   S = await adapter.state();
+  if(S && S.ui_rev && window.APP_REV && S.ui_rev !== window.APP_REV){
+    warn("⚠ the app was updated — RELOAD THIS TAB before continuing "+
+         "(your chart is saved and safe)");
+  }
   if(MODE!=="review"){
     sc = new JsScore(S.setup.best_of, S.setup.final_set,
                      S.setup.first_server);

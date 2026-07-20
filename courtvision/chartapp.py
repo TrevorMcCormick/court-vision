@@ -19,6 +19,7 @@ Layout, under outputs/charting/<match_id>/:
 """
 
 import csv
+import hashlib
 import json
 import time
 import webbrowser
@@ -217,10 +218,19 @@ class ChartSession:
 # ---------------------------------------------------------------------------
 
 
+def _ui_rev():
+    """Content hash of the page ON DISK, computed per request — the
+    page is hot-swappable, so a served tab can go stale mid-session.
+    The tab compares its baked-in rev against the one riding on every
+    state response and tells the charter to reload."""
+    return hashlib.sha256(UI_PATH.read_bytes()).hexdigest()[:8]
+
+
 def _ui_bytes(server_mode, match_id=""):
     t = UI_PATH.read_text()
     inject = (f'<script>window.SERVER_MODE="{server_mode}";'
-              f'window.MATCH_ID="{match_id}";</script>')
+              f'window.MATCH_ID="{match_id}";'
+              f'window.APP_REV="{_ui_rev()}";</script>')
     return t.replace("<!doctype html>",
                      "<!doctype html>" + inject, 1).encode()
 
@@ -249,7 +259,9 @@ def make_chart_server(session, video_path, port):
                 httpkit.send_file_ranged(self, video_path,
                                          "video/mp4")
             elif self.path == "/api/chart-state":
-                httpkit.send_json(self, session.state())
+                st = session.state()
+                st["ui_rev"] = _ui_rev()
+                httpkit.send_json(self, st)
             elif self.path == "/export/bundle":
                 parts = []
                 try:
@@ -363,7 +375,9 @@ def run_staged(cfg, mode, name, seed=None, n=None, port=8766,
                 httpkit.send_file_ranged(
                     self, CONFORMANCE_PATH, "application/json")
             elif self.path == "/api/state":
-                httpkit.send_json(self, session.state())
+                st = session.state()
+                st["ui_rev"] = _ui_rev()
+                httpkit.send_json(self, st)
             elif self.path.startswith("/clip/"):
                 stem = self.path[len("/clip/"):-len(".mp4")]
                 if not stem.replace("_", "").isalnum():
