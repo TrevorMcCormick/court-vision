@@ -2365,3 +2365,63 @@ per-feed staging or nothing. All pipeline; all wait for cv-18.
   .yaml (priors + receipts), docs/benchmark.md (+truth-correction
   section). Pipeline, charts, exports, model: untouched.
 - Session cost: $0.00. Project total: ~$16.
+
+## 2026-07-20 — cv-19 build: the charting app ("courtvision charter")
+
+**Excel hell has an exit.** One page, three flavors: `courtvision
+charter <match>` (staged — pre-cut clips, machine drafts pre-loaded
+as editable chips), `courtvision charter --new <id> --video <file>`
+(chart-along any match), and `courtvision charter --emit-static
+chart.html` (one 173KB self-contained file that charts offline in a
+browser and could sit at trmccormick.com/chart unchanged). The
+palette IS the cheat sheet: every legal MCP mark is on screen with
+its meaning, as key and button; the swipe-to-instructions loop that
+produced 6/134 review rows in a week is dead. The scoreboard runs
+itself — winner derived from each string's parity+ending, games/
+sets/tiebreaks/rotation automatic — and challenges the charter at
+every game boundary ("chart says 1-0, 0-0 — screen agree?"). Missed
+points get one-key unseen rows; cut clips get `?` endings with a
+who-won prompt. Every match exports the training bundle: MCP points
+CSV + segments CSV + manifest — a new benchmark match with zero
+alignment work.
+
+**The score engine is pinned to reality, twice.** score.py replayed
+three real MCP points files — t3 (bo5), t6, t7 (two tiebreaks, rows
+filed non-chronologically) — 592/592 points column-for-column, and
+the winner-from-string derivation matched PtWinner on 592/592. The
+oracles taught us Gm# never resets and that t7's file wraps at Pt 72.
+The page's JS scorer then proves conformance by replaying the same
+592 in the browser: SELFTEST PASS n=592, verified live. Grammar
+lives once (grammar.json) — palette, lint, and static build all read
+the same file; the foot-fault lint gap died as a side effect.
+
+**The assembly line earned its keep again.** Eight tasks, reviewer
+gates, opus final pass. Caught before any human charted a point:
+plan-inherited keyboard collisions (x/m/u/y/p are notation AND were
+action keys — one keypress mid-rally navigated away; actions moved
+to uppercase), a quirks-mode-forcing script inject (proven with a
+compatMode probe), a fault-undo that corrupted the entry, localStorage
+resume that lost the match pointer, an unseen flag silently dropped,
+and — final review — the browser export reading stored score columns
+instead of replaying (the exact stale-score disease the raw-inputs
+rule exists to prevent) plus a segments filter that disagreed between
+flavors. Export parity is now verified byte-for-byte.
+
+**Two collisions with a concurrent session, on the record.** Another
+Claude session committed pipeline work (launch-gate repair; parity
+priors) mid-build twice, and fix-amends entangled with its commits
+both times. Both repaired losslessly (their work stands as its own
+commits: 72eef74, 6be5342, 1a01217), and the assembly line now runs
+a no-amend policy. Lesson filed: two agents, one repo, zero locks —
+verify HEAD or don't amend.
+
+- New: courtvision/{grammar.json,score.py,httpkit.py,chartapp.py,
+  chart_ui.html}, tests (35 -> 66), docs/specs+plans for the app,
+  USAGE charter section. CLI: `charter` added, pipeline `chart`
+  restored after a collision ruling. Frozen and untouched:
+  review.py, review_ui.html, mcp.py, benchmark, all charts.
+- Parked for next cycle: cv-18 restart on this app (fresh seeds, all
+  arms, --contaminated unions the practice era), static publish to
+  trmccormick.com/chart, lint error-letter-before-*, review-flavor
+  notes UI, headless selftest in CI-of-one.
+- Session cost: $0.00. Project total: ~$16.
