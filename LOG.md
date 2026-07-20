@@ -2425,3 +2425,29 @@ verify HEAD or don't amend.
   trmccormick.com/chart, lint error-letter-before-*, review-flavor
   notes UI, headless selftest in CI-of-one.
 - Session cost: $0.00. Project total: ~$16.
+
+## 2026-07-20 — cv-19 charting live: the editor and the auditor, born mid-match
+
+**Six points into the first real chart (AO 2026 F,
+Rybakina-Sabalenka, picked by an 18-candidate scouting fan-out and
+proven uncharted against the MCP's own lists) the append-only fence
+fell.** Click-to-edit shipped hot mid-session: chips reload, Enter
+saves, Esc cancels, replay rescores everything downstream; the
+server validates every edit by replay and reverts rather than brick.
+The review loop went three rounds on controller-written code and
+earned each one. Round 1's Critical was adjudicated into the app's
+best feature: attested winners are TRUTH (re-deriving them from
+replay would silently reassign real points), so contradictions
+between a string and its attested winner under the replayed server
+are surfaced, not resolved — amber ⚠ rows, a conflict count in the
+score strip, export gated until the chart reconciles. The auditor's
+first two catches were its own author and then its own reviewer:
+my regression test asserted 1 conflict where it found 2 (my string
+had server-wins parity), and the reviewer's verification script made
+the same class of error and got flagged too. Two humans-worth of
+parity mistakes in one day; none reached disk. Round 2 closed the
+guard gaps: edit mode could leak through the unseen-point path and
+fresh entries could be clobbered by row clicks — beginEdit now
+confirms-and-clears ALL mid-flight work before loading anything.
+- Suite 68. Charting continues toward the first MCP submission.
+- Session cost: $0.00. Project total: ~$16.
