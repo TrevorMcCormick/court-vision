@@ -330,7 +330,8 @@ function renderScore(){
     `<b>${S.setup.player1} v ${S.setup.player2}</b>`+
     `<span class="hi">${sc.display}</span>`+
     `<span>${S.points.length} pts</span>`+
-    `<span style="color:var(--dim)">M mark · U unseen · X export · ⏎ accept</span>`;
+    `<span style="color:var(--dim)">M mark · U unseen · X export · ⏎ accept</span>`+
+    `<a href="?new=1" style="color:var(--dim)">+ new match</a>`;
   if(sc.gameNo!==lastGameNo){
     lastGameNo=sc.gameNo;
     $("#nudge").innerHTML=`chart says <b>${sc.display}</b> — screen
@@ -344,8 +345,7 @@ function nudgeOk(){ $("#nudge").classList.remove("on");
   send("nudge_ok"); }
 function nudgeNo(){ $("#nudge").classList.remove("on");
   send("nudge_mismatch");
-  warn("mismatch: check last game for a missed fault, or press u "+
-       "to insert an unseen point"); }
+  warn("mismatch: check last game for a missed fault, or press U to insert an unseen point"); }
 window.nudgeOk=nudgeOk; window.nudgeNo=nudgeNo;
 
 // ---- render ------------------------------------------------------------
@@ -477,6 +477,7 @@ function dl(name, text){
   a.download=name; a.click();
 }
 function exportBundle(){
+  if(MODE==="review"){ warn("export is chart-mode only"); return; }
   if(MODE==="chart"){ location.href="/export/bundle"; return; }
   const cols=["match_id","Pt","Set1","Set2","Gm1","Gm2","Pts","Gm#",
     "TbSet","Svr","1st","2nd","Notes","PtWinner"];
@@ -492,7 +493,7 @@ function exportBundle(){
   dl(`${S.match_id}_points.csv`, cols.join(",")+"\n"+
      rows.join("\n")+"\n");
   const segs=S.points.filter(p=>p.start_s!==""&&p.start_s!=null
-    &&p.end_s!==""&&p.end_s!=null).map(p=>
+    &&p.end_s!==""&&p.end_s!=null && !(+p.start_s===0 && +p.end_s===0)).map(p=>
     `${S.match_id}_point_${String(p.pt).padStart(3,"0")},`+
     `${p.start_s},${p.end_s}`);
   dl(`${S.match_id}_segments.csv`,
@@ -591,9 +592,10 @@ async function boot(){
   }
   if(MODE==="chart"){ newEntry(); await refresh(); wireVideo(); return; }
   // static: setup screen or resume
+  const wantNew=location.search.includes("new=1");
   const last=localStorage.getItem("cvchart:last");
-  if(last) window.MATCH_ID=last;
-  const existing=await browserAdapter.state();
+  if(last && !wantNew) window.MATCH_ID=last;
+  const existing=wantNew? null : await browserAdapter.state();
   if(existing){ S=existing; newEntry(); await refresh(); wireVideo(); }
   else $("#setup").classList.add("on");
   $("#su-go").onclick=async ()=>{

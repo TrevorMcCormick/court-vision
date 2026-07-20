@@ -1030,7 +1030,7 @@ git commit -m "Charting app: ChartSession — raw inputs, replay scoring, unseen
   - **chart-along** (default): browser adapter (localStorage key `cvchart:<match_id>`) unless `window.SERVER_MODE === "chart"` (then the ChartSession API of Task 7).
   - **review flavor**: `window.SERVER_MODE === "review"` — consumes the frozen bench's `/api/state`, `/api/accept`, `/api/event`, `/clip/<stem>.mp4` contract; palette replaces free typing; no score engine (rows carry score).
 - JS score engine `jsScore` mirroring Task 2's `Score` exactly (same method/row-context names) + `jsWinner(first, second)`; self-test at `?selftest=1` replays every `CONFORMANCE` point and renders `SELFTEST PASS n=<N>` or the first divergence.
-- Keyboard contract: palette keys as labeled; `backspace` pop chip; `Enter` accept; `Esc` blur/close; `space` play/pause; `←/→` frame-step; `[ ]` speed; `m` mark point start; `u` insert unseen point; `p` pause clock (server flavors only); raw field always editable and chip-synced.
+- Keyboard contract: palette keys as labeled; `backspace` pop chip; `Enter` accept; `Esc` blur/close; `space` play/pause; `←/→` frame-step; `[ ]` speed; `M` mark point start; `U` insert unseen point; `X` export; `Y` nudge-confirm; `P` pause clock (server flavors only); raw field always editable and chip-synced.
 
 This file is large; it is specified here in full and MUST be
 transcribed exactly. (It reuses the bench's visual language: dark
@@ -1371,7 +1371,8 @@ function renderScore(){
     `<b>${S.setup.player1} v ${S.setup.player2}</b>`+
     `<span class="hi">${sc.display}</span>`+
     `<span>${S.points.length} pts</span>`+
-    `<span style="color:var(--dim)">M mark · U unseen · X export · ⏎ accept</span>`;
+    `<span style="color:var(--dim)">M mark · U unseen · X export · ⏎ accept</span>`+
+    `<a href="?new=1" style="color:var(--dim)">+ new match</a>`;
   if(sc.gameNo!==lastGameNo){
     lastGameNo=sc.gameNo;
     $("#nudge").innerHTML=`chart says <b>${sc.display}</b> — screen
@@ -1385,8 +1386,7 @@ function nudgeOk(){ $("#nudge").classList.remove("on");
   send("nudge_ok"); }
 function nudgeNo(){ $("#nudge").classList.remove("on");
   send("nudge_mismatch");
-  warn("mismatch: check last game for a missed fault, or press u "+
-       "to insert an unseen point"); }
+  warn("mismatch: check last game for a missed fault, or press U to insert an unseen point"); }
 window.nudgeOk=nudgeOk; window.nudgeNo=nudgeNo;
 
 // ---- render ------------------------------------------------------------
@@ -1518,6 +1518,7 @@ function dl(name, text){
   a.download=name; a.click();
 }
 function exportBundle(){
+  if(MODE==="review"){ warn("export is chart-mode only"); return; }
   if(MODE==="chart"){ location.href="/export/bundle"; return; }
   const cols=["match_id","Pt","Set1","Set2","Gm1","Gm2","Pts","Gm#",
     "TbSet","Svr","1st","2nd","Notes","PtWinner"];
@@ -1533,7 +1534,7 @@ function exportBundle(){
   dl(`${S.match_id}_points.csv`, cols.join(",")+"\n"+
      rows.join("\n")+"\n");
   const segs=S.points.filter(p=>p.start_s!==""&&p.start_s!=null
-    &&p.end_s!==""&&p.end_s!=null).map(p=>
+    &&p.end_s!==""&&p.end_s!=null && !(+p.start_s===0 && +p.end_s===0)).map(p=>
     `${S.match_id}_point_${String(p.pt).padStart(3,"0")},`+
     `${p.start_s},${p.end_s}`);
   dl(`${S.match_id}_segments.csv`,
@@ -1632,9 +1633,10 @@ async function boot(){
   }
   if(MODE==="chart"){ newEntry(); await refresh(); wireVideo(); return; }
   // static: setup screen or resume
+  const wantNew=location.search.includes("new=1");
   const last=localStorage.getItem("cvchart:last");
-  if(last) window.MATCH_ID=last;
-  const existing=await browserAdapter.state();
+  if(last && !wantNew) window.MATCH_ID=last;
+  const existing=wantNew? null : await browserAdapter.state();
   if(existing){ S=existing; newEntry(); await refresh(); wireVideo(); }
   else $("#setup").classList.add("on");
   $("#su-go").onclick=async ()=>{
