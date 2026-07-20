@@ -1,0 +1,52 @@
+<!-- Shared style header for the user-facing doc set (scorecard,
+model-card, data-product). Regenerate a doc from markdown source with:
+  pandoc -f gfm -t html5 -s --metadata title="<h1 text>" \
+    -H _doc_style.html <src>.md -o <name>.html
+then strip pandoc's <header id="title-block-header"> block (the doc
+carries its own h1). The .md sources were retired 2026-07-20 — the
+.html files are now the source of record; edit them directly. -->
+<style>
+:root {
+  --bg: #ffffff; --fg: #1e222a; --muted: #5b6472; --line: #e3e7ee;
+  --accent: #0f6b3f; --th-bg: #f4f6f9; --code-bg: #f4f6f9;
+  --note-bg: #f7f9fc;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14171c; --fg: #e6e9ee; --muted: #9aa4b2; --line: #2b313b;
+    --accent: #4cc38a; --th-bg: #1c2129; --code-bg: #1c2129;
+    --note-bg: #191e26;
+  }
+}
+html { background: var(--bg); }
+body {
+  margin: 0 auto; padding: 2.5rem 1.25rem 5rem; max-width: 46rem;
+  background: var(--bg); color: var(--fg);
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif;
+}
+h1, h2, h3 { line-height: 1.25; margin: 2.2em 0 0.6em; }
+h1 { font-size: 1.7rem; margin-top: 0; }
+h2 { font-size: 1.25rem; border-bottom: 1px solid var(--line);
+     padding-bottom: 0.3em; }
+h3 { font-size: 1.05rem; }
+p, ul, ol { margin: 0.8em 0; }
+a { color: var(--accent); }
+em { color: var(--muted); }
+code { background: var(--code-bg); padding: 0.1em 0.35em;
+       border-radius: 4px; font-size: 0.88em;
+       font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+blockquote { margin: 1em 0; padding: 0.1em 1em; border-left: 3px solid
+             var(--accent); background: var(--note-bg); }
+.table-wrap, .doc-table { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; margin: 1.2em 0;
+        font-size: 0.92em; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--line); padding: 0.5em 0.7em;
+         text-align: left; vertical-align: top; }
+th { background: var(--th-bg); }
+strong { font-weight: 650; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 2.5em 0; }
+header.docmeta { color: var(--muted); font-size: 0.9em;
+                 border-bottom: 1px solid var(--line);
+                 padding-bottom: 1em; margin-bottom: 2em; }
+</style>

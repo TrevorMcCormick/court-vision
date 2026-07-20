@@ -2498,3 +2498,12 @@ and the probe count (67) I'd quoted was the retired t1-era detector
 - New: docs/{scorecard,model-card,data-product}.md. Modified:
   README.md. Pipeline, charts, exports, model: untouched.
 - Session cost: $0.00. Project total: ~$16.
+
+**Addendum — the doc set ships as HTML.** Trevor's rule: anything
+user-facing in markdown should be HTML. The three docs converted to
+self-contained, theme-aware HTML (pandoc gfm -> html5 + shared style
+header docs/_doc_style.html, title-block stripped, cross-links
+repaired, render verified headless in light mode with dark handled by
+CSS vars); the .md sources retired — the .html files are the record.
+README stays markdown (GitHub's front door), as do the working
+records (LOG, benchmark, USAGE, plans/specs) pending a wider ruling.

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Model card — Court Vision draft charter</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+  :root {
+    --bg: #ffffff; --fg: #1e222a; --muted: #5b6472; --line: #e3e7ee;
+    --accent: #0f6b3f; --th-bg: #f4f6f9; --code-bg: #f4f6f9;
+    --note-bg: #f7f9fc;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14171c; --fg: #e6e9ee; --muted: #9aa4b2; --line: #2b313b;
+      --accent: #4cc38a; --th-bg: #1c2129; --code-bg: #1c2129;
+      --note-bg: #191e26;
+    }
+  }
+  html { background: var(--bg); }
+  body {
+    margin: 0 auto; padding: 2.5rem 1.25rem 5rem; max-width: 46rem;
+    background: var(--bg); color: var(--fg);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+  }
+  h1, h2, h3 { line-height: 1.25; margin: 2.2em 0 0.6em; }
+  h1 { font-size: 1.7rem; margin-top: 0; }
+  h2 { font-size: 1.25rem; border-bottom: 1px solid var(--line);
+       padding-bottom: 0.3em; }
+  h3 { font-size: 1.05rem; }
+  p, ul, ol { margin: 0.8em 0; }
+  a { color: var(--accent); }
+  em { color: var(--muted); }
+  code { background: var(--code-bg); padding: 0.1em 0.35em;
+         border-radius: 4px; font-size: 0.88em;
+         font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  blockquote { margin: 1em 0; padding: 0.1em 1em; border-left: 3px solid
+               var(--accent); background: var(--note-bg); }
+  .table-wrap, .doc-table { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 1.2em 0;
+          font-size: 0.92em; display: block; overflow-x: auto; }
+  th, td { border: 1px solid var(--line); padding: 0.5em 0.7em;
+           text-align: left; vertical-align: top; }
+  th { background: var(--th-bg); }
+  strong { font-weight: 650; }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 2.5em 0; }
+  header.docmeta { color: var(--muted); font-size: 0.9em;
+                   border-bottom: 1px solid var(--line);
+                   padding-bottom: 1em; margin-bottom: 2em; }
+  </style>
+</head>
+<body>
+<h1 id="model-card--court-vision-draft-charter">Model card — Court
+Vision draft charter</h1>
+<p><em>Following the Model Cards framework (Mitchell et al. 2019),
+adapted for a composite pipeline rather than a single model. Honest by
+construction: every number is out-of-sample unless marked in-sample, and
+every limitation names its mechanism. Last updated 2026-07-20.</em></p>
+<h2 id="system-description">System description</h2>
+<p>Court Vision is not one model. It is a pipeline of narrow components,
+most of them classical CV or explicit rules, with two learned
+pieces:</p>
+<table>
+<thead>
+<tr>
+<th>stage</th>
+<th>what it is</th>
+<th>learned?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ball tracking</td>
+<td>WASB (pretrained sports-ball tracker, run locally, $0/match)</td>
+<td>pretrained, not fine-tuned</td>
+</tr>
+<tr>
+<td>Player boxes</td>
+<td>Background-subtraction blobs + hygiene rules (<span
+class="math inline">0); <em>S</em><em>A</em><em>M</em>3<em>v</em><em>i</em><em>a</em><em>f</em><em>a</em><em>l</em>.<em>a</em><em>i</em><em>m</em><em>e</em><em>a</em><em>s</em><em>u</em><em>r</em><em>e</em><em>d</em><em>a</em><em>s</em><em>a</em><em>p</em><em>a</em><em>i</em><em>d</em><em>a</em><em>l</em><em>t</em><em>e</em><em>r</em><em>n</em><em>a</em><em>t</em><em>i</em><em>v</em><em>e</em>(+9<em>s</em><em>t</em><em>r</em><em>i</em><em>c</em><em>t</em><em>l</em><em>e</em><em>t</em><em>t</em><em>e</em><em>r</em><em>s</em><em>o</em><em>n</em><em>t</em>3, </span>12/match,
+not shipped)</td>
+<td>no</td>
+</tr>
+<tr>
+<td>Court mapping</td>
+<td>One homography per match from a hand-staged static window; per-frame
+pixel probes (50 interior + 96 line probes) reject non-court views
+(replays, cutaways, other angles)</td>
+<td>no</td>
+</tr>
+<tr>
+<td>Point extraction &amp; identity</td>
+<td>Court-view segmentation + score-bug reading; the score plateau is
+the point ID</td>
+<td>no</td>
+</tr>
+<tr>
+<td>Events / notation</td>
+<td>Rule-based: net-crossing spine, serve detection (ball-launch or
+stance variant per feed), letters from ball-vs-box geometry, directions
+from a measured signal ladder, endings from landing rules</td>
+<td>no</td>
+</tr>
+<tr>
+<td>Confidence tier</td>
+<td>Logistic regression (numpy, 11 features) + 3 mechanistic gates,
+predicting P(draft within 5 token edits of truth)</td>
+<td>fit on the 491-point benchmark</td>
+</tr>
+</tbody>
+</table>
+<p>Output: one draft MCP-<em>style</em> notation string per point (not
+yet MCP-legal — <code>s</code> prefix, <code>?</code> refusal tokens)
+plus a HIGH/LOW confidence flag, exported as CSV
+(<code>courtvision draft &lt;match&gt;</code>); a local review UI for
+correcting drafts (<code>courtvision review</code>).</p>
+<h2 id="intended-use">Intended use</h2>
+<ul>
+<li><strong>Primary:</strong> produce draft point charts, triaged by
+confidence, for a human charter to correct — the bet (unmeasured until
+cv-18) is that correcting a green-flagged draft beats charting from
+scratch.</li>
+<li><strong>Users:</strong> the project author (now); volunteer Match
+Charting Project charters (invited 2026-07-11, cv-17).</li>
+<li><strong>Out of scope / do not use for:</strong>
+<ul>
+<li><strong>Unreviewed submission to the Match Charting Project</strong>
+— the single most important boundary. Drafts are inputs to human
+correction; pushing raw drafts upstream would pollute the very dataset
+this project depends on and shares back into.</li>
+<li>Publication of drafts as match statistics — at 5.7% sign-off
+acceptance the drafts are not statistics.</li>
+<li>Betting, officiating, or player evaluation/scouting.</li>
+<li>Faults and second serves — invisible to the pipeline; every draft is
+written as a first-serve point.</li>
+<li>Forced vs unforced error attribution — charter judgment the pipeline
+does not claim.</li>
+<li>Doubles, non-broadcast camera angles, amateur video, real-time use —
+never tested.</li>
+<li>Commercial use of exports — they inherit CC BY-NC-SA (below).</li>
+</ul></li>
+</ul>
+<h2 id="factors">Factors</h2>
+<p>The axes along which performance actually varies, declared up front:
+<strong>component</strong> (server end 84% → serve zone 26% is the whole
+story — a blended accuracy would be meaningless), <strong>broadcast feed
+/ lighting</strong> (day wide-camera best, night and clay-editor feeds
+worst), <strong>confidence tier</strong> (HIGH 92% vs LOW 44% against
+the ≤5-edit bar), and <strong>serve-call source</strong>
+(ball-adjudicated vs stance-called serves fail differently).
+Disaggregated tables: benchmark.md; per-feed support tiers:
+scorecard.html.</p>
+<h2 id="evaluation-data">Evaluation data</h2>
+<p><strong>benchmark-v2</strong> — seven matches, 491 aligned points
+(the three newest chosen to maximize aligned-point count first,
+feed/surface coverage second), each scored against a volunteer-charted
+MCP ground truth via score-bug point identity:</p>
+<p>hard night (t1, t5), hard day (t2), clay (t3), grass WTA (t4), hard
+WTA (t6), indoor hard (t7) — both tours, five broadcast feeds, three
+condensed-match uploads, two highlight reels, two extended highlight
+reels.</p>
+<p>Truth is itself audited and versioned: four staged changeover-parity
+priors were found inverting server-end truth and corrected on 2026-07-20
+— that correction is the v1→v2 boundary, and pre-correction server-end
+numbers are non-comparable (marked in benchmark.md). t4's letter scoring
+is known to be partially poisoned by a synth-serve index shift
+(diagnosed, correction parked — t4's published letter accuracy
+understates the pipeline). Ground-truth noise ceiling: unmeasured — MCP
+charts are single-charter volunteer labels with no inter-charter
+agreement estimate, so an unknown share of the gap to 100% is label
+ambiguity rather than pipeline error (most plausible on letters and
+endings, where charter judgment enters).</p>
+<h2 id="performance-disaggregated">Performance (disaggregated)</h2>
+<p>Headline, pooled over 491 points: <strong>acceptance (≤1 token edit)
+5.7%</strong>; <strong>67% of points within 5 token edits</strong>; mean
+token distance ≈ 5.1. Confidence tier, leave-one-match-out: <strong>HIGH
+flags 48% of points at 92% precision</strong> against the ≤5-edit bar
+(per-fold floor: 77% on t5, 80% on t3 — reported, not hidden).
+Per-component strict accuracy and per-match tables: <a
+href="benchmark.md">benchmark.md</a>. Per-condition verdicts in plain
+English: <a href="scorecard.html">scorecard.html</a>.</p>
+<p>Component summary (strict, refusals count wrong): server end 84%,
+directions 75% attempted at 97% attempt rate, letters ~55–67%, endings
+~30%, serve zone ~26–46%.</p>
+<h2 id="calibration-discipline">Calibration discipline</h2>
+<ul>
+<li>All rule constants are tuned on a named staging match and frozen
+before scoring others; every re-tune is a numbered freeze in LOG.md with
+before/after tables.</li>
+<li>The confidence scorer's honest numbers are leave-one-match-out; the
+shipped scorer (<code>data/confidence_model.json</code>) is an all-data
+refit by the same threshold rule, and its in-sample numbers are labeled
+as such.</li>
+<li>Experiment exports are frozen behind sha256 verification so post-hoc
+pipeline changes cannot silently regrade a human's session.</li>
+</ul>
+<h2 id="limitations-mechanisms-not-disclaimers">Limitations (mechanisms,
+not disclaimers)</h2>
+<ol type="1">
+<li><strong>Crossing recall is the binding structural
+constraint</strong> — the notation is built on a net-crossing spine;
+track holes amputate rallies (night feeds worst).</li>
+<li><strong>Footage is a hard ceiling on clay</strong> — the RG editor
+cuts into rallies; shots that never aired cannot be charted (mean
+charted 4.6 vs true 8.1 on t3).</li>
+<li><strong>Serve zone and endings are below useful accuracy</strong>
+(see scorecard) — far-half in/out was refuted with receipts from this
+camera geometry (airborne-ball projection error).</li>
+<li><strong>The confidence tier cannot see whole-point failures it has
+no signal for</strong> — two feeds (t5, t3) under-deliver the HIGH
+contract because their diseases are invisible to the features.</li>
+<li><strong>Small n everywhere</strong> — 491 points, 7 matches; the
+strict sign-off tier (≤2 edits at ≥85% precision) has died in
+leave-one-match-out three times and is not shipped.</li>
+</ol>
+<h2 id="provenance-licensing-and-ethics">Provenance, licensing, and
+ethics</h2>
+<ul>
+<li>Ground truth is volunteer labor: Match Charting Project charts via
+Tennis Abstract, <strong>CC BY-NC-SA 4.0</strong>. Exports join MCP
+columns and therefore inherit that license, with attribution —
+noncommercial, share-alike.</li>
+<li>Broadcast video is downloaded locally for research use only, never
+committed or redistributed; the repo ships coordinates and notation, not
+pixels.</li>
+<li>WASB is a pretrained third-party tracker (see
+<code>third_party/</code>); SAM 3 usage is via fal.ai's hosted endpoint
+under their terms.</li>
+<li>The system drafts observations of public professional play; it makes
+no claims about players and stores no data beyond the point notation the
+MCP format itself defines.</li>
+</ul>
+<h2 id="human-oversight-expectations">Human oversight expectations</h2>
+<p>The human is part of the system — final chart quality is set by the
+correction pass, not the pipeline. Per tier: HIGH → start from the draft
+but verify every token against video, and always re-key serve zones and
+endings regardless of flag (the tier promise is per-point edit count,
+not per-component correctness); LOW → chart from scratch. Spot-check a
+sample of your accepted HIGH points against video each session. Report
+failures via GitHub issue (match, clip, draft string, corrected string,
+flag). Maintenance is one person, best-effort, no SLA.</p>
+<h2 id="versioning--maintenance">Versioning &amp; maintenance</h2>
+<p>The unit of change is the <strong>freeze</strong>: a numbered LOG.md
+entry with before/after scorecards. The current shipped state is
+reproducible from the package CLI
+(<code>fitcourt → probe → extract → boundaries → align → chart → eval → calibrate → draft</code>,
+see USAGE.md); the regression gate is byte-identical chart CSVs and
+scorecards. Confidence model: <code>data/confidence_model.json</code>
+(fields include <code>t_high</code>, feature list, and provenance note).
+Roadmap and its gate: <a href="scorecard.html">scorecard.html</a> bottom
+section; the cv-18 stopwatch experiment decides build order.</p>
+</body>
+</html>

@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Court Vision as a data product — spec</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+  :root {
+    --bg: #ffffff; --fg: #1e222a; --muted: #5b6472; --line: #e3e7ee;
+    --accent: #0f6b3f; --th-bg: #f4f6f9; --code-bg: #f4f6f9;
+    --note-bg: #f7f9fc;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14171c; --fg: #e6e9ee; --muted: #9aa4b2; --line: #2b313b;
+      --accent: #4cc38a; --th-bg: #1c2129; --code-bg: #1c2129;
+      --note-bg: #191e26;
+    }
+  }
+  html { background: var(--bg); }
+  body {
+    margin: 0 auto; padding: 2.5rem 1.25rem 5rem; max-width: 46rem;
+    background: var(--bg); color: var(--fg);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+  }
+  h1, h2, h3 { line-height: 1.25; margin: 2.2em 0 0.6em; }
+  h1 { font-size: 1.7rem; margin-top: 0; }
+  h2 { font-size: 1.25rem; border-bottom: 1px solid var(--line);
+       padding-bottom: 0.3em; }
+  h3 { font-size: 1.05rem; }
+  p, ul, ol { margin: 0.8em 0; }
+  a { color: var(--accent); }
+  em { color: var(--muted); }
+  code { background: var(--code-bg); padding: 0.1em 0.35em;
+         border-radius: 4px; font-size: 0.88em;
+         font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  blockquote { margin: 1em 0; padding: 0.1em 1em; border-left: 3px solid
+               var(--accent); background: var(--note-bg); }
+  .table-wrap, .doc-table { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 1.2em 0;
+          font-size: 0.92em; display: block; overflow-x: auto; }
+  th, td { border: 1px solid var(--line); padding: 0.5em 0.7em;
+           text-align: left; vertical-align: top; }
+  th { background: var(--th-bg); }
+  strong { font-weight: 650; }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 2.5em 0; }
+  header.docmeta { color: var(--muted); font-size: 0.9em;
+                   border-bottom: 1px solid var(--line);
+                   padding-bottom: 1em; margin-bottom: 2em; }
+  </style>
+</head>
+<body>
+<h1 id="court-vision-as-a-data-product--spec">Court Vision as a data
+product — spec</h1>
+<p><em>The product-management view of the repo: who consumes what, under
+which contract, measured how, governed by which gates. Companion to <a
+href="scorecard.html">scorecard.html</a> (current status) and <a
+href="model-card.html">model-card.html</a> (system + limitations). Last
+updated 2026-07-20.</em></p>
+<h2 id="product-statement">Product statement</h2>
+<p><strong>For</strong> tennis charters (the author today; Match
+Charting Project volunteers tomorrow) <strong>who</strong> spend on the
+order of two hours charting a match's points by hand, <strong>Court
+Vision delivers</strong> machine-drafted MCP-style notation with a
+calibrated trust flag per point and a keyboard-first review tool,
+<strong>so that</strong> correcting beats transcribing.
+<strong>Unlike</strong> raw CV demos, every number ships with an
+out-of-sample receipt — and the core value hypothesis (correcting beats
+transcribing) is explicitly unproven until the cv-18 stopwatch
+experiment measures it.</p>
+<h2 id="consumers-and-their-jobs">Consumers and their jobs</h2>
+<table>
+<thead>
+<tr>
+<th>consumer</th>
+<th>job to be done</th>
+<th>interface</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A charter correcting a match</td>
+<td>"Turn 2 hours of charting into 30 minutes of review"</td>
+<td><code>courtvision review</code> UI + draft export CSV</td>
+</tr>
+<tr>
+<td>The MCP community</td>
+<td>"More charted matches without lowering chart quality"</td>
+<td>corrected charts in MCP points format; cv-17 draft exports for
+evaluation</td>
+</tr>
+<tr>
+<td>The project itself</td>
+<td>"Know if the pipeline got better or worse"</td>
+<td><code>courtvision eval</code> scorecards vs frozen baselines</td>
+</tr>
+<tr>
+<td>Future training consumers</td>
+<td>"Ground truth with per-point video timestamps (which MCP
+lacks)"</td>
+<td>the charting app's training bundle (shipping since cv-19: MCP points
+CSV + segments CSV + manifest per charted match;
+import-as-benchmark-match queued)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="data-contracts">Data contracts</h2>
+<p><strong>Draft export</strong>
+(<code>outputs/&lt;t&gt;/export/&lt;t&gt;_mcp_draft.csv</code>): MCP
+points schema (match_id, Pt, Set/Gm/Pts, Svr, 1st/2nd) + machine string,
+<code>confidence</code> (high/low), <code>conf_p</code>,
+<code>clip</code>, <code>serve_s</code> (jump-to timestamp),
+<code>n_shots</code>. Grammar honesty: strings are MCP-<em>style</em>,
+not MCP-legal (<code>s</code> prefix, <code>?</code> refusal tokens) —
+whether to emit strict-legal-with-blanks is question 3 to the charter
+community (cv-17), unresolved.</p>
+<p><strong>The trust contract</strong> (the product's core promise):</p>
+<ul>
+<li>HIGH ⇒ ≥90% of flagged points within 5 token edits, held-out —
+currently delivering 92% at 48% coverage (per-fold floor 77%; disclosed
+in the scorecard).</li>
+<li>LOW carries no promise beyond "the draft may still help".</li>
+<li>No sign-off tier is offered: it has failed leave-one-match-out at
+every attempted n, and shipping it anyway would be a false promise.</li>
+</ul>
+<p><strong>Experiment integrity:</strong> review sessions grade against
+sha256-verified frozen exports — pipeline improvements can never
+silently regrade a human's completed session.</p>
+<p><strong>License:</strong> exports join MCP columns ⇒ CC BY-NC-SA 4.0
+with attribution to Tennis Abstract and the volunteer charters.
+Noncommercial, share-alike, always.</p>
+<h2 id="quality-model-slo-style-mapped-to-standard-dimensions">Quality
+model (SLO-style, mapped to standard dimensions)</h2>
+<table>
+<thead>
+<tr>
+<th>dimension</th>
+<th>commitment</th>
+<th>current</th>
+<th>measured by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Accuracy (triage)</td>
+<td>HIGH precision ≥90% held-out</td>
+<td>92%</td>
+<td>LOMO table, benchmark.md</td>
+</tr>
+<tr>
+<td>Accuracy (content)</td>
+<td>tracked, no floor promised</td>
+<td>67% of points ≤5 edits; 5.7% ≤1</td>
+<td>acceptance metric, every eval</td>
+</tr>
+<tr>
+<td>Completeness</td>
+<td>every broadcast-visible point extracted &amp; aligned</td>
+<td>508 drafted / 491 scored on 7 matches; faults structurally
+excluded</td>
+<td>alignment yield per staging</td>
+</tr>
+<tr>
+<td>Validity</td>
+<td>every string tokenizes under the draft grammar</td>
+<td>100% (grammar-enforced)</td>
+<td>mcp/notation tokenizers + lint</td>
+</tr>
+<tr>
+<td>Consistency</td>
+<td>truth corrections are republished, never patched silently</td>
+<td>2 corrections on record (transcription 2026-07-10 in LOG.md; parity
+2026-07-20 in benchmark.md)</td>
+<td>LOG.md + benchmark.md</td>
+</tr>
+<tr>
+<td>Auditability</td>
+<td>every number traces to a script + LOG entry</td>
+<td>receipts policy</td>
+<td>LOG.md freezes; experiments/</td>
+</tr>
+<tr>
+<td>Cost</td>
+<td>~$0 marginal per match</td>
+<td><span
+class="math inline">0(<em>W</em><em>A</em><em>S</em><em>B</em><em>l</em><em>o</em><em>c</em><em>a</em><em>l</em>); <em>S</em><em>A</em><em>M</em>3<em>o</em><em>p</em><em>t</em><em>i</em><em>o</em><em>n</em><em>a</em><em>l</em><em>a</em><em>t</em> </span>12/match</td>
+<td>LOG session footers</td>
+</tr>
+</tbody>
+</table>
+<p>Error-budget thinking, adapted: the HIGH tier's 8% imprecision is the
+budget; the two feeds spending it fastest (t5, t3) are named in the gaps
+register rather than averaged away. <strong>Promotion rule:</strong> a
+change that blows the budget on the frozen benchmark does not ship —
+coverage is sacrificed before precision (both shipped examples: the t4
+gates traded 1.6 pts of coverage to halve disasters; the strict sign-off
+tier is withheld entirely because it can't hold its number).</p>
+<p><strong>Benchmark versioning:</strong> the frozen 7-match set with
+corrected truth is <strong>benchmark-v2</strong> (v1→v2 boundary: the
+2026-07-20 changeover-parity truth correction; pre-correction server-end
+numbers are non-comparable and marked as such in benchmark.md).
+Constants are never tuned against the frozen set silently — every
+re-tune is a numbered freeze with before/after tables. Adding matches or
+further truth corrections increments the version.</p>
+<p><strong>Self-audit against the standard data-product
+characteristics</strong> (DATSIS, scaled to a git repo):</p>
+<table>
+<thead>
+<tr>
+<th>characteristic</th>
+<th>mechanism here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Discoverable</td>
+<td>README indexes the doc set; devlog narrates it publicly</td>
+</tr>
+<tr>
+<td>Addressable</td>
+<td>stable repo paths; exports keyed by match id + sha256 freeze</td>
+</tr>
+<tr>
+<td>Trustworthy</td>
+<td>published held-out numbers + receipts policy + this quality
+table</td>
+</tr>
+<tr>
+<td>Self-describing</td>
+<td>docs travel in-repo; USAGE + contract sections define every
+field</td>
+</tr>
+<tr>
+<td>Interoperable</td>
+<td>MCP notation is the interchange format (grammar caveat open, cv-17
+q3)</td>
+</tr>
+<tr>
+<td>Secure/compliant</td>
+<td>CC BY-NC-SA honored; video never redistributed</td>
+</tr>
+</tbody>
+</table>
+<p>Known contract gap (designed, unbuilt): exports do not yet carry a
+provenance stamp (pipeline git SHA, schema version, benchmark version,
+run date) and the scorecard tables are hand-assembled rather than
+emitted by the eval run. Both are queued as cheap hardening — generated
+numbers can't drift; hand-typed ones eventually lie.</p>
+<h2 id="lifecycle-and-gates">Lifecycle and gates</h2>
+<ol type="1">
+<li><strong>Now → cv-18:</strong> pipeline frozen for chart content;
+only truth corrections, diagnosis, and triage-layer fixes ship. The
+charting app shipped 2026-07-20 (<code>courtvision charter</code>) and
+is already charting its first from-scratch match toward an MCP
+submission; the cv-18 stopwatch restart on it is parked for the next
+cycle.</li>
+<li><strong>cv-18 result:</strong> the correction histogram +
+minutes-per-point ratio decide everything: if correcting beats charting,
+build in edit-cost order (structure → letters → endings); if not, the
+review tool + confidence tier are the product and the roadmap
+reorders.</li>
+<li><strong>Scale loop (post-cv-18):</strong> each corrected match feeds
+the training bundle → more calibration n → tighter tiers → eventually a
+shippable sign-off tier — the compounding flywheel the app's
+ground-truth factory exists to start.</li>
+</ol>
+<h2 id="operating-practices-already-in-force">Operating practices
+already in force</h2>
+<ul>
+<li><strong>Out-of-sample by default</strong> — constants tuned on a
+named match, frozen, then scored elsewhere; every re-tune is a numbered
+freeze.</li>
+<li><strong>Receipts, not claims</strong> — mechanisms are named from
+pixels; refuted hypotheses stay on the record as dead ends.</li>
+<li><strong>Honest denominators</strong> — e.g., letters are only scored
+where rally lengths agree; footnotes say why.</li>
+<li><strong>Truth is auditable too</strong> — the answer key gets the
+same adversarial treatment as the pipeline (two corrections
+shipped).</li>
+</ul>
+<h2 id="top-risks">Top risks</h2>
+<table>
+<thead>
+<tr>
+<th>risk</th>
+<th>exposure</th>
+<th>mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Value hypothesis fails (correcting ≯ charting)</td>
+<td>the whole product thesis</td>
+<td>cv-18 measures it before further build spend</td>
+</tr>
+<tr>
+<td>Small n (491 pts)</td>
+<td>tier thresholds fragile</td>
+<td>staging playbook proven config-only; grow matches</td>
+</tr>
+<tr>
+<td>License scope (BY-NC-SA)</td>
+<td>no commercial path for exports</td>
+<td>accepted; product is community contribution</td>
+</tr>
+<tr>
+<td><strong>No repo LICENSE/NOTICE file</strong></td>
+<td>code is all-rights-reserved by default; data license implied but not
+declared</td>
+<td><strong>open decision for the owner</strong>: license code
+separately (e.g. MIT/Apache) from data (CC BY-NC-SA), add NOTICE with
+the MCP attribution string</td>
+</tr>
+<tr>
+<td>Single maintainer</td>
+<td>bus factor 1</td>
+<td>receipts + this doc set make the state legible</td>
+</tr>
+<tr>
+<td>Footage variance (new feeds break assumptions)</td>
+<td>staging cost per feed</td>
+<td>config-not-code precedent held on t5/t6/t7</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

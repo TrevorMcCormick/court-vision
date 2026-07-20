@@ -21,13 +21,13 @@ starting from (92% held-out precision). The open question — does
 correcting a draft beat charting from scratch? — is the cv-18
 stopwatch experiment, which gates the roadmap.
 
-- **[docs/scorecard.md](docs/scorecard.md)** — what to trust, what to
-  check, what's broken (plain English, gaps register)
+- **[docs/scorecard.html](docs/scorecard.html)** — what to trust,
+  what to check, what's broken (plain English, gaps register)
 - **[docs/benchmark.md](docs/benchmark.md)** — the running numbers,
   oldest first, receipts for everything
-- **[docs/model-card.md](docs/model-card.md)** — system, intended
+- **[docs/model-card.html](docs/model-card.html)** — system, intended
   use, limitations, licensing
-- **[docs/data-product.md](docs/data-product.md)** — consumers,
+- **[docs/data-product.html](docs/data-product.html)** — consumers,
   contracts, quality commitments, lifecycle gates
 - **[docs/USAGE.md](docs/USAGE.md)** — running the pipeline CLI
 - **[LOG.md](LOG.md)** — the full build log, dead ends included

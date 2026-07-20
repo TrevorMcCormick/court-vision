@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Court Vision scorecard — what to trust, what to check, what's broken</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+  :root {
+    --bg: #ffffff; --fg: #1e222a; --muted: #5b6472; --line: #e3e7ee;
+    --accent: #0f6b3f; --th-bg: #f4f6f9; --code-bg: #f4f6f9;
+    --note-bg: #f7f9fc;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14171c; --fg: #e6e9ee; --muted: #9aa4b2; --line: #2b313b;
+      --accent: #4cc38a; --th-bg: #1c2129; --code-bg: #1c2129;
+      --note-bg: #191e26;
+    }
+  }
+  html { background: var(--bg); }
+  body {
+    margin: 0 auto; padding: 2.5rem 1.25rem 5rem; max-width: 46rem;
+    background: var(--bg); color: var(--fg);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+  }
+  h1, h2, h3 { line-height: 1.25; margin: 2.2em 0 0.6em; }
+  h1 { font-size: 1.7rem; margin-top: 0; }
+  h2 { font-size: 1.25rem; border-bottom: 1px solid var(--line);
+       padding-bottom: 0.3em; }
+  h3 { font-size: 1.05rem; }
+  p, ul, ol { margin: 0.8em 0; }
+  a { color: var(--accent); }
+  em { color: var(--muted); }
+  code { background: var(--code-bg); padding: 0.1em 0.35em;
+         border-radius: 4px; font-size: 0.88em;
+         font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  blockquote { margin: 1em 0; padding: 0.1em 1em; border-left: 3px solid
+               var(--accent); background: var(--note-bg); }
+  .table-wrap, .doc-table { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 1.2em 0;
+          font-size: 0.92em; display: block; overflow-x: auto; }
+  th, td { border: 1px solid var(--line); padding: 0.5em 0.7em;
+           text-align: left; vertical-align: top; }
+  th { background: var(--th-bg); }
+  strong { font-weight: 650; }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 2.5em 0; }
+  header.docmeta { color: var(--muted); font-size: 0.9em;
+                   border-bottom: 1px solid var(--line);
+                   padding-bottom: 1em; margin-bottom: 2em; }
+  </style>
+</head>
+<body>
+<h1
+id="court-vision-scorecard--what-to-trust-what-to-check-whats-broken">Court
+Vision scorecard — what to trust, what to check, what's broken</h1>
+<p><em>For the person correcting a draft (today: Trevor; tomorrow: any
+MCP charter). Numbers: <strong>benchmark-v2</strong> (7 matches, 491
+scored points, truth corrections of 2026-07-20 applied) — the source of
+truth is <a href="benchmark.md">benchmark.md</a>; if this page
+disagrees, benchmark.md wins and this page has a bug. Assembled by hand
+today; a generator that emits these tables from the eval run is the
+proposed fix so they can never drift (not yet built or planned — see
+data-product.html).</em></p>
+<h2 id="the-one-line-status">The one-line status</h2>
+<p>The system is a <strong>rough drafter, not a charter</strong>: about
+2 in 3 points come out within 5 small corrections of the human chart,
+but only ~1 in 18 is sign-off clean. Its product is the draft
+<strong>plus a green flag</strong>; the current scorer flags about half
+the points at 92% held-out reliability. Note: the draft CSVs shipped so
+far (the cv-17 exports) are frozen at the older scorer's flags (99 HIGH
+of 508) for experiment integrity — the 48%-coverage flags apply to
+exports generated after the cv-18 experiment closes.</p>
+<p><strong>Drafts exist to be corrected. Never submit an uncorrected
+draft to the Match Charting Project.</strong> The known failure mode of
+draft-assisted annotation is accepting plausible-but-wrong suggestions
+(automation bias) — the cv-18 experiment measures exactly this anchoring
+risk before the workflow is offered to volunteers.</p>
+<h2 id="the-trust-contract-what-the-flags-promise-and-what-to-do">The
+trust contract (what the flags promise, and what to DO)</h2>
+<table>
+<thead>
+<tr>
+<th>flag</th>
+<th>measured guarantee (benchmark-v2, held-out)</th>
+<th>your action</th>
+<th>NOT promised</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>HIGH</strong></td>
+<td>92% of flagged points within ≤5 token edits, at 48% coverage</td>
+<td>Start from the draft; verify every token against video, especially
+zones and endings</td>
+<td>NOT "the point is right" (~35% are within 2 edits) — and the promise
+is per-point edit count, <strong>not per-component</strong>: a HIGH
+point's serve zone is still untrustworthy</td>
+</tr>
+<tr>
+<td><strong>LOW</strong></td>
+<td>none — 56% are 6+ edits out</td>
+<td>Chart from scratch; use the draft as a hint at most</td>
+<td>nothing</td>
+</tr>
+</tbody>
+</table>
+<p>Per-feed honesty: on t5 (AO night) and t3 (clay RG) HIGH delivers 77%
+and 80% instead of 92% — those feeds' failures are invisible to the
+confidence signals. There is deliberately <strong>no sign-off
+tier</strong>: it has failed held-out validation at every attempted
+n.</p>
+<p>Correction budget &amp; promotion rule: HIGH's tolerated miss rate is
+8% held-out. A pipeline change that blows the budget on the frozen
+benchmark does not ship — coverage is sacrificed before precision
+(precedent: the launch-gate repair shipped at 92%/48% only after the
+alternatives measured worse; the t4 gates gave back 1.6 pts of coverage
+to halve disasters).</p>
+<h2 id="component-scorecard">Component scorecard</h2>
+<p>Thresholds (declared, not vibes): 🟢 trust-with-spot-checks ≥80% · 🟡
+verify-every-time 45–80% · 🔴 re-key-always &lt;45% · ⛔ not produced.
+"Strict accuracy" = exact match vs the human chart at aligned positions,
+refusals count as wrong.</p>
+<table>
+<thead>
+<tr>
+<th>component</th>
+<th>status</th>
+<th>strict accuracy (benchmark-v2)</th>
+<th>your action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Who served, which end</td>
+<td>🟢 84% pooled (95% best feed)</td>
+<td>Spot-check; distrust on night feeds</td>
+<td></td>
+</tr>
+<tr>
+<td>Rally length (±1 shot)</td>
+<td>🟡 57–83% by match (100% on the 5-point control)</td>
+<td>Verify — expect missing shots at night (track holes) and on clay
+(editor cuts)</td>
+<td></td>
+</tr>
+<tr>
+<td>Forehand/backhand letters</td>
+<td>🟡 ~55–67%</td>
+<td>Verify each; wrong mostly where the player box is smeared or
+absent</td>
+<td></td>
+</tr>
+<tr>
+<td>Shot direction (1/2/3)</td>
+<td>🟡 75% when attempted (97% attempted)</td>
+<td>Verify; the strongest annotation since the 2026-07-10 rebuild</td>
+<td></td>
+</tr>
+<tr>
+<td>Serve zone (4/5/6)</td>
+<td>🔴 26% strict (pooled); never above 50% committed-only on any new
+match</td>
+<td><strong>Re-key always</strong> — near coin-flip</td>
+<td></td>
+</tr>
+<tr>
+<td>Point ending type</td>
+<td>🔴 ~30%</td>
+<td><strong>Re-key always</strong> — wrong more often than right</td>
+<td></td>
+</tr>
+<tr>
+<td>Faults / second serves</td>
+<td>⛔ not attempted</td>
+<td>Every draft is written as a first-serve point — restore faults
+yourself</td>
+<td></td>
+</tr>
+<tr>
+<td>Point boundaries &amp; replays</td>
+<td>🟢 508 points/7 matches; replays &amp; alternate angles rejected
+structurally</td>
+<td>Trust; one known open case (a replayed let charts as one long
+point)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="feed-support-matrix">Feed support matrix</h2>
+<table>
+<thead>
+<tr>
+<th>feed / condition</th>
+<th>tier</th>
+<th>evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stable wide day hard (t6 USO)</td>
+<td><strong>supported</strong> — best on record</td>
+<td>7.8% acceptance, 95% server end, HIGH 97% @ 55%</td>
+</tr>
+<tr>
+<td>Indoor hard (t7 Turin)</td>
+<td><strong>supported</strong> — structure 🟢, annotations 🟡</td>
+<td>rally 83%, server end 85%</td>
+</tr>
+<tr>
+<td>Grass WTA (t4 Wimbledon)</td>
+<td><strong>experimental</strong></td>
+<td>stance-serve early-fire poisons letters/insertions (gap #2)</td>
+</tr>
+<tr>
+<td>Night hard (t1, t5)</td>
+<td><strong>experimental</strong></td>
+<td>late ball acquisition; serve components degrade first</td>
+</tr>
+<tr>
+<td>Clay RG (t3)</td>
+<td><strong>experimental</strong></td>
+<td>editor cuts into rallies — a footage ceiling, not a pipeline
+bug</td>
+</tr>
+<tr>
+<td>Anything unbenchmarked (other feeds, doubles, amateur video)</td>
+<td><strong>unsupported</strong></td>
+<td>never tested — no numbers, no promises</td>
+</tr>
+</tbody>
+</table>
+<h2 id="gaps-register">Gaps register</h2>
+<p>Status vocabulary: <strong>open</strong> (no fix known) ·
+<strong>diagnosed</strong> (mechanism named from pixels, fix designed) ·
+<strong>parked</strong> (fix measured, waiting on the cv-18 gate) ·
+<strong>expected</strong> (structural — won't fix under current
+approach) · <strong>fixed</strong> (date).</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>gap</th>
+<th>charter impact</th>
+<th>status</th>
+<th>receipt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Ball-track crossing recall caps rally length (night worst)</td>
+<td>~2 missing shots/pt — the largest edit bin</td>
+<td><strong>open</strong> — first build after cv-18</td>
+<td>benchmark.md failure modes</td>
+</tr>
+<tr>
+<td>2</td>
+<td>t4 synth-serve early-fire corrupts drafts (phantom shot 1) and
+shifts letter scoring</td>
+<td>t4 letters really ~84–87%, not 55%; the phantom insertions are real
+draft defects</td>
+<td><strong>diagnosed</strong> 2026-07-20 — fix leads named,
+unmeasured</td>
+<td>LOG.md 2026-07-20</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Serve zone near coin-flip (clay deuce/ad: 34/56 refuse a side)</td>
+<td>re-key every zone</td>
+<td><strong>diagnosed</strong> — bgsub far-half cut assigned,
+unbuilt</td>
+<td>benchmark.md</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Endings ~30%; far-half in/out refuted from this camera</td>
+<td>re-key every ending</td>
+<td><strong>open</strong> (far-half: <strong>expected</strong>) —
+bounce-first rebuild is the design</td>
+<td>benchmark.md</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Return-mistaken-for-serve flips server end on night feeds</td>
+<td>11 t5 clips</td>
+<td><strong>parked</strong> — guarded fix measured (+3 t5, no damage
+t6/t7)</td>
+<td>LOG.md 2026-07-20</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Replayed let charts as one long point</td>
+<td>rare, unbounded per-point cost</td>
+<td><strong>open</strong> — no fix designed; needs a signal class beyond
+score identity and the crossing spine</td>
+<td>benchmark.md (t4_point_23)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>HIGH under-delivers on t5/t3 (77%/80% vs 92%)</td>
+<td>trust the flag less on those feeds</td>
+<td><strong>open</strong> — disease invisible to signals</td>
+<td>benchmark.md launch-gate repair</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Faults/second serves invisible</td>
+<td>every fault point mis-structured</td>
+<td><strong>expected</strong> — no signal class exists today</td>
+<td>USAGE.md</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Changeover-parity truth bug inverted server-end answer key (4
+matches)</td>
+<td>10 pts false "error"</td>
+<td><strong>fixed</strong> 2026-07-20 → benchmark-v2</td>
+<td>benchmark.md truth correction</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Launch gate starved HIGH tier on late-acquisition feeds</td>
+<td>HIGH coverage 20%→48%</td>
+<td><strong>fixed</strong> 2026-07-19</td>
+<td>benchmark.md launch-gate repair</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Zoom drift breaks court probes (131 s lost on t1)</td>
+<td>minutes of lost chartable play</td>
+<td><strong>open</strong> — per-block H refit designed, unbuilt</td>
+<td>LOG.md t1 staging</td>
+</tr>
+</tbody>
+</table>
+<p>Reporting an issue: open a GitHub issue with match, point/clip ID,
+the draft string, your corrected string, and the flag it carried. Solo
+project — best-effort response, no SLA.</p>
+<h2 id="what-decides-what-gets-built-next">What decides what gets built
+next</h2>
+<p>One measurement: <strong>cv-18, the stopwatch experiment</strong> —
+chart points cold vs correct green-flagged drafts, timed, with an
+anchoring check. If correcting beats charting, gaps get attacked in
+edit-cost order (structure → letters → endings). If it doesn't, the
+review tool and the confidence tier are the product and the roadmap
+reorders. Protocol: <a href="cv18-protocol.md">cv18-protocol.md</a>. The
+charting app it runs on shipped 2026-07-20; the experiment restart is
+queued.</p>
+</body>
+</html>
