@@ -2552,3 +2552,53 @@ the surviving idea: down-weight wander instead of inserting it.
   live session), and the charter server was found alive on :8766
   when it seemed lost — the tab had closed, not the process.
 - Session cost: $0.00. Project total: ~$16.
+
+## 2026-07-20 — The pivot: training on the corpus beats hand-tuned rules (proof), and hand-tuning letters is a dead end
+
+**Strategic reset, on Trevor's steer.** The north star is FULL
+AUTOMATION — the robot charts matches, humans don't. Not "help a
+charter go faster." The Match Charting Project corpus is ~11,600
+charted matches (7,567 M + 4,081 W, public), and the tools to fetch
+video (yt-dlp) + process it (ffmpeg) are already installed. So the
+data was never the limit; hand-cranked per-broadcast staging was.
+The human's role shrinks to eye-testing the specific calls the model
+is least sure about (active learning), not fixing drafts.
+
+**Proof the pivot is right (courtvision/learn.py, LOMO, all 7
+held-out matches):** a numpy random forest trained on the aligned
+corpus beats the hand-written rules on both weak components —
+- SERVE ZONE: 59.7% vs 31.7% heuristic (+28pp), beats even the
+  committed-only baseline (48.9%) by +11pp; confidence is calibrated
+  (top-25% -> 71.7%), so "auto-file the confident, ask Trevor about
+  the rest" is viable for serve NOW. Clean win, n=479.
+- ENDING TYPE: 59.3% vs 22.8% (+36.5pp) — BUT honest catch: 0% recall
+  on wide (0/63) and deep (0/86). The forest lumps every out-error
+  into "winner"; the win is winner(97%)+net(69%). Root cause is the
+  INPUT, not the model or data volume: WASB loses the ball before the
+  out-of-bounds bounce, so wide-vs-deep isn't in the tracks. Fixing
+  endings needs bounce-through-tracking, not more matches.
+Reviewer confirmed: no leakage (heuristic outputs never fed as
+features), true leave-one-match-out, apples-to-apples baseline on
+identical held-out points, deterministic (seed=0, bit-identical
+reruns), additive-only, suite 80 green.
+
+**Dead end, kept (experiments/letter_anchor_cf.py, REFUTED):** the
+counterfactual test of body-anchored letter references vs the shipped
+blob-center read — ref1 (foot_x) is byte-identical to center-x on all
+60,442 player rows (tautology), ref2 (neighbor-median) moves the
+reference but flips ZERO committed letters, ref3 (abstain on smears)
+only loses right answers (t4 -3, held-out t3 -18). Baseline ref0
+reproduced the shipped 67/85 (t3) and 17/31 (t4) exactly. The lesson
+reinforces the pivot: stop hand-tuning the letter rule — train shot
+type from the corpus instead. (experiments/wasb_recall_gated.py, the
+confidence-gated crossing-recall successor to the refuted blind
+step=1, is included as history; its measurement was inconclusive and
+is superseded by the training approach.)
+
+- New (committed): courtvision/learn.py (the training harness),
+  experiments/learn_components.py, experiments/letter_anchor_cf.py,
+  experiments/wasb_recall_gated.py. NOT committed here (still being
+  produced by the running ingestion workflow): courtvision/ingest.py,
+  data/corpus/, the first auto-ingested new match. Shipped pipeline,
+  charts, exports, model, benchmark: untouched.
+- Session cost: $0.00. Project total: ~$16.
