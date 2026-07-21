@@ -94,6 +94,16 @@ def main(argv=None):
                    help="extra sessions whose rows are excluded from "
                         "review-pass timing (e.g. voided practice)")
 
+    p = sub.add_parser("import-bundle",
+                       help="charter training bundle -> benchmark-match "
+                            "scaffolding (data/mcp CSVs, clips, yaml)")
+    p.add_argument("bundle_dir", type=Path)
+    p.add_argument("--id", required=True, dest="match_id",
+                   help="new benchmark match id (e.g. t8)")
+    p.add_argument("--dry-run", action="store_true")
+    p.add_argument("--force", action="store_true",
+                   help="overwrite existing generated files")
+
     p = sub.add_parser("charter",
                        help="the charting app (palette UI)")
     p.add_argument("match", nargs="?", default=None,
@@ -188,6 +198,10 @@ def main(argv=None):
                                  "cold_b": _spec(args.cold_b),
                                  "contaminated": [_spec(s) for s in
                                                   args.contaminated]})
+    elif args.cmd == "import-bundle":
+        from . import bundle
+        bundle.import_bundle(args.bundle_dir, args.match_id,
+                             dry_run=args.dry_run, force=args.force)
     elif args.cmd == "charter":
         from . import chartapp
         if args.emit_static:

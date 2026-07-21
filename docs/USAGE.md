@@ -174,3 +174,32 @@ Chart-along sessions live in outputs/charting/<id>/ (raw inputs only;
 scores are always replayed). Exports: points CSV (MCP columns),
 segments CSV, manifest — the training bundle. `?selftest=1` replays
 the Python engine's conformance fixture through the page's JS scorer.
+
+## Importing a charter bundle as a benchmark match
+
+`import-bundle` turns a charting-app training bundle (the spec's
+"Export: the training bundle" — points CSV, per-point timing,
+manifest) into benchmark-match scaffolding. Both bundle shapes work:
+a saved `/export/bundle` (MCP-column points.csv + segments.csv) or a
+live chart-along session directory (raw points.csv; scores are
+replayed through the score engine, and the app's export gate applies
+— a point whose string contradicts its attested winner blocks the
+import).
+
+    uv run python -m courtvision import-bundle outputs/charting/m1 \
+        --id t8 [--dry-run] [--force]
+
+Writes `data/mcp/t8_points.csv` (MCP points file),
+`data/mcp/t8_clip_alignment.csv` + `t8_mcp_map.csv` (every clip
+`matched` to its own Pt — the charter stamped each point's video
+window, so the join that costs a by-eye bug transcription on
+broadcast matches is 1:1 by construction), per-point clips in
+`clips/points_t8/` (ffmpeg stream-copy with a 0.5 s pre/post pad;
+skipped with a message if the source video isn't beside the bundle
+or in `clips/`), and a `data/matches/t8.yaml` scaffold. The yaml's
+eval join files are complete; `start_end`/`set_priors` ship as loud
+TODOs (they need the staging parity pass — after any odd-total set
+the prior is NOT the game sum), and staging/court_detect stay
+commented for the usual manual pass. `--dry-run` prints the plan
+without writing; existing files are never overwritten without
+`--force`.
