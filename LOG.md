@@ -2639,3 +2639,86 @@ preferred the 84-min full match over the 3-min highlight) -> download
   Not committed: data/corpus/ (gitignored), the WIP match-8 scaffold.
 - Session cost: $0.00 (light proofs only; heavy run was deferred to
   spare the live charting session, now lifted). Project total: ~$16.
+
+---
+
+## cv-18 · Track A closed: benchmark match #8 (Swiatek–Paolini, RG-F 2024, clay) — auto score-bug alignment is the unblock
+
+Took the deferred heavy run all the way to an evaluated match #8, fully
+automatic wherever the pipeline allowed. Verdict: **aligned-and-evaluated**,
+but the last-mile human knob is STILL fitcourt corners, and the chart
+accuracy is clay-poor.
+
+Chain, with the honest per-stage verdict:
+- **download** AUTO — ingest.find_video top hit `i7Kfe0JaGdw` (84-min full
+  match), yt-dlp 720p → `clips/g1_swiatek_paolini_30fps.mp4` (30fps h264).
+- **fitcourt** MANUAL — auto window pick worked
+  (`experiments/g1_scorebug/fitwindow.py`: lowest-drift court-view run, frame
+  137880, 0.61px drift), but **auto_fit FAILED** with the t3-ported clay band
+  (rms 74px, visibly skewed overlay — the RG world-feed's faint far baseline +
+  reddish stands defeat the horizontal assignment). By-eye doubles corners
+  (symmetric about center x=618) → clean fit, all residuals ≤7px. **The
+  MANUAL 1/3 knob survives; a human still places 4 corners.**
+- **SCORE-BUG READ** AUTO — the headline. `read_bug.py` reads the RG-2024 WTA
+  bug by anchoring on the light points-box (dark-on-light), games digit
+  (white-on-green immediately left), completed-set columns, and the "//" serve
+  marker. `sweep3.py` two-pass (cheap pixel plateaus → OCR one frame per
+  plateau, bounded to ~374 OCR calls) over the whole 84-min reel. `match_mcp.py`
+  LCS-aligns the observed key-sequence to the 88 MCP points (greedy-first was
+  sabotaged by OCR-glitch 0-0s grabbed out of order; LCS finds the optimal
+  monotonic match, resolving deuce recurrence by order like align.py).
+  **Result: 65/88 MCP points auto-aligned (74%), server-bug read 64/65 correct
+  on matched points.** Shipped `align` then matched **65/65 clips 1:1** →
+  `g1_mcp_map.csv`, monotonic. Misses are dominated by game-start 0-0 points
+  the broadcast never dwells on, plus residual set-2 games-digit OCR noise.
+  **This is the scaling unblock: the "MANUAL 3/3" by-eye transcription is now
+  machine-written.**
+- **players / track-ball / serve / chart / eval** AUTO on a 24-point subset —
+  players 100% coverage; WASB clay tracks thin (8–41%, holes); chart 20 pts.
+- **eval scorecard (match #8, 20 pts):** server-end 11/20, rally-len±1 7/20,
+  serve-zone 5/7, letters-aligned 6/8, ending 2/13, **acceptance ≤1edit 0/20.**
+  Clay-poor, as t3 warned: thin WASB tracks + NO clip_offsets (RG camera
+  wander uncorrected, I skipped the probe/offsets stage) + a single manual
+  homography. The loop CLOSED; the accuracy did not.
+
+Lessons / dead-ends:
+- OCR sweep died twice at ~13min on inline per-frame OCR — the leak was the
+  long pre-match intro + replays generating false-positive OCR fires. Fix:
+  ffmpeg-crop the bug region at 5fps (123× realtime), then cheap pixel-plateau
+  segmentation with OCR bounded to one frame per plateau. Decouple segmentation
+  from reading.
+- points OCR: psm-8 reads "AD"; psm-7 fails on it — try 8 then 7. Repair the
+  invalid tennis-points vocabulary at match time ("25"→"15", "320"→"30", …)
+  off the raw plateau CSV — no re-sweep needed.
+- The score bug is broadcaster-family-stable: this RG-2024 WTA layout is a
+  cousin of t3's RG-2023 world feed, but the columns/eras differ enough that
+  the crop windows are per-feed. The READER generalizes; the geometry doesn't.
+
+## 2026-07-20 — Track B: the video-free notation prior (1.85M points, no pixels)
+
+The other half of the scale run: how much of a chart is predictable
+from NOTATION CONTEXT ALONE, trained on the corpus, tested on
+match-disjoint held-out matches (experiments/notation_prior.py; sklearn
++pandas via `uv run --with`; reviewer reproduced byte-identical, no
+leakage, match-disjoint split verified).
+
+- NEXT-SHOT SIDE (fh/bh): 72.9% vs 50.9% base (+22pp), balanced recall
+  — the big win. Side is exactly what the pixel letter-reader fumbles,
+  so a confident context prior can override an ambiguous fh/bh call.
+- ENDING TYPE: 43.5% vs 33.1% base (+10pp). Winner recall 79% (gates
+  the pixel classifier's one working axis). But wide 17% / deep 26% —
+  barely above base.
+- NEXT DIRECTION (1/2/3): 46.4% vs 38.1% base (+8pp).
+
+The honest limit, and it lines up with Track A's pixel finding: the
+wide-vs-deep split the ball tracks are BLIND to is ALSO largely
+unpredictable from notation context. A prior can't substitute for the
+missing bounce signal. Two independent lines of evidence now say the
+same thing — wide/deep needs ball-tracking through the out-of-bounds
+bounce, not more data and not a cleverer prior.
+
+Use: multiply each prior P(token|context) against the pixel likelihood
+to re-rank Bayesian-style — biggest payoff on next-side and
+winner-gating. New: experiments/notation_prior.py (+ report in
+outputs/diag/, gitignored).
+- Session cost: $0.00. Project total: ~$16.

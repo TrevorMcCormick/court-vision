@@ -1,0 +1,60 @@
+# g1 — Iga Swiatek vs Jasmine Paolini, Roland Garros F 2024 (Clay) [auto-scaffold]
+id: g1
+title: "g1 Clay Roland Garros"
+match: "Iga Swiatek-Jasmine Paolini, Roland Garros F 2024 (Clay)"
+video: clips/g1_swiatek_paolini_30fps.mp4
+clips_dir: clips/points_g1
+out_dir: outputs/g1
+ball_dir: ball_wasb
+players_dir: players
+charts_dir: charts_wasb
+homography: H_img_to_court.npy
+
+lefty: {near: false, far: false}   # TODO verify each player's hand
+
+staging:
+  lock_serve: true
+  serve_zone_requires_side: true
+  near_ending_fill: true
+  coda_report: false
+
+# court_detect — GUESSED band, seeded from t3 (also Roland Garros clay).
+# This is the one-attempt proof of the MANUAL 1/3 knob: a good hull band
+# still needs the fit_lo/fit_hi STATIC court-view window picked by eye.
+court_detect:
+  hull_lo: [0, 60, 120]
+  hull_hi: [15, 255, 255]
+  # AUTO-picked static court-view window (experiments/g1_scorebug/fitwindow.py:
+  # lowest inter-frame drift 0.61px among court-view runs, frame 137880 = t4596s,
+  # verified clean full-court broadcast view). Replaces the by-eye MANUAL 1/3 pick.
+  fit_lo: 137880
+  fit_hi: 138000
+  # auto_fit FAILED here (rms 74px, skewed overlay): the t3-ported clay band
+  # + faint RG-world-feed far baseline defeats the horizontal assignment.
+  # Manual doubles corners read by eye off the plate (symmetric about center
+  # x=618) — the MANUAL 1/3 knob, done by hand. [farL, farR, nearL, nearR]
+  manual_corners: [[388, 219], [848, 219], [207, 571], [1028, 573]]
+
+# TODO(MANUAL 2/3) a CFG entry keyed "g1" in courtvision/boundaries.py
+# (score-bug crop windows, per-set eras, ref_frame) — measured by eye.
+
+serve_detect:
+  variant: ball
+  center_tol_m: 4.0
+
+players_detect:
+  near_top_m: 11.885
+  far_bottom_m: 11.885
+
+eval:
+  title: "g1: Clay, Roland Garros"
+  mcp_points: data/mcp/20240608-W-Roland_Garros-F-Iga_Swiatek-Jasmine_Paolini_points.csv
+  mcp_match_id: "20240608-W-Roland_Garros-F-Iga_Swiatek-Jasmine_Paolini"
+  # MANUAL 3/3 AUTOMATED: g1_clip_alignment.csv is machine-written by the
+  # score-bug OCR sweep (experiments/g1_scorebug/{sweep3,match_mcp}.py) — no
+  # by-eye transcription. 65/88 MCP points auto-aligned, 64/65 server-correct.
+  mcp_map: data/mcp/g1_mcp_map.csv
+  alignment: data/mcp/g1_clip_alignment.csv
+  start_end: near        # Swiatek (p1) served game 1 from the near end (bug//)
+  set_priors: {"*,2": 22}
+  tiebreak_states: []
