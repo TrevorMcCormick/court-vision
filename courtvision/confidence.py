@@ -406,6 +406,26 @@ def calibrate_and_report():
           f"LOMO precision {prec} at {hi.sum() / len(d):.1%} coverage — "
           f"{len(d)} points at a {strict.mean():.0%} base rate can't support it")
 
+    # ---- the drift-proof sidecar (data/confidence_lomo.json): the
+    # scorecard generator (experiments/gen_scorecard.py) reads THIS
+    # instead of re-running the minutes-long LOMO loop, so the numbers
+    # on docs/scorecard.html can never drift from this run ----
+    import datetime
+
+    def _tier(m, fl, g):
+        h = m & fl
+        return {"precision_num": int(g[h].sum()), "precision_den": int(h.sum()),
+                "coverage": float(h.sum() / m.sum())}
+    (ROOT / "data" / "confidence_lomo.json").write_text(json.dumps({
+        "generated": datetime.date.today().isoformat(),
+        "per_match": {mid: _tier(match_of == mid, flags, good) for mid in mids},
+        "pooled": _tier(np.ones(len(d), bool), flags, good),
+        "confusion": {fl: {**{b: int((m & bm).sum()) for b, bm in bins},
+                           "total": int(m.sum())}
+                      for fl, m in (("high", flags), ("low", ~flags))},
+        "strict_tier": _tier(np.ones(len(d), bool), sflags, strict),
+        "base_rate": float(good.mean()), "n": len(rows)}, indent=1))
+
     # ---- the shipped model: fit on all points, threshold by the same rule ----
     Xs, mu, sd = _standardize(X)
     w = _fit_logistic(Xs, good)

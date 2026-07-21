@@ -410,9 +410,9 @@ q3)</td>
 </table>
 <p>Known contract gap (designed, unbuilt): exports do not yet carry a
 provenance stamp (pipeline git SHA, schema version, benchmark version,
-run date) and the scorecard tables are hand-assembled rather than
-emitted by the eval run. Both are queued as cheap hardening — generated
-numbers can't drift; hand-typed ones eventually lie.</p>
+run date). The scorecard's data tables are now emitted by
+<code>experiments/gen_scorecard.py</code> from the eval run (2026-07-20)
+— that half of the gap is closed; the export stamp remains queued.</p>
 <h2 id="lifecycle-and-gates">Lifecycle and gates</h2>
 <ol type="1">
 <li><strong>Now → cv-18:</strong> pipeline frozen for chart content;
