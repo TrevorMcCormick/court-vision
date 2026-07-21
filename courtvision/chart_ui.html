@@ -414,6 +414,13 @@ function render(){
   $("#fault2").textContent = entry.field===2 ? "entering 2nd serve" : "";
   $("#pstate").textContent = `state: ${entry.state}`
     + (entry.field===2 ? " (2nd)" : "");
+  // the forced/unforced call is the one judgment the palette labels
+  // don't explain — surface the MCP guidance exactly when it's due
+  $("#hint").textContent = entry.state==="err-mark"
+    ? "# forced: opponent's shot made the miss (incl. most missed "
+      + "1st-serve returns) · @ unforced: had time & position, "
+      + "missed anyway"
+    : "";
   $("#palette").innerHTML = legal().map(o=>
     `<button class="pk" data-ch="${o.ch}"><b>${o.ch==="FAULT"?"F":
       o.ch}</b>${o.label}</button>`).join("");
