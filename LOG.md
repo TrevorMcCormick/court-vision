@@ -2507,3 +2507,48 @@ repaired, render verified headless in light mode with dark handled by
 CSS vars); the .md sources retired — the .html files are the record.
 README stays markdown (GitHub's front door), as do the working
 records (LOG, benchmark, USAGE, plans/specs) pending a wider ruling.
+
+## 2026-07-20 — Three builds by assembly line while Trevor charts the AO final
+
+**All three parallel tracks approved by their reviewers with zero
+blocking findings; committed separately.** Constraints held: the live
+ao26f charting session, the running app's files, the frozen exports,
+and the shipped model were untouched throughout (Track B proved the
+model JSON byte-identical after its calibrate rerun).
+
+**import-bundle (d08d1cd).** The post-MVP command the cv-19 bundle
+format was designed for: a charted match becomes benchmark-match
+scaffolding — MCP points file, 1:1 alignment (the charter stamped
+every window; the score-bug adjudication machinery has nothing to
+do), stream-copied clips, and a match yaml whose set_priors are a
+loud TODO(parity) citing this morning's odd-set lesson. Dry-run
+receipt against the live session: 7 points, 6 windows, 1 unseen,
+zero conflicts. When the AO final chart is done, benchmark-v3
+material is one command away.
+
+**The scorecard generator (ec62390).** calibrate dumps a LOMO
+sidecar; gen_scorecard.py rewrites the marker-delimited regions of
+docs/scorecard.html from the eval run — idempotent, prose preserved,
+diff-containment mechanically verified. It promptly earned its keep:
+four cells of the hand-built page were carrying 4-match-era numbers
+under the benchmark-v2 heading (zone 26→40 strict, endings 30→20,
+dirs 75→72, letters 60% pooled). The page that shipped preaching
+"hand-typed numbers eventually lie" lied in four cells for two
+commits. Now they cannot.
+
+**WASB step-1: refuted, kept (bd9c5c2).** The roadmap's cheapest
+crossing-recall idea — overlapping triplet windows — raises TRACK
+recall on the t1 night reel (coverage 89.8→93.3%, holes shrink) and
+LOWERS strict crossing recall (82→78): the recovered frames insert
+non-monotone samples inside runs the holes had kept clean, and the
+run gates split or refuse them. Twin scorecard flat-to-worse (rally
+±1 13→12/22, mean distance 5.55→6.00). Dead end on the record for
+the price of a pilot, before the cv-18 gate ever had to rule on it.
+The per-detection scores the harness now retains are the input for
+the surviving idea: down-weight wander instead of inserting it.
+
+- Also this session: on-screen forced/unforced guidance in the
+  charter UI at the err-mark decision (8cb1137, hot-swapped into the
+  live session), and the charter server was found alive on :8766
+  when it seemed lost — the tab had closed, not the process.
+- Session cost: $0.00. Project total: ~$16.
