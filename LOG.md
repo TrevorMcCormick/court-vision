@@ -2602,3 +2602,40 @@ is superseded by the training approach.)
   data/corpus/, the first auto-ingested new match. Shipped pipeline,
   charts, exports, model, benchmark: untouched.
 - Session cost: $0.00. Project total: ~$16.
+
+## 2026-07-20 — Corpus pulled, ingestion pipeline proven: labels are infinite, video is the constraint
+
+**The full Match Charting Project corpus is now local** (data/corpus/,
+gitignored — 189MB public CSVs): 11,646 matches, 1,853,115 charted
+points, ~9.4M shots. Turning a chart into per-shot training labels
+needs NO video — proven on a brand-new match (Swiatek-Paolini, RG F
+2024): 88 points -> 494 labeled shot rows.
+
+**The honest scaling finding (courtvision/ingest.py, reviewer-clean):**
+the LABEL half of a training pair is free and effectively infinite;
+the FEATURE half (ball track, player boxes, court coords) exists only
+after the video is staged and clips are joined to chart rows. Video
+availability: recent finals ~100% findable but mostly as SHORT
+highlights that don't align 1:1 to a full chart; full/condensed
+matches exist for the marquee head, thin fast, absent for the long
+tail. So the bottleneck is FEATURES (video + staging), not labels.
+
+**Staging is only partly by-eye — better news than feared.** The three
+knobs: (1) court-colour HSV band + a static fit-window; (2) score-bug
+crop config; (3) clip<->chart alignment. Crucially, the HSV band
+PORTED directly from t3 (also Roland Garros) to the new RG match and
+produced a clean court mask — so the colour band is transferable
+within a broadcaster family, not a per-match hand-tune. The genuine
+last-mile is reading the score bug to build the alignment. Path to
+scale: a small library of ~6-8 broadcaster bands + an automated
+score-bug reader would cover the findable head.
+
+**ingest.py automates end-to-end today:** find match -> extract labels
+(video-free, scales to 1.85M now) -> find+rank video (correctly
+preferred the 84-min full match over the 3-min highlight) -> download
+-> normalise fps -> scaffold match yaml -> report which knobs remain.
+
+- Committed: courtvision/ingest.py, .gitignore (corpus), this LOG.
+  Not committed: data/corpus/ (gitignored), the WIP match-8 scaffold.
+- Session cost: $0.00 (light proofs only; heavy run was deferred to
+  spare the live charting session, now lifted). Project total: ~$16.

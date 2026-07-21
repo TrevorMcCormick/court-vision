@@ -20,3 +20,6 @@ __pycache__/
 
 # macOS
 .DS_Store
+
+# Full MCP corpus — 189MB of public re-downloadable CSVs, not committed
+data/corpus/
