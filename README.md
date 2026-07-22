@@ -21,6 +21,9 @@ starting from (92% held-out precision). The open question — does
 correcting a draft beat charting from scratch? — is the cv-18
 stopwatch experiment, which gates the roadmap.
 
+- **[docs/blueprint.html](docs/blueprint.html)** — the master plan:
+  the whole machine as a picture, honest grades, research-backed
+  upgrade path per component, roadmap, risk register
 - **[docs/scorecard.html](docs/scorecard.html)** — what to trust,
   what to check, what's broken (plain English, gaps register)
 - **[docs/benchmark.md](docs/benchmark.md)** — the running numbers,

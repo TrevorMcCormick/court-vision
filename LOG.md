@@ -2722,3 +2722,186 @@ to re-rank Bayesian-style — biggest payoff on next-side and
 winner-gating. New: experiments/notation_prior.py (+ report in
 outputs/diag/, gitignored).
 - Session cost: $0.00. Project total: ~$16.
+
+## 2026-07-21 — Sharpening the axe: the deep-research pass and the Blueprint
+
+**Strategic session, on Trevor's steer: stop chopping, sharpen.** No pipeline
+code changed. Two asks: (1) a holistic view — deep research on computer-vision
+best practices, because "it's not really clear why you're doing what you're
+doing"; (2) a devlog reset — ELI5 shouldn't be a paragraph per post, it should
+BE the post. Behind it: a sophisticated, modular, understandable model hardened
+enough to build an MVP business on.
+
+**What ran:** one research workflow, 41 agents. 3 mapped current state (all 33
+package modules, all 17 posts + primer, benchmark docs). 8 ran technical
+deep-dives (ball, court, players/pose, event spotting, sequence models,
+training strategy, hardening, foundation models). 14 load-bearing
+recommendations were then attacked by paired adversarial verifiers — one
+fact-checking citations against fetched sources, one refuting feasibility
+against this repo/Mac/budget (several RAN the code: rtmlib measured at 87 fps
+on Apple Silicon feeding our existing boxes; librosa onset detection ran on a
+staged match in seconds). Verdicts: 12 evidence-CONFIRMED, 2 PLAUSIBLE, 0
+refuted. A completeness critic flagged what the dives missed (licensing,
+full-match segmentation, scope contract, review-loop economics).
+
+**The deliverable: docs/blueprint.html** — the machine as a picture (5
+stations, every block graded green/yellow/red/manual), station-by-station
+upgrades with receipts, a 12-item roadmap where items 1–6 are independent
+days-scale builds, a risk register, and the new devlog contract.
+
+**The three reframes worth remembering:**
+1. **You don't need to see the ball land.** Wide-vs-deep was framed as a
+   tracking problem; the field says infer the landing spot from the flight
+   path (Hawk-Eye's own principle — "Where Is The Ball," CVPR-W 2025: 0.63 m
+   landing error on broadcast tennis) and get the bounce MOMENT from pixel
+   event spotters (E2E-Spot: 96 mAP@1 on broadcast tennis, pretrained tennis
+   checkpoints, BSD, bounce classes included) or audio. Physics + spotter +
+   single-frame heatmap replaces "perfect tracking."
+2. **Few labels favors stick figures.** UMEG-Net (AAAI 2026): skeleton+ball+
+   court-corner graph models beat raw-video models 2–3x in the few-shot
+   regime — and the graph's input nodes are exactly the modules we already
+   compute. The modular architecture is the sample-efficient choice, not a
+   compromise.
+3. **The corpus becomes training data the moment it's pinned to the clock.**
+   MCP charts are transcripts; score-bug alignment (74% auto) + shot-to-event
+   snapping mints frame-level labels at scale (the soccer MatchTime/ATBA
+   playbook). Confirmed guardrail: video LLMs stay OUT of the per-frame loop
+   (GPT-4o 57.8% on hard sports-video tasks; ~1 fps sampling; $12–50/pass vs
+   ~$0 local).
+
+**Dead ends / corrections, on the record:**
+- First research pass called TT3D's code CC BY-SA — verifier corrected it
+  (the license is the dataset's). Check repos, not summaries.
+- "Court net deletes the last manual knob" — overstated; HSV band + fit
+  window survive as per-match config. Knob shrinks, doesn't vanish.
+- The fusion decoder's inputs don't exist in per-token shape yet: the
+  notation prior is three task classifiers (side/direction/ending), and
+  letters/directions emit decisions, not probabilities. Retraining into
+  probability form is real work the roadmap now owns.
+- Our own shorthand had drifted: the shipped confidence model is a LOGISTIC
+  REGRESSION (the random forest is the unshipped corpus prototype), and the
+  score-bug OCR lives in experiments/, not the package. The blog audit caught
+  the author's memory disagreeing with the author's code — half the case for
+  the ELI5 reset in one anecdote.
+- License landmines mapped: MCP corpus is CC BY-NC-SA (existential for the
+  commercial path — talk to Sackmann before revenue); TennisCourtDetector,
+  F3Set, TennisProject ship NO license (email NUS for F3Set); Ultralytics
+  YOLO is AGPL (avoided); Sapiens is non-commercial (avoided). Chosen stack
+  is permissive throughout: WASB MIT, rtmlib Apache, E2E-Spot BSD, ByteTrack
+  MIT, MAPIE BSD.
+- Bonus find from verification: F3Set's annotations ship in-repo with player
+  names, handedness, and per-clip scores — those 114 matches need NO score-bug
+  OCR to align. Bigger win than the research pass claimed.
+
+**Devlog reset (binding from cv-18):** plain English is the post, not a box in
+it. One concept per post; "Previously" recap instead of codename callbacks;
+define on first use every post; decode every notation string token by token;
+numbers restated in plain terms ("19 of 49 — call it 2 points in 5"); receipts
+move to a collapsed appendix; frontmatter written last as a ≤25-word headline;
+acceptance test = a cold reader can say what problem, what concept, and
+whether it worked, from this post + primer alone. Primer to gain ~15 missing
+entries (HSV, Hough, ECC, residuals, F1, logit, AUC, base rate, notation
+legend...). The roadmap doubles as the editorial calendar, one concept per
+build.
+
+- New: docs/blueprint.html; README links it. Nothing else touched.
+- Session cost: $0 API (research ran on session compute). Project total: ~$16.
+
+## 2026-07-21 — Roadmap #1: the boundary race — wide/deep recall off zero (and one refutation, kept)
+
+First chop with the sharpened axe. experiments/landing_spot.py implements
+the blueprint's landing-spot idea, v1: isolate the FINAL FLIGHT SEGMENT
+(contiguous track run after the last shot's contact, flight-capped at
+2.0s, cut at the first >6-frame hole), fit straight lines cx(t)/cy(t) to
+the tail in court coordinates, and RACE two crossings — sideline first
+means wide, baseline first means deep, both-within-2-frames means x,
+neither within a 0.7s extrapolation cap means abstain. Pure geometry,
+zero training, no constants fitted to truth (windows chosen a priori
+from flight time; margins reuse endings.py's OUT_MARGIN).
+
+**Headline — the 0% is broken.** On the 169 benchmark points whose true
+ending is w/d/x (population per learn_components + g1, truth =
+mcp_ending_type):
+- wide: strict 30/69 (43%), called-any-out 56/69 (81%)
+- deep: strict 35/90 (39%), called-any-out 65/90 (72%)
+- when the racer commits to w-or-d (not x/abstain), it separates the two
+  at 70% (65/93; balanced 71%) — genuine discrimination, coin is 50%.
+Both the shipped rules and the pivot forest score 0% on these classes
+(baseline reproduced this run: 0/69, 0/90).
+
+**Refuted, kept: naive fusion.** Stage 2 appended the racer's outputs
+(call one-hot, t_side, t_base, n_seg) to the SAME 4-class LOMO forest
+(learn_components, seed 0). Result: wide 0/69 -> 0/69, deep 0/90 ->
+2/90, overall 59.0% -> 55.5%. Diagnosis: base-rate pull — winners are
+45% of points and the racer false-fires on 62% of */n truths (the
+shadow-depth inflation makes in-balls extrapolate out), so a flat
+accuracy-driven forest keeps buying majority classes. The racer's
+signal is CONDITIONAL: P(wide vs deep | out), not P(out).
+
+**The architectural lesson (feeds roadmap #6/#7):** decide OUT-ness from
+independent evidence (net-death, an observed landing, later the pixel
+event spotter + audio), then let the racer name the flavor. That is
+exactly the per-slot likelihood shape the grammar-constrained fusion
+decoder wants. Do not ask one flat classifier to do both jobs — that
+experiment is now on the record twice.
+
+**Clay confirms the blueprint's coupling:** per-match strict-correct on
+true outs — t7 27/58, t6 20/44, t5 12/29, t4 6/14 vs t3 1/10, g1 1/11.
+Thin clay tracks leave no final segment to fit; the WASB clay fine-tune
+(roadmap #10) multiplies this module for free.
+
+Known v1 biases, stated not tuned: depth inflation fires the baseline
+crossing early (d-bias on airborne balls); the 2-frame "both" window
+over-calls x on true wides (18/69). Both belong to the racer's
+confusion matrix, which the fusion decoder can consume as-is.
+
+- New: experiments/landing_spot.py (stage 1 racer + stage 2 LOMO A/B);
+  report at outputs/diag/landing_spot_report.txt (gitignored). Shipped
+  pipeline untouched; suite 80 green. Run:
+  PYTHONPATH=.:experiments uv run python experiments/landing_spot.py
+- Session cost: $0. Project total: ~$16.
+
+## 2026-07-22 — Roadmap #1 lands v1.1, the hero render catches two bugs, cv-18 ships in the new voice
+
+**The racer grew up under the camera's gaze.** Rendering the cv-18 hero
+video (experiments/render_landing_hero.py — two US Open points, the
+final flight frozen, the extrapolation racing the sideline vs the
+baseline) caught two real defects the scoreboard had absorbed:
+1. **Teleporting tracks.** t6_point_110's last "detection" jumped 37 m
+   in 3 frames — the tracker latching onto junk after the real ball
+   left frame, poisoning the physics fit. Fix: end the flight segment
+   at the first physically impossible jump (>3.0 m/frame court motion,
+   ~90 m/s — a physics bound, not a tuned constant; boxes.py already
+   does this for players).
+2. **The striker column lies.** t6_point_117 charts its last striker as
+   'far' while the ball demonstrably died 2 m beyond the FAR baseline.
+   The racer now infers the target half from the flight itself
+   (already-out position wins, else y-slope sign) and trusts nothing
+   upstream. Eyes beat derivatives, again — both bugs were invisible in
+   the tables and obvious in one rendered frame.
+
+**v1.1 numbers (final, on the record; three variants measured, all
+kept):** striker-target/no-gate: w 30/69, d 35/90 (41% overall strict).
++teleport gate: w 31/69, d 33/90 (41%). +flight-inferred target:
+**w 20/69, d 55/90, x 8/10 — 83/169 (49%) strict; loose any-out w 84% /
+d 86%; committed w-vs-d discrimination 75/90 (83%)**. The deep jump and
+wide dip are the same shadow-depth inflation now concentrating in the
+race window (27 true wides call 'x'); v2 owns that bias. Stage-2 naive
+forest fusion stays refuted (0-1% w/d) — the racer is P(flavor | out),
+to be consumed by the fusion decoder behind independent out-ness
+evidence.
+
+**The devlog reset shipped.** cv-18 ("Nobody Sees the Ball Land") is
+the first post where plain English IS the post — video-first hero
+(clips + racing overlay), one concept, Previously recap, decoded
+numbers, receipts in a collapsed appendix. cv-01–cv-17 retrofitted to
+the same voice by a 17-agent pass against a written brief (facts
+preserved verbatim, insider density relocated to per-post appendices),
+and /primer gained ~9 new entries incl. the full notation legend and
+the boundary race. Blueprint (docs/blueprint.html) + this experiment
+committed and pushed with the posts.
+
+- New/changed: experiments/landing_spot.py (v1.1), 
+  experiments/render_landing_hero.py, docs/blueprint.html (yesterday's
+  axe-sharpening), README link, this LOG. Suite 80 green.
+- Session cost: $0. Project total: ~$16.

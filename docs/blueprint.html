@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Court Vision — The Blueprint</title>
+<style>
+:root {
+  --bg: #ffffff; --fg: #1e222a; --muted: #5b6472; --line: #e3e7ee;
+  --accent: #0f6b3f; --th-bg: #f4f6f9; --code-bg: #f4f6f9;
+  --note-bg: #f7f9fc;
+  --ok: #0f6b3f; --ok-bg: #e8f5ee;
+  --warn: #8a6d00; --warn-bg: #fdf6dd;
+  --bad: #a12622; --bad-bg: #fdeceb;
+  --manual: #5b6472; --manual-bg: #eef1f5;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14171c; --fg: #e6e9ee; --muted: #9aa4b2; --line: #2b313b;
+    --accent: #4cc38a; --th-bg: #1c2129; --code-bg: #1c2129;
+    --note-bg: #191e26;
+    --ok: #4cc38a; --ok-bg: #16281f;
+    --warn: #d9b74a; --warn-bg: #2a2415;
+    --bad: #e07b76; --bad-bg: #2c1a19;
+    --manual: #9aa4b2; --manual-bg: #1e232b;
+  }
+}
+html { background: var(--bg); }
+body {
+  margin: 0 auto; padding: 2.5rem 1.25rem 5rem; max-width: 50rem;
+  background: var(--bg); color: var(--fg);
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif;
+}
+h1, h2, h3, h4 { line-height: 1.25; margin: 2.2em 0 0.6em; }
+h1 { font-size: 1.7rem; margin-top: 0; }
+h2 { font-size: 1.3rem; border-bottom: 1px solid var(--line); padding-bottom: 0.3em; }
+h3 { font-size: 1.1rem; }
+h4 { font-size: 1rem; margin-bottom: 0.4em; }
+p, ul, ol { margin: 0.8em 0; }
+a { color: var(--accent); }
+em { color: var(--muted); }
+code { background: var(--code-bg); padding: 0.1em 0.35em; border-radius: 4px;
+       font-size: 0.88em; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+blockquote { margin: 1em 0; padding: 0.1em 1em; border-left: 3px solid var(--accent);
+             background: var(--note-bg); }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: 0.92em; }
+th, td { border: 1px solid var(--line); padding: 0.5em 0.7em; text-align: left; vertical-align: top; }
+th { background: var(--th-bg); }
+strong { font-weight: 650; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 2.5em 0; }
+header.docmeta { color: var(--muted); font-size: 0.9em; border-bottom: 1px solid var(--line);
+                 padding-bottom: 1em; margin-bottom: 2em; }
+details { margin: 1em 0; border: 1px solid var(--line); border-radius: 8px; padding: 0.5em 1em; }
+details summary { cursor: pointer; font-weight: 650; color: var(--muted); }
+
+/* ---- pipeline diagram ---- */
+.pipeline { margin: 1.5em 0; }
+.station { border: 1px solid var(--line); border-radius: 10px; padding: 0.9em 1em 1em; margin: 0 0 0.4em; background: var(--note-bg); }
+.station-title { font-weight: 700; font-size: 0.95em; margin-bottom: 0.15em; }
+.station-sub { color: var(--muted); font-size: 0.85em; margin-bottom: 0.7em; }
+.blocks { display: flex; flex-wrap: wrap; gap: 0.5em; }
+.block { border-radius: 8px; padding: 0.45em 0.7em; font-size: 0.85em; line-height: 1.35;
+         border: 1px solid var(--line); background: var(--bg); flex: 1 1 10rem; min-width: 9rem; }
+.block b { display: block; font-size: 0.95em; }
+.block small { color: var(--muted); }
+.block.ok     { border-color: var(--ok);     background: var(--ok-bg); }
+.block.warn   { border-color: var(--warn);   background: var(--warn-bg); }
+.block.bad    { border-color: var(--bad);    background: var(--bad-bg); }
+.block.manual { border-color: var(--manual); background: var(--manual-bg); border-style: dashed; }
+.flow-arrow { text-align: center; color: var(--muted); font-size: 1.1em; margin: 0.05em 0 0.45em; }
+.legend { display: flex; flex-wrap: wrap; gap: 0.6em; font-size: 0.82em; margin: 0.8em 0 0; }
+.legend span { display: inline-flex; align-items: center; gap: 0.35em; }
+.dot { width: 0.8em; height: 0.8em; border-radius: 3px; display: inline-block; border: 1px solid var(--line); }
+.dot.ok { background: var(--ok-bg); border-color: var(--ok); }
+.dot.warn { background: var(--warn-bg); border-color: var(--warn); }
+.dot.bad { background: var(--bad-bg); border-color: var(--bad); }
+.dot.manual { background: var(--manual-bg); border-color: var(--manual); border-style: dashed; }
+
+.grade { display: inline-block; border-radius: 999px; padding: 0.05em 0.6em; font-size: 0.8em; font-weight: 650; }
+.grade.ok { color: var(--ok); background: var(--ok-bg); }
+.grade.warn { color: var(--warn); background: var(--warn-bg); }
+.grade.bad { color: var(--bad); background: var(--bad-bg); }
+.grade.manual { color: var(--manual); background: var(--manual-bg); }
+.upgrade { border-left: 3px solid var(--accent); background: var(--note-bg); padding: 0.6em 1em; margin: 0.8em 0; }
+.upgrade .tag { font-size: 0.78em; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em; }
+</style>
+</head>
+<body>
+
+<h1>Court Vision — The Blueprint</h1>
+<header class="docmeta">
+July 21, 2026 · The master plan: what the machine is, how good each part honestly is,
+what the best in the world do, and the verified upgrade path for every piece.
+Written after a deep-research pass — 8 technical deep-dives, 41 research agents,
+14 load-bearing recommendations adversarially fact-checked (none refuted).
+This document is the axe, sharpened.
+</header>
+
+<blockquote>
+<p><strong>The goal in one sentence:</strong> a robot that watches a tennis broadcast
+and writes down every shot of every point in the
+<a href="https://tennisabstract.com/charting/meta.html">Match Charting Project</a>'s notation
+— fully automatically — with a human checking only the calls the robot itself
+flags as shaky.</p>
+</blockquote>
+
+<h2 id="how-to-read">How to read this document</h2>
+
+<p>This is the reference the devlog will point at, written the way the
+<a href="https://trmccormick.com/primer">primer</a> is written: tennis first, jargon
+defined on arrival, no prior post required. It has five parts:</p>
+
+<ol>
+<li><a href="#machine">The machine as a picture</a> — every part of the system as a box you can point at.</li>
+<li><a href="#stations">Station by station</a> — for each part: what it does, today's honest grade, what the best in the world do, and the upgrade.</li>
+<li><a href="#breakthroughs">The three reframes</a> — the research findings that change the plan.</li>
+<li><a href="#roadmap">The roadmap</a> — the upgrades in order, each one independently valuable and independently measurable.</li>
+<li><a href="#blog">The devlog reset</a> — the new writing contract: plain English is the post, not a box inside it.</li>
+</ol>
+
+<p>Two honest numbers to hold onto while reading. Today, about <strong>2 in 3</strong>
+drafted points land within 5 corrections of what a human charter wrote, and the
+machine's "trust this one" flag is right about <strong>9 times in 10</strong> when it
+raises its hand (92% precision at 48% coverage, graded on matches it never saw).
+And the best academic system in the world — a university team with 114 fully
+annotated matches and serious GPUs — transcribes an entire point perfectly only
+about <strong>40% of the time</strong>. That number matters: it says the goal of
+"robot charts, human reviews the flagged calls" isn't a compromise. It's what
+state of the art actually looks like, and the whole field designs for it.</p>
+
+<h2 id="machine">1. The machine as a picture</h2>
+
+<p>Court Vision is an assembly line. Video goes in one end; a chart comes out the
+other. Five stations, each made of small parts that can be measured — and
+upgraded — one at a time.</p>
+
+<div class="pipeline">
+
+<div class="station">
+  <div class="station-title">📦 Station 0 — The Loading Dock <em>(staging)</em></div>
+  <div class="station-sub">Find the match video, cut it into points, and pin each clip to its row in the human-charted record.</div>
+  <div class="blocks">
+    <div class="block ok"><b>Find &amp; fetch video</b><small>auto — picks the 84-min full match over the 3-min highlight</small></div>
+    <div class="block ok"><b>Cut reel into points</b><small>auto — the score bug is the point ID</small></div>
+    <div class="block warn"><b>Read the score bug</b><small>74% of points auto-aligned; still in <code>experiments/</code></small></div>
+    <div class="block manual"><b>Per-feed setup</b><small>manual — court color band, score-bug crop, priors</small></div>
+  </div>
+</div>
+<div class="flow-arrow">▼</div>
+
+<div class="station">
+  <div class="station-title">👁 Station 1 — The Eyes <em>(perception)</em></div>
+  <div class="station-sub">Turn pixels into positions: where is the ball, where are the players, where are the lines.</div>
+  <div class="blocks">
+    <div class="block warn"><b>Ball tracker</b><small>WASB — good on hard court, thin on clay, loses the ball before out-of-bounds bounces</small></div>
+    <div class="block manual"><b>Court fit</b><small>a human clicks 4 corners per match — the last big manual knob</small></div>
+    <div class="block warn"><b>Player finder</b><small>moving smudges (background subtraction) — no skeletons yet</small></div>
+  </div>
+</div>
+<div class="flow-arrow">▼</div>
+
+<div class="station">
+  <div class="station-title">⏱ Station 2 — The Moments <em>(events)</em></div>
+  <div class="station-sub">Find the exact instants: the serve, every hit, every bounce.</div>
+  <div class="blocks">
+    <div class="block warn"><b>Serve detector</b><small>works by ball path on clay, by stance on grass; night feeds weakest</small></div>
+    <div class="block warn"><b>Hits &amp; bounces</b><small>read from kinks in the ball's path — blind wherever the track has holes</small></div>
+  </div>
+</div>
+<div class="flow-arrow">▼</div>
+
+<div class="station">
+  <div class="station-title">✍️ Station 3 — The Words <em>(notation)</em></div>
+  <div class="station-sub">Turn positions and moments into the chart: who hit it, forehand or backhand, where it went, how the point ended.</div>
+  <div class="blocks">
+    <div class="block ok"><b>Who hit it</b><small>alternation + weighted votes — structure is trustworthy</small></div>
+    <div class="block ok"><b>Direction (1/2/3)</b><small>72% when it commits — the strongest annotation</small></div>
+    <div class="block warn"><b>Forehand/backhand</b><small>60% pooled — hand-tuning formally proven a dead end</small></div>
+    <div class="block bad"><b>Serve zone</b><small>40% — near coin-flip; trained replacement proven, not shipped</small></div>
+    <div class="block bad"><b>Point ending</b><small>20% — wide-vs-deep totally blind (0% recall)</small></div>
+  </div>
+</div>
+<div class="flow-arrow">▼</div>
+
+<div class="station">
+  <div class="station-title">⚖️ Station 4 — The Grader <em>(confidence &amp; benchmark)</em></div>
+  <div class="station-sub">Grade every draft against human charts, and flag which points a human can trust.</div>
+  <div class="blocks">
+    <div class="block ok"><b>Benchmark</b><small>8 matches, 500+ points graded vs human charters, answer key versioned</small></div>
+    <div class="block ok"><b>Confidence flag</b><small>92% precision at 48% coverage, held out</small></div>
+    <div class="block ok"><b>Review bench</b><small>the human's correction tool — already built</small></div>
+  </div>
+</div>
+
+<div class="legend">
+  <span><span class="dot ok"></span> trustworthy today</span>
+  <span><span class="dot warn"></span> usable, known ceiling</span>
+  <span><span class="dot bad"></span> broken — re-key always</span>
+  <span><span class="dot manual"></span> still needs a human</span>
+</div>
+</div>
+
+<p>One design fact worth naming, because the research kept validating it: this
+machine contains exactly <strong>one neural network</strong> today (the ball tracker,
+borrowed pretrained) and exactly <strong>one in-house learned model</strong> in the
+shipped path (the confidence flag). Everything else is hand-written rules. The
+July 20 pivot — train on the 11,646-match corpus instead of hand-tuning — is the
+plan to change that, and every deep-dive below independently agreed it's the
+right call. The corpus-trained prototypes already beat the hand rules everywhere
+they've been tried: serve zone 59.7% vs 31.7%, ending type 59.3% vs 22.8%.</p>
+
+<h2 id="stations">2. Station by station: today's grade and the verified upgrade</h2>
+
+<p>Each part below gets the same treatment: <em>what it does</em> in plain English,
+<em>today's honest number</em>, <em>what the best in the world do</em> (from the
+research, sources at the <a href="#receipts">bottom</a>), and <em>the upgrade</em> —
+every one fact-checked by adversarial reviewers who tried to refute it and
+couldn't.</p>
+
+<h3>🎾 The ball tracker <span class="grade warn">usable, one fatal blind spot</span></h3>
+
+<p><strong>What it does:</strong> finds the ball in every frame, fresh each time, like a
+line judge who never blinks — a tiny specialist network (WASB) that has only ever
+looked at tennis balls. <strong>Today:</strong> solid on hard courts (~87% of frames),
+thin and gappy on clay (8–41% on the Roland Garros match — a fuzzy yellow ball
+against orange dirt is genuinely harder to see), and it reliably loses the ball
+just before an out-of-bounds bounce. That last one is the project's #1 confirmed
+blindness: it's why the machine cannot tell a ball that sailed <em>wide</em> from
+one that sailed <em>deep</em>, which is why point endings grade at 20%.</p>
+
+<p><strong>What the best do:</strong> two things, and the first is a genuine reframe.
+Hawk-Eye doesn't photograph the ball touching the ground either — nobody does.
+The landing spot is <em>calculated</em> from the flight path, the way a veteran line
+judge reads an arc and knows it's sailing long before it lands. Two papers at this
+year's top vision conference do exactly this from a single broadcast camera; one
+was tested on broadcast tennis and predicted landing spots to within
+<strong>0.63 meters</strong>. Second, the newest trackers (TOTNet, BlurBall,
+TrackNetV4) handle occlusion and motion blur by design — they treat the blur
+streak as signal (its direction is a free speed-and-heading reading) and they
+don't panic when the ball briefly vanishes, because balls don't teleport.</p>
+
+<div class="upgrade"><span class="tag">Upgrade — verified</span><br>
+<strong>Stop trying to un-blink. Build the landing-spot calculator first</strong> —
+take the last stretch of flight the tracker <em>did</em> see, fit falling-ball
+physics to it, and read where the arc meets the ground. Day-one version: extend
+the arc in screen coordinates to the bounce moment, then convert just the landing
+point to court coordinates (the verifiers flagged that converting the whole
+airborne arc through the court-plane conversion is the primer's "shadow problem"
+— so we don't). Pure math, no GPU, testable immediately against all 8 graded
+matches. Then fix clay the way a hard-courter fixes clay: a short training block
+— a few hundred corrected clay frames, machine pre-labels, human only corrects —
+and fine-tune the tracker. Days of work for the calculator; the clay fine-tune is
+the first "weeks" project.</div>
+
+<h3>📐 The court fit <span class="grade manual">the last big manual knob</span></h3>
+
+<p><strong>What it does:</strong> works out the conversion between "this spot on your TV
+screen" and "two feet inside the baseline" — the homography from the primer.
+<strong>Today:</strong> a human clicks the 4 corners for every new match and eyeballs
+the overlay. The automatic version failed at Roland Garros (the far baseline is
+faint and brushed-over; the fit came back visibly skewed, 74 pixels off).</p>
+
+<p><strong>What the best do:</strong> soccer solved this for TV graphics years ago, and
+the recipe is consistent across every winner: don't hunt for 4 corners — recognize
+<em>every line and every intersection at once</em> (the T of the service box, the
+center hash, all of it), because a scuffed line still shows meters of visible
+paint even when its corners are invisible. Then — the important part — the system
+<strong>grades its own fit</strong> by drawing where it thinks the lines are and
+measuring the miss, and <em>abstains</em> when the overlay is sloppy, exactly like
+a player who only burns a challenge when genuinely unsure. There's even a free
+head start: a public tennis-court keypoint network trained on 8,841 broadcast
+images across hard, clay, and grass, with 1.83-pixel median error.</p>
+
+<div class="upgrade"><span class="tag">Upgrade — verified</span><br>
+<strong>Auto-initialize, self-grade, abstain.</strong> Drop the public 14-keypoint
+court net in as the proposer; keep the existing fit-scoring machinery (it already
+reprojects all nine court lines against the observed line paint — the verifier
+found ~70% of the needed code already in <code>fitcourt.py</code>) as the judge,
+with a calibrated accept/reject threshold learned from our 8 hand-fit matches.
+Below threshold → a human clicks corners, same as today. Two honest caveats from
+verification: the per-match color band and frame window remain as small config
+values (so this shrinks the knob, not deletes it outright), and the public net
+has <em>no license</em> — fine for the research phase, but the business phase
+retrains our own (every hand-fit match already generates free training labels).
+Longer term: add line-heatmap channels, the documented fix for faint clay
+baselines.</div>
+
+<h3>🕴 The player finder <span class="grade warn">smudges hit their ceiling</span></h3>
+
+<p><strong>What it does:</strong> finds the two players by comparing each frame against
+an empty-court photo (background subtraction — the primer's zero-dollar player
+detector). The forehand/backhand call is then made from which side of the player-smudge
+the ball arrives on. <strong>Today:</strong> that geometry has formally plateaued —
+counterfactual experiments proved no re-anchoring of the smudge fixes it. About
+45% of shot-type errors trace to a bad or missing player box.</p>
+
+<p><strong>What the best do:</strong> draw a stick figure. Pose estimation marks
+wrists, elbows, shoulders, hips, and feet on each player every frame, so instead
+of a smudge you get an actual swing to read — take-back, contact point,
+follow-through. The catch: the far player is thumbnail-sized at 720p, so the
+stick figure gets shaky at the wrists. The 2026 answer (from the same lab as the
+field's tennis benchmark) is to not judge the skeleton alone: wire <em>both
+skeletons, the ball, and the court corners into one connected picture</em>, the
+way a commentator reads a shot from body + ball + court position at once. In the
+few-labels world Court Vision lives in, that keypoint-graph approach beats
+raw-video AI by 2–3×.</p>
+
+<div class="upgrade"><span class="tag">Upgrade — verified by actually running it</span><br>
+<strong>Skeletons this week, graph model next month.</strong> The pose swap is the
+single highest-leverage cheap move in this plan: <code>pip install rtmlib</code>,
+Apache-licensed, runs on this Mac — the verification agent literally installed it
+and measured 87 frames/second on Apple Silicon, feeding our existing player boxes
+in, getting 17 keypoints + confidences out. Week-one gate: eyeball far-player
+skeletons on all 8 matches; if wrists are garbage, fall back to
+shoulders/hips/feet. Then train the letters model on the corpus: a small
+keypoint-graph classifier (2M parameters, Mac-trainable) over skeletons + ball +
+corners per shot window. Handedness is not a vision problem at all — it's a
+lookup (MCP metadata), verified once per player by majority vote over 50 serves.</div>
+
+<h3>👂 The moments: hits and bounces <span class="grade warn">inherits every track hole</span></h3>
+
+<p><strong>What it does:</strong> finds each hit and bounce from kinks in the ball's
+path — a hit reverses the ball's direction; a bounce doesn't ("the court doesn't
+return serve"). <strong>Today:</strong> works where the track works; blind wherever
+the track has holes. Rally lengths run 57–83% within ±1 by match, and missing
+shots are the single largest correction bin (~2 per point).</p>
+
+<p><strong>What the best do:</strong> two independent witnesses we're not using.
+First, <em>pixel-watching event spotters</em>: small networks that look at the raw
+footage — the racquet blur, the ball flattening against the court — and name the
+exact frame of contact. The founding benchmark of this entire sub-field is
+broadcast tennis, its event classes are literally "serve contact, swing contact,
+ball bounce," the model is tiny (4.5M parameters), free (BSD license), ships
+pretrained tennis weights, and scores <strong>96% at one-frame accuracy</strong>. Because it
+watches the whole picture instead of following the ball dot, it still sees the
+bounce a tracker lost. Second, <em>ears</em>: the "pock" of strings on ball is one
+of the most distinctive sounds in sport. The one published broadcast-tennis study
+(Australian Open footage) got useful hit detection from audio alone, and
+microphones don't care whether the ball left the frame. Commentary and crowd
+noise are the known failure modes — a day-one experiment settles how clean our
+feeds are.</p>
+
+<div class="upgrade"><span class="tag">Upgrade — verified</span><br>
+<strong>Give the machine ears (days), then better eyes (weeks).</strong> Audio
+first: extract the soundtrack (already downloaded with every match), run onset
+detection — the verifier ran it on a staged match in seconds of CPU — calibrate
+the constant audio/video offset per file, and feed hit-time candidates into the
+event layer as a second witness. Then run the pretrained tennis event spotter on
+all 8 benchmark matches, zero-shot, and score it against the current kink
+detector. One honest caveat from verification: a spotter answers <em>when</em>, not
+<em>where</em> — wide-vs-deep also needs the landing spot, which is the ball
+station's job (re-run the ball detector's single-frame heatmap around the spotted
+bounce frame, no track continuity needed). The two stations fix the blindness
+together: the spotter finds the bounce moment, the heatmap finds the ball in that
+frame, the physics extrapolator crosschecks both.</div>
+
+<h3>✍️ The words: from positions to notation <span class="grade warn">the part nobody else has built</span></h3>
+
+<p><strong>What it does:</strong> assembles the chart — who hit it (alternation +
+votes), forehand/backhand, direction, ending — and writes the MCP string.
+<strong>Today:</strong> a stack of hand-written rules, each with a measured ceiling:
+directions 72% (the strongest), letters 60%, serve zone 40%, endings 20%.</p>
+
+<p><strong>What the best do:</strong> the closest published system (F3Set, ICLR 2025 —
+114 annotated broadcast matches, a vocabulary that maps almost token-for-token
+onto MCP's) teaches three lessons. One: predict shot <em>elements</em> (side,
+direction, technique, outcome) separately rather than one giant guess — the
+long tail is unlearnable otherwise. Two: after making per-shot calls, a small
+<em>context refiner</em> re-reads the whole rally and fixes calls that don't make
+tennis sense — a chair umpire overruling a line judge. That's a learned version
+of exactly the "notation prior × pixel likelihood" fusion already planned here.
+Three: their ceiling — 75–80% per element, ~40% per whole point — with 14× our
+aligned data and GPUs. The speech-recognition literature (the closest older
+analog: audio in, text out) adds the deciding vote: with scarce aligned data,
+<em>hybrid</em> systems (perception model + language prior fused at decode time)
+beat end-to-end — and Court Vision has 1.85M points of "language" data and only
+8 matches of aligned video. Hybrid is not the training-wheels option; it's the
+correct architecture at this scale.</p>
+
+<div class="upgrade"><span class="tag">Upgrade — verified</span><br>
+<strong>One decoder to rule the words: grammar-constrained fusion.</strong> Build a
+small beam search that walks the MCP grammar token by token — it literally cannot
+write an invalid point, the way a scoring app grays out illegal entries — scoring
+each candidate token as <em>what notation history expects</em> (the corpus prior:
+next-shot side already at 72.9% vs a 50.9% base) plus <em>what the pixels saw</em>
+(the per-shot classifiers). ~150 lines of numpy, every token's score decomposable
+into its two ingredients — maximum explainability. Verification caveat, folded
+into the plan: the priors and pixel likelihoods don't yet exist in per-token form
+(side ≠ letter; letters/directions currently output decisions, not
+probabilities), so the honest first step is retraining the prior into per-slot
+form and giving each classifier a probability output. Also on the record: the
+<em>end-to-end trigger</em> — if we ever have 100+ aligned matches AND the hybrid
+plateaus below F3Set's per-element numbers for two consecutive benchmark rounds,
+we revisit. Until then, hybrid.</div>
+
+<h3>⚖️ The grader and the flywheel <span class="grade ok">the project's superpower — mechanize it</span></h3>
+
+<p><strong>What it does:</strong> grades every draft against human charts in token
+edits, and flags trustworthy points (92% precision at 48% coverage, graded on
+held-out matches). <strong>Today:</strong> the discipline is exceptional — frozen
+constants, leave-one-match-out, versioned answer keys — but it's run by hand, and
+the corpus's 1.85M labels aren't flowing into training because they aren't pinned
+to video frames.</p>
+
+<p><strong>What the best do:</strong> three patterns, all verified. First, the
+<em>golden set</em>: freeze the graded benchmark and re-run it automatically on
+every change, sliced by surface — so a clay regression can never hide behind
+hard-court wins (the verifier measured the video-free stages: the whole 8-match
+gate runs in under a minute, and the frozen inputs are ~29MB of coordinate CSVs —
+committable). Second, <em>transcript alignment</em>: our charts are transcripts —
+"serve, return, volley" — and snapping each shot to the moments the ball visibly
+(or audibly) changes direction converts free notation into frame-level training
+labels at scale. Soccer research proved this exact pattern; it's how 8 aligned
+matches become 30–50 without any new human labeling (clustered by broadcaster
+family, because score-bug crop geometry is per-feed). Third, the
+<em>challenge-system loop</em>: robot charts everything, human reviews only the
+flagged calls — but a <em>varied</em> set of them (clustered sampling), not fifty
+replays of the same deuce-court serve, and every correction is triple-value: it
+fixes the chart, trains the model, and audits the confidence flag. The review
+bench this loop needs is already built (<code>review.py</code>). Track one product
+number forever: <strong>human-minutes per charted match</strong>. It must fall every
+cycle. Later, for the business: conformal prediction (a free statistical wrapper)
+turns "92% observed" into "guaranteed at most X% errors in the auto-accepted set,
+per surface" — a claim a customer can price.</p>
+
+<h2 id="breakthroughs">3. The three reframes</h2>
+
+<p>Most of the research confirmed the project's instincts. Three findings genuinely
+change the plan:</p>
+
+<ol>
+<li><strong>You don't need to see the ball land.</strong> The wide-vs-deep blindness
+has been treated as a tracking problem — track the ball further, into the bounce.
+The field says: wrong frame. Hawk-Eye infers the landing spot from the flight
+path; the bounce <em>moment</em> comes from pixel/audio event spotters that don't
+need a ball track at all. Physics + a spotter + a single-frame heatmap replace
+"perfect tracking," and all three pieces are cheap.</li>
+<li><strong>Few labels favors stick figures.</strong> With mountains of labeled video,
+raw-pixel AI wins. With a handful of aligned matches — our world — models that
+read skeletons + ball + court keypoints win by 2–3×, learn from 50–100 rallies,
+train on a Mac, and happen to be built from exactly the modules this pipeline
+already computes. The modular architecture isn't a compromise on the way to a
+big model; it's the sample-efficient choice.</li>
+<li><strong>The corpus becomes training data the moment it's pinned to the clock.</strong>
+11,646 human-charted matches are transcripts waiting for timestamps. Score-bug
+alignment (built, 74% auto) plus shot-to-event snapping (small, local, next)
+mints frame-level labels from free notation — the same playbook soccer research
+scaled. Labels were never the bottleneck; alignment was, and it's falling.</li>
+</ol>
+
+<p>And one guardrail, confirmed with numbers: <strong>video LLMs stay out of the
+per-frame loop.</strong> The chatty video AIs are measurably weak at exactly what
+charting needs — precise moments, counting, fine-grained calls (GPT-4o: 57.8% on
+hard sports-video tasks) — they sample ~1 frame per second so a serve literally
+happens between their glances, and a single full-match pass costs $12–50 versus
+~$0 local. They earn their keep only on one-off staging chores: double-checking a
+score-bug read, sanity-checking a court fit, describing a failure frame. Pennies,
+not dollars, and never in the loop.</p>
+
+<h2 id="roadmap">4. The roadmap</h2>
+
+<p>Ordered so every step is independently valuable, independently measurable on
+the existing benchmark, and none blocks another. Efforts are honest estimates
+from the verification pass, not wishes.</p>
+
+<div class="table-wrap">
+<table>
+<tr><th>#</th><th>Build</th><th>Station</th><th>Attacks</th><th>Effort</th><th>Proof it worked</th></tr>
+<tr><td>1</td><td><strong>Landing-spot calculator</strong> (image-space arc → landing point through the court conversion)</td><td>Ball</td><td>Wide-vs-deep 0% recall</td><td>days</td><td>Ending-type recall on 8 graded matches moves off zero</td></tr>
+<tr><td>2</td><td><strong>Court auto-fit + self-grading gate</strong> (public 14-keypoint net proposes; existing line-scorer judges; abstain → human)</td><td>Court</td><td>The 4-corner manual knob</td><td>days</td><td>Auto-accept rate across 8 matches; zero bad fits sneak past the gate (test on the Roland Garros plate that broke auto-fit)</td></tr>
+<tr><td>3</td><td><strong>Skeletons via rtmlib</strong> (17 keypoints per player, feeding existing boxes)</td><td>Players</td><td>The letters plateau's root cause</td><td>days</td><td>Far-player skeleton visual audit on all 8 matches; keypoint features lift the letters classifier</td></tr>
+<tr><td>4</td><td><strong>Audio hit detector</strong> + per-file audio/video offset calibration</td><td>Moments</td><td>Track holes amputating rallies</td><td>days</td><td>Hit-time precision/recall vs current detector at 1–3 frame tolerance</td></tr>
+<tr><td>5</td><td><strong>Golden-set CI</strong> (video-free stages re-run on every change, sliced per surface)</td><td>Grader</td><td>Silent regressions during the rebuild ahead</td><td>days</td><td>A deliberately-broken constant fails the build</td></tr>
+<tr><td>6</td><td><strong>Grammar-constrained fusion decoder</strong> (per-slot priors + pixel probabilities + MCP grammar beam)</td><td>Words</td><td>The ~1/3 of points >5 edits; invalid strings; per-token confidence</td><td>days–2 wks</td><td>Token edit distance and acceptance on the frozen benchmark; 100% valid strings</td></tr>
+<tr><td>7</td><td><strong>Pixel event spotter</strong> (pretrained tennis checkpoints, zero-shot first) + single-frame ball heatmap at spotted bounces</td><td>Moments+Ball</td><td>Bounces the track never saw</td><td>weeks</td><td>Bounce mAP at 1–2 frame tolerance vs kink detector; wide/deep recall with #1</td></tr>
+<tr><td>8</td><td><strong>Pseudo-label minter</strong> (align MCP shot sequences to the hit/bounce/audio lattice; sanity gates; accepted points become frame-labeled training data)</td><td>Grader</td><td>The features-not-labels bottleneck</td><td>weeks</td><td>Labeled-shot count; spot-audit precision of minted labels</td></tr>
+<tr><td>9</td><td><strong>Keypoint-graph letters model</strong> (skeletons + ball + corners per shot window, trained on minted labels; F3Set as pretraining/external benchmark after a license email to the NUS authors)</td><td>Words</td><td>Letters 60% and serve zone 40%</td><td>weeks</td><td>Leave-one-match-out letters/zone accuracy vs the shipped rules; external F3Set test split</td></tr>
+<tr><td>10</td><td><strong>Scale to 30–50 aligned matches</strong> (cluster by broadcaster family; promote the score-bug reader out of <code>experiments/</code>; clay fine-tune of the ball tracker en route)</td><td>Loading Dock</td><td>Data volume for everything above</td><td>weeks</td><td>Aligned-match count; human-minutes per staged match falling</td></tr>
+<tr><td>11</td><td><strong>Active-learning loop</strong> (cluster-varied lowest-confidence points → review bench → corrections retrain and re-audit the flag)</td><td>Grader</td><td>The economics: human time</td><td>days</td><td>Human-minutes per verified match, cycle over cycle</td></tr>
+<tr><td>12</td><td><strong>Product hardening</strong> (conformal guarantees per surface; DVC for data/model versioning; per-component model cards; proxy-metric drift alarms; Modal batch tier ~$0.10–1.20/match measured with one $1 test)</td><td>All</td><td>MVP credibility</td><td>weeks</td><td>A guarantee a customer can read; a reproducible benchmark; a drift alarm that fires on a changed score bug</td></tr>
+</table>
+</div>
+
+<p>Items 1–6 are the sprint: six independent, days-scale builds, each moving a
+number on the frozen benchmark. Items 7–10 are the muscle-building month. Items
+11–12 are the business.</p>
+
+<h3 id="risks">The risk register (the business half of "hardened")</h3>
+
+<ul>
+<li><strong>MCP corpus license — existential for the commercial path.</strong> The
+Match Charting Project is CC BY-NC-SA (non-commercial, share-alike). Research and
+devlog use: fine. A paid product trained on it: needs a conversation with Jeff
+Sackmann first — which is also simply the right conversation to have with the
+community this project wants to serve. Action: rights memo + outreach before any
+revenue.</li>
+<li><strong>Unlicensed dependencies.</strong> TennisCourtDetector (no license),
+F3Set (no license — email the NUS authors), TennisProject (no license). Pattern:
+use for research, record in each component's model card, and keep the self-trained
+replacement path named (our matches already generate the training data).</li>
+<li><strong>License traps avoided by choice:</strong> Ultralytics YOLO is AGPL
+(copyleft — ships your source with your product); Sapiens pose is non-commercial;
+DINOv3 is a custom Meta license. The chosen stack (WASB MIT, rtmlib Apache,
+E2E-Spot BSD, ByteTrack MIT, MAPIE BSD) is permissive throughout.</li>
+<li><strong>Broadcast video rights.</strong> Clips stay local, never redistributed —
+already policy. The product sells the <em>notation and review service</em>, not
+footage.</li>
+<li><strong>Scope contract.</strong> Singles only; standard scoring; faults, lets,
+challenges, and retirements are <em>abstain-and-flag</em>, never guess (faults are
+today's known miss: every draft assumes a first-serve point). Doubles is out of
+MVP. Each exclusion wired to a detector that raises its hand.</li>
+<li><strong>Ground-truth noise ceiling.</strong> MCP charts are single-volunteer
+labels; nobody knows the human-vs-human agreement rate. Some of the gap to 100%
+is label ambiguity, most plausibly on letters and endings. Worth measuring once
+two charters' versions of the same match can be compared.</li>
+</ul>
+
+<h2 id="blog">5. The devlog reset: plain English IS the post</h2>
+
+<p>The audit read all 17 posts. The verdict, bluntly: the series has introduced
+~50 technical concepts and properly explained about 10 (the ones in the primer).
+The body prose is written for a reader who has read every prior post and holds
+the repo open — codename callbacks ("M0's oldest lesson wearing a new outfit"),
+unglossed jargon (ECC, tophat, logit, AUC), stat barrages with shifting
+denominators (15/36 → 21/49), and chart strings never once decoded
+(<code>s5b2f1f2f2x@</code> — in a series nominally for readers who don't chart).
+Meanwhile the Plain English boxes are the best writing in the series. The fix is
+not better boxes. The fix is that <strong>the box's voice becomes the whole
+post.</strong></p>
+
+<h3>The post formula (every post, starting with cv-18)</h3>
+
+<ol>
+<li><strong>Video first</strong> with a plain-words caption — unchanged.</li>
+<li><strong>Cold open:</strong> the day's question as one tennis-shaped sentence.
+("Today the software learns to answer: who hit that ball?")</li>
+<li><strong>"Previously":</strong> 2–4 sentences restating only the prior facts this
+post needs — every callback carries its own five-second recap; never a bare
+cv-NN or milestone number.</li>
+<li><strong>The concept, analogy first:</strong> teach it through tennis <em>before</em>
+naming it; then name it once, bold, with a one-line definition and a primer link.
+<strong>One concept per post.</strong> A two-concept session is two posts, or one
+concept demoted to the appendix with a promise.</li>
+<li><strong>The story:</strong> attempt → what the picture showed → what that means.
+One idea per sentence.</li>
+<li><strong>The scoreboard:</strong> one small table, plain-word row labels, every
+number restated ("19 of 49 — call it 2 points in 5") and anchored to what good
+looks like.</li>
+<li><strong>The takeaway:</strong> one sentence a tennis fan could repeat at dinner.
+Aphorisms are welcome <em>after</em> their mechanism, never before.</li>
+<li><strong>A collapsed appendix</strong> ("For the technical reader") holding the
+thresholds, full scorecards, clip IDs, and API quirks that used to clog the body.</li>
+<li><strong>Cost line and next question</strong> — unchanged.</li>
+</ol>
+
+<h3>House rules</h3>
+
+<ul>
+<li><strong>Ban list for body prose:</strong> repo identifiers (point_59,
+<code>serve_zone()</code>, v1–v5), unexpanded acronyms (ECC, RLE, AUC, LOMO, HSV,
+bgsub), naked fraction chains, and codenames — say "the night-match test," not
+"t1." All welcome in the appendix.</li>
+<li><strong>Decode every notation string</strong> where it appears, token by token,
+in tennis words ("s5 — serve out wide; b2 — backhand up the middle; x@ — netted
+error"). A reusable legend goes in the primer.</li>
+<li><strong>Define on first use, every post</strong> — a returning term gets a short
+gloss + primer link every time, because every post is someone's first.</li>
+<li><strong>Extend the primer</strong> with the ~15 concepts that have no plain-English
+home yet: color masking (HSV), line detection (Hough), stabilization (ECC),
+residuals, F1, logit, AUC, base rate, the logistic model, counterfactual tables,
+parity arithmetic, and the notation legend.</li>
+<li><strong>Frontmatter last, as a headline:</strong> one sentence, ≤25 words, no
+stats chains — it's the reader's first contact, not the appendix's summary.</li>
+<li><strong>The acceptance test</strong> (each post's own frozen benchmark): a
+tennis-literate reader who has read <em>zero</em> prior posts must be able to say
+(a) what problem the post solves, (b) the day's concept in their own words, and
+(c) whether the result was good — using only this post and the primer. Fail any →
+the Previously paragraph or a gloss is missing.</li>
+<li><strong>Keep what works:</strong> video-first, honest dead ends, the cost ledger,
+tennis-fact-as-algorithm framing ("a live rally sends the ball across the net
+every shot"), and cliffhanger endings — with the setup restated next time for
+cold readers.</li>
+</ul>
+
+<p>The roadmap above is also an editorial calendar, one concept per build: the
+Hawk-Eye principle (nobody sees the ball land). The court that fits itself
+(and knows when it hasn't). Stick figures beat smudges. The machine grows ears.
+The robot that can't write an illegal point. Turning 11,646 scorecards into a
+coach. The challenge-system loop. Each post teaches the concept; each build
+moves a number on the same frozen benchmark; the series compounds.</p>
+
+<h2 id="receipts">Receipts</h2>
+
+<details>
+<summary>Method — how this document was produced</summary>
+<p>One research workflow, 41 agents: 3 mapped the current state (all 33 code
+modules, all 17 posts + primer, the benchmark/scorecard/model-card docs); 8 ran
+technical deep-dives (ball tracking, court calibration, pose/strokes, event
+spotting, sequence models, training strategy, hardening, foundation models);
+each deep-dive's load-bearing recommendations (14 selected) were then attacked by
+two independent adversarial reviewers — one fact-checking every citation against
+fetched sources, one refuting feasibility against this repo, this Mac, and this
+budget (several ran the actual code to check). Verdicts: 12 evidence-CONFIRMED,
+2 PLAUSIBLE, 0 refuted; feasibility caveats are folded into the plan above. A
+completeness critic then flagged what the deep-dives missed (full-match
+segmentation, identity/state machine, licensing, throughput, scope, review
+surface) — folded into the risk register and roadmap. This complements, and does
+not repeat, the July 9 commercial-landscape review
+(<a href="landscape-2026-07.md">docs/landscape-2026-07.md</a>).</p>
+</details>
+
+<details>
+<summary>Key sources by station (fetched and verified)</summary>
+<ul>
+<li><strong>Ball / landing spot:</strong> WASB-SBDT (BMVC 2023) — <a href="https://github.com/nttcom/WASB-SBDT">github.com/nttcom/WASB-SBDT</a>; TT3D (CVSports @ CVPR 2025) — <a href="https://arxiv.org/abs/2504.10035">arXiv 2504.10035</a>, code at <a href="https://github.com/cogsys-tuebingen/tt3d">cogsys-tuebingen/tt3d</a>; "Where Is The Ball" (CVSports @ CVPR 2025, 0.63 m landing error on broadcast tennis) — <a href="https://arxiv.org/abs/2506.05763">arXiv 2506.05763</a>; TOTNet — <a href="https://arxiv.org/abs/2508.09650">arXiv 2508.09650</a>; TrackNetV4 motion attention — <a href="https://arxiv.org/abs/2409.14543">arXiv 2409.14543</a>; BlurBall (blur as signal, weights published) — <a href="https://arxiv.org/abs/2509.18387">arXiv 2509.18387</a>.</li>
+<li><strong>Court:</strong> TennisCourtDetector (14 keypoints, 8,841 imgs, no license) — <a href="https://github.com/yastrebksv/TennisCourtDetector">github.com/yastrebksv/TennisCourtDetector</a>; No Bells Just Whistles / PnLCalib (points+lines, GPL-2.0) — <a href="https://arxiv.org/abs/2404.08401">arXiv 2404.08401</a>; TVCalib self-verifying abstention — <a href="https://arxiv.org/abs/2207.11709">arXiv 2207.11709</a>; SoccerNet 2023 winner (ensemble-of-fits + residual voting) — <a href="https://github.com/NikolasEnt/soccernet-calibration-sportlight">NikolasEnt/soccernet-calibration-sportlight</a>; BroadTrack health-check + re-init (WACV 2025) — <a href="https://arxiv.org/abs/2412.01721">arXiv 2412.01721</a>.</li>
+<li><strong>Players / strokes:</strong> rtmlib (Apache-2.0, cpu/mps, verified 87 fps on Apple Silicon) — <a href="https://github.com/Tau-J/rtmlib">github.com/Tau-J/rtmlib</a>; RTMPose — <a href="https://arxiv.org/abs/2303.07399">arXiv 2303.07399</a>; UMEG-Net (AAAI 2026, keypoint graph wins few-shot 2–3×) — <a href="https://arxiv.org/abs/2511.14186">arXiv 2511.14186</a>, code at <a href="https://github.com/LZYAndy/UMEG-Net">LZYAndy/UMEG-Net</a>; pyskl / ST-GCN++ — <a href="https://github.com/kennymckormick/pyskl">kennymckormick/pyskl</a>; license traps: Ultralytics AGPL, Sapiens CC-BY-NC.</li>
+<li><strong>Events:</strong> E2E-Spot tennis benchmark + pretrained checkpoints (BSD-3, 96.1 mAP@1, classes include near/far bounce) — <a href="https://arxiv.org/abs/2207.10213">arXiv 2207.10213</a>, <a href="https://github.com/jhong93/spot">jhong93/spot</a>; T-DEED (CVPRW 2024, GPL-3.0) — <a href="https://arxiv.org/abs/2404.05392">arXiv 2404.05392</a>; broadcast-tennis audio hit detection (APSIPA 2012, AO 2008 footage); sound-based impact detection (Sony AI) — <a href="https://arxiv.org/abs/2409.11760">arXiv 2409.11760</a>; audio+video fusion gains on SoccerNet — <a href="https://arxiv.org/abs/2011.04258">arXiv 2011.04258</a>; misalignment-tolerant training — <a href="https://arxiv.org/abs/2504.00149">arXiv 2504.00149</a>.</li>
+<li><strong>Words / sequence:</strong> F3Set (ICLR 2025; 114 matches, 42,846 shots, annotations in-repo with player names+scores; no license — email NUS) — <a href="https://arxiv.org/abs/2504.08222">arXiv 2504.08222</a>, <a href="https://github.com/F3Set/F3Set">github.com/F3Set/F3Set</a>; grammar-constrained decoding (EMNLP 2023) — <a href="https://arxiv.org/abs/2305.13971">arXiv 2305.13971</a>; ASR shallow-fusion survey — <a href="https://arxiv.org/abs/2303.03329">arXiv 2303.03329</a>; per-token calibration (TACL 2023) — <a href="https://arxiv.org/abs/2211.07443">arXiv 2211.07443</a>.</li>
+<li><strong>Training / flywheel:</strong> transcript-supervised segmentation ATBA (CVPR 2024) — <a href="https://arxiv.org/abs/2403.19225">arXiv 2403.19225</a>; MatchTime alignment (EMNLP 2024, 49 hand-aligned matches) — <a href="https://arxiv.org/abs/2406.18530">arXiv 2406.18530</a>; SAM's three-stage data engine — <a href="https://arxiv.org/abs/2304.02643">arXiv 2304.02643</a>; Cluster-Margin active learning (NeurIPS 2021) — <a href="https://proceedings.neurips.cc/paper/2021/hash/64254db8396e404d9223914a0bd355d2-Abstract.html">Citovsky et al.</a>.</li>
+<li><strong>Hardening:</strong> ML Test Score (Google) — <a href="https://research.google/pubs/the-ml-test-score-a-rubric-for-ml-production-readiness-and-technical-debt-reduction/">Breck et al.</a>; MAPIE conformal prediction (BSD-3, Mondrian per-group) — <a href="https://github.com/scikit-learn-contrib/MAPIE">scikit-learn-contrib/MAPIE</a>; DVC; Modal pricing (~$0.10–1.20/match on T4, measure first) — <a href="https://modal.com/pricing">modal.com/pricing</a>; model cards — <a href="https://arxiv.org/abs/1810.03993">arXiv 1810.03993</a>; Roboflow sports — <a href="https://github.com/roboflow/sports">roboflow/sports</a>.</li>
+<li><strong>Foundation models:</strong> SAM 3 (players yes, ball no) — <a href="https://ai.meta.com/blog/segment-anything-model-3/">Meta blog</a>; SAM small/fast-object weakness — <a href="https://arxiv.org/abs/2408.00714">arXiv 2408.00714</a>; DINOv3 (custom license) — <a href="https://arxiv.org/abs/2508.10104">arXiv 2508.10104</a>; VLM sports weakness: SportU — <a href="https://arxiv.org/abs/2410.08474">arXiv 2410.08474</a>, VideoAds — <a href="https://arxiv.org/abs/2504.09282">arXiv 2504.09282</a>; Gemini video sampling/pricing — <a href="https://ai.google.dev/gemini-api/docs/pricing">Google docs</a>.</li>
+</ul>
+</details>
+
+<details>
+<summary>Corrections this research surfaced (kept on the record)</summary>
+<ul>
+<li>TT3D's code license was misreported as CC BY-SA in the first research pass; the verifier corrected it (the paper's <em>dataset</em> carries the CC license). Check the repo before reuse.</li>
+<li>"Drop-in court net deletes the last manual knob" was overstated — two small per-match config values (color band, frame window) survive; the knob shrinks rather than disappears.</li>
+<li>The event spotter answers <em>when</em>, not <em>where</em>: wide/deep needs the landing location too, hence the paired single-frame heatmap step.</li>
+<li>The fusion decoder's inputs don't exist in per-token form yet — the notation prior is three task classifiers, and letters/directions output decisions, not probabilities. Retraining them into probability form is real (days-scale) work the roadmap now owns.</li>
+<li>Our own shorthand had drifted: the shipped confidence model is a <em>logistic regression</em> (not a random forest — that's the unshipped corpus prototype), and the score-bug OCR still lives in <code>experiments/</code>, not the package. Cryptic prose confuses its own author eventually; that's half the reason for section 5.</li>
+</ul>
+</details>
+
+<hr>
+<p><em>Companion docs: <a href="scorecard.html">scorecard</a> (what to trust today) ·
+<a href="benchmark.md">benchmark</a> (the running numbers) ·
+<a href="model-card.html">model card</a> ·
+<a href="landscape-2026-07.md">commercial landscape</a> ·
+<a href="../LOG.md">the full build log</a>.</em></p>
+
+</body>
+</html>
