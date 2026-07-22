@@ -2977,3 +2977,39 @@ feed, and retrain a licensed net on self-labeled frames before the
 business phase (weights license: none).
 - New: experiments/court_autofit.py; third_party/TennisCourtDetector
   clone + weights (gitignored). Session cost: $0. Total: ~$16.
+
+## 2026-07-22 — Roadmap #3: skeletons for the smudges (pose v1.1, t3+t4)
+
+**The week-one gate from the blueprint, run:** rtmlib (Apache-2.0,
+auto-downloaded ONNX, CPU) posed at every graded contact frame on the
+two letters-benchmarked matches. Verdict: PASS with caveats.
+
+**Numbers (MCP truth letters, length-matched clips, identical shots per
+method):**
+- t3 clay: ball-side-of-torso (pose anchor) 42/50 (84%) vs shipped blob
+  rule 36/44 (82%) — parity, exactly what the refuted re-anchoring
+  counterfactual predicted. Wrist-cross 37/50 (74%).
+- t4 grass (the blob rule's disaster surface): pose ball-side 23/35
+  (66%) vs blob 16/30 (53%) — +13pp where the boxes smear worst.
+- Far-player keypoint confidence: shoulders 0.61-0.65, wrists
+  0.45-0.57 — shaky wrists, usable shoulders, exactly the research
+  prediction at ~90px player height.
+
+**Bug caught by the audit stills (kept, with the frame):** v1 matched
+detections to the striker by nearest-blob-center, and a rogue blob box
+(the known box disease) dragged the match to a BALL KID at the back
+fence — outputs/diag/pose_blooper_ballkid.png. Some v1 shots graded
+the wrong human's skeleton and pose STILL beat the blob on grass.
+Fourth eyes-beat-derivatives of the week.
+
+**v1.1 fix + its honest cost:** candidates must stand in the striker's
+court half (ankles projected through the homography); highest
+confidence wins; the blob box demoted to tiebreak hint. Identity now
+clean — but coverage halved (t3 93→50 graded shots) because bad ankles
+fail the court test with no fallback. v2 recovers coverage with
+temporal tracking (pose every frame, continuity), and the real letters
+lift remains roadmap #9's keypoint-graph model over shot windows —
+single-frame geometry was only ever the gate test.
+
+- New: experiments/pose_letters.py; audits in outputs/diag/pose_*.png.
+- Session cost: $0. Project total: ~$16.
