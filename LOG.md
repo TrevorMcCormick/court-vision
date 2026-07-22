@@ -2905,3 +2905,38 @@ committed and pushed with the posts.
   experiments/render_landing_hero.py, docs/blueprint.html (yesterday's
   axe-sharpening), README link, this LOG. Suite 80 green.
 - Session cost: $0. Project total: ~$16.
+
+## 2026-07-22 — Roadmap #4: the machine grows ears (audio hits v1, t6+g1)
+
+**Staging find #1:** every reel on disk is SILENT — the ingest pipeline
+always downloaded video-only streams, and extract.py cuts clips with
+-an. Ears required re-fetching audio-only tracks of the SAME uploads:
+g1 by known ID (duration 5039.40s vs reel 5039.45s — same file), t6 by
+duration fingerprint (condensed-match upload, 2412.22s vs 2412.13s).
+t3's edit didn't surface in search; later. New: clips/audio/ (gitignored).
+
+**Staging find #2, recovered:** g1's clip cutter never persisted its
+reel windows (the score-bug pipeline is still experiments/-grade). Its
+geometry was reverse-engineered: every clip measures exactly 1.6s
+longer than its alignment window (verified points 01/02/05/10), so
+start = f0/30 − a constant pre-pad, and any constant guess folds into
+the per-match A/V offset. Lesson for the package promotion: cutters
+must persist their windows.
+
+**experiments/audio_hits.py (numpy STFT spectral flux, 1-8 kHz, 11.6ms
+hops; THRESH swept on t6 per declared protocol, frozen at 5.0 for g1):**
+- A/V offset locks: +95ms (t6), +310ms (g1) — sharp single-offset
+  peaks, i.e. the fingerprint-matched audio really is the same edit.
+- Agreement with video hits: t6 44% within 2 frames / 57% within 3;
+  g1 49% / 66% — the CLAY match agrees MORE (closer court mics?).
+- THE HEADLINE: onsets inside ball-track holes — 156 events in 67s of
+  blind time (t6), 196 in 78s (g1). The mic keeps working exactly
+  where the eyes fail.
+- The physics receipt: sweeping THRESH shows onsets-per-true-shot
+  median hitting exactly 2.00 at THRESH=12 (racquet + bounce per
+  shot). At the frozen 5.0 the ratio is 3.27 (crowd/calls/grunts ride
+  along) and naive rally length (onsets/2) is only 30% within ±1 —
+  audio v1 is a WITNESS, not yet a counter. v2 is the Sony-AI-pattern
+  mel-CNN classifying racquet vs bounce vs other, trained on pseudo-
+  labels minted from aligned video hits (blueprint roadmap #8).
+- Session cost: $0. Project total: ~$16.
