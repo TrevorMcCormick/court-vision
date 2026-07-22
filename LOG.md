@@ -2940,3 +2940,40 @@ hops; THRESH swept on t6 per declared protocol, frozen at 5.0 for g1):**
   mel-CNN classifying racquet vs bounce vs other, trained on pseudo-
   labels minted from aligned video hits (blueprint roadmap #8).
 - Session cost: $0. Project total: ~$16.
+
+## 2026-07-22 — Roadmap #2: the court fits itself (7/8 plates, incl. the clay that broke auto-fit)
+
+**experiments/court_autofit.py:** the public pretrained 14-keypoint
+TennisCourtDetector (third_party/, no license — research use, blueprint
+risk register) run on each match's fit-window plate; homography solved
+via the author's 12-configuration cross-validated search (reimplemented
+numpy-only); converted to our image→meters convention; graded against
+the 8 HAND-FIT homographies at 6 landmarks (doubles corners + net posts).
+
+**Results (landmark delta vs hand truth, mean/max px):**
+t5 2.7/3.1 · t6 2.4/4.0 · t7 4.7/8.6 · t2 7.3/13.9 · t4 8.0/15.2 ·
+**g1 8.0/12.2 — the clay plate classical auto-fit missed by 74 px rms;
+the pretrained net fits it first try** · t3 15.7/29.0 (see below) ·
+t1: 2/14 keypoints detected → NO FIT — the detector ABSTAINS on the
+night feed, which is exactly the accept/reject gate behavior the
+blueprint wants (abstain → human clicks corners).
+
+**Open question, kept honest:** the t3 overlay shows the NET's orange
+lines sitting on the painted doubles paint while the hand-fit green is
+visibly inset on the far side — the 15.7 px "error" may partly be the
+hand fit's. Arbitration belongs to the line-mask judge (fitcourt's
+step-5 scorer) when the gate is wired; do not assume the hand fits are
+perfect truth.
+
+**Dead end caught by eyes (kept):** first run showed all fits
+displaced by a consistent ~750 px — their postprocess() upscales
+heatmap coords by 2 internally (assumes 720p input) and I scaled
+again. One overlay render found it instantly; the metric alone never
+named the cause. Eyes beat derivatives, third time this week.
+
+Next for the knob: wire the gate (auto-init → line-mask judge →
+accept/abstain), try per-clip plates or gamma boost for the night
+feed, and retrain a licensed net on self-labeled frames before the
+business phase (weights license: none).
+- New: experiments/court_autofit.py; third_party/TennisCourtDetector
+  clone + weights (gitignored). Session cost: $0. Total: ~$16.
