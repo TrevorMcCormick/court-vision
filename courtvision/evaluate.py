@@ -24,6 +24,7 @@ Usage:
 """
 
 import csv
+from collections import Counter
 
 from .mcp import (FH_SIDE, BH_SIDE, mcp_point_tokens, chart_point_tokens,
                   token_levenshtein, parse_mcp, mcp_ending_type,
@@ -62,7 +63,8 @@ def evaluate(cfg, charts_dir=None, verbose=True):
     tally = {"server": [0, 0], "rally_pm1": [0, 0], "serve_zone": [0, 0],
              "letters_match": 0, "letters_mirror": 0, "letters_total": 0,
              "letters_al_match": 0, "letters_al_total": 0,
-             "ending": [0, 0], "ending_committed": 0, "accept": [0, 0]}
+             "ending": [0, 0], "ending_committed": 0, "accept": [0, 0],
+             "ending_conf": {}}    # true type -> Counter(our type); '?'=uncommitted
     records = []
     if verbose:
         print(f"{'clip':14} {'srv':>3}{'✓':2} {'len ours/mcp':>13} "
@@ -129,6 +131,8 @@ def evaluate(cfg, charts_dir=None, verbose=True):
 
         ours_end = our_ending_type(mc.get("ending", "?"))
         true_end_t = mcp_ending_type(played)
+        if true_end_t != "?":
+            tally["ending_conf"].setdefault(true_end_t, Counter())[ours_end] += 1
         end_pair = ""
         if ours_end != "?":
             tally["ending_committed"] += 1

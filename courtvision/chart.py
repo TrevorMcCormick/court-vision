@@ -297,7 +297,8 @@ def chart_clip(cfg, stem, Hm, serves, offsets):
     directions.annotate(shots, frames, cyc, cxc, fps)
 
     ending = endings.infer(shots, frames, ys, cyc, cxc, fps,
-                           near_fill=cfg.staging.near_ending_fill)
+                           near_fill=cfg.staging.near_ending_fill,
+                           landing_race=cfg.staging.landing_race)
 
     mcp = ""
     for sh in shots:

@@ -3084,3 +3084,65 @@ Phase 3 (park it as a personal page with redirects) pending. NOTE:
 local ~/.aws credentials are the Disney work role — never used for
 this; all cloud steps were done in Trevor's personal console by hand.
 - Session cost: $0 (domain purchase aside). Total: ~$16.
+
+## 2026-07-23 — Roadmap #6 begins: the first two witnesses wired into the chart
+
+The pivot's payoff finally reaches the shipped path. Two of the four
+built-but-benched experiments are now real pipeline stages, each behind
+a switch, each measured before/after on all 8 benchmark matches with a
+new harness (experiments/wiring_measure.py: chart+eval all, per-field
+scorecard + a wide/deep ending confusion). Approach chosen with Trevor:
+wire the two READY helpers (court fit, wide/deep), leave pose + audio as
+next steps; court first, then wide/deep, measure after each.
+
+**Court auto-fit + the paint referee (roadmap #2 -> courtvision/courtfit_auto.py,
+`fitcourt --net`).** The pretrained 14-keypoint net (promoted from the
+experiment; scipy dependency dropped by reimplementing the 9-line
+postprocess in cv2) proposes a court; fitcourt's existing line-mask
+distance scorer — the "paint referee" — judges it against the hand fit on
+the real painted pixels; the winner is written, the hand fit preserved as
+H_court_to_img_hand.npy (idempotent, always the baseline). Verdicts across
+the 8: use neural on g1/t4/t7, keep hand on t2/t3/t5/t6, ABSTAIN on t1
+(night feed, 2/14 keypoints -> hand). Two findings worth keeping:
+  - The referee OVERRULED the cv-20 hunch. t3's hand fit was the
+    suspected-bad one (the auto overlay "hugged the paint better" by eye);
+    the objective line-mask score says the opposite — hand 4.12 vs neural
+    4.88 px — so it kept hand. Eyes proposed, the scorer disposed. The
+    15.7px disagreement was real; the direction of it was the guess.
+  - g1's clay money-test: neural 1.26 vs hand 3.13 px, adopted, and the
+    overlay confirms the orange net-fit lines sit on the paint while the
+    green hand court bulges wide at the near-right corner
+    (outputs/g1/autofit_gate_g1.png).
+  Chart impact: essentially NIL — 0 regressions, +1 accept on t7, wide/deep
+  +3. The hand fits were already good enough that a better court doesn't
+  move the discrete calls. The win is deleting the last manual knob and
+  having an objective court referee, not accuracy. Honest and useful.
+
+**Wide-or-deep landing extrapolation (roadmap #1 -> courtvision/landing.py,
+`staging.landing_race`).** The validated boundary racer, promoted verbatim,
+now fires inside endings.infer at exactly ONE spot: when every existing
+evidence path has returned '?' (no far-half landing, no net death, no
+near-half cusp). There it races the seen flight to the sideline vs the
+baseline. Measured lift (courts held constant, after_court -> after_landing):
+  - wide/deep recall 27% -> 41% (+14pp): deep 29->46, both/x 3->8, wide 14->16.
+  - acceptance (<=1 edit, the north star): +4 (29->33).
+  - BUT the cost is real and instructive: +42 true winners and +6 net
+    errors get over-committed as 'out'; ending-type accuracy flat (32->31%).
+    The winners it miscalls were ALREADY uncommitted '?' — the pipeline
+    couldn't chart them either way — which is why acceptance still rose.
+  The lesson names the next brick: the racer is a good out-FLAVOR
+  classifier with no out-DETECTOR in front of it. That detector is helper
+  #4 (audio) — the one we deferred. So #1 and #4 are coupled, and
+  landing_race ships OFF by default until the winner-vs-out gate exists;
+  flipping it for the public scorecard is a recall-vs-winner-precision
+  call.
+
+Also: evaluate() gained an additive ending_conf counter (true type ->
+Counter(our type)) so wide/deep is measurable per flavor; no existing
+output changed. 87 tests pass (7 new in tests/test_landing.py pin the
+racer and the '?' gate). All match artifacts (homographies, charts) stay
+gitignored under outputs/; the committed change is the code path.
+- New: courtvision/courtfit_auto.py, courtvision/landing.py,
+  experiments/wiring_measure.py, tests/test_landing.py. Touched: fitcourt.py,
+  cli.py, endings.py, config.py, chart.py, evaluate.py.
+- Session cost: $0. Total: ~$16.

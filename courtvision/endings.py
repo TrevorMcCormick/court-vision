@@ -26,6 +26,7 @@ Logic lifted verbatim from the t*w chart twins (2026-07-10).
 
 import numpy as np
 
+from . import landing
 from .court import W_C, L_C, NET_Y, SINGLES_MARGIN, moving_average
 
 SMOOTH = 3
@@ -37,7 +38,7 @@ NEAR_DEEP_M = 0.5             # m behind the near baseline before 'deep'
 NEAR_CY_CEIL = 8.0            # m; cusps beyond L_C+this are not bounces
 
 
-def infer(shots, frames, ys, cyc, cxc, fps, near_fill=False):
+def infer(shots, frames, ys, cyc, cxc, fps, near_fill=False, landing_race=False):
     """Ending code for the point: '*', 'n@', 'w@', 'd@', 'x@', or '?'."""
     ending = "?"
     last = shots[-1]
@@ -77,4 +78,11 @@ def infer(shots, frames, ys, cyc, cxc, fps, near_fill=False):
                 ending = ("x@" if deep and wide else "d@" if deep
                           else "w@" if wide else "*")
                 break
+    if ending == "?" and landing_race:
+        # the ball left the tracked court with no recorded bounce or net
+        # death — race its seen flight to the sideline vs the baseline
+        # (roadmap #1). Fires ONLY here, so it never overrides real evidence.
+        call = landing.race_final_shot(last["frame"], frames, cxc, cyc)
+        if call:
+            ending = f"{call}@"
     return ending

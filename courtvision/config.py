@@ -33,6 +33,7 @@ class Staging:
     serve_zone_requires_side: bool = False
     near_ending_fill: bool = False
     coda_report: bool = False
+    landing_race: bool = False    # roadmap #1: extrapolate out-ball landings
 
 
 @dataclass

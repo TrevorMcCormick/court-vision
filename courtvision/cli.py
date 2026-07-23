@@ -64,6 +64,9 @@ def main(argv=None):
     p = sub.add_parser("fitcourt", help="reel + court_detect -> homography")
     p.add_argument("match")
     p.add_argument("--manual", action="store_true")
+    p.add_argument("--net", action="store_true",
+                   help="neural auto-fit + paint referee off the staged "
+                        "plate; abstains to the hand fit")
 
     p = sub.add_parser("probe", help="court-view detection -> segments.csv")
     p.add_argument("match")
@@ -171,7 +174,8 @@ def main(argv=None):
     elif args.cmd == "fitcourt":
         from . import fitcourt
         for mid in _matches(args.match):
-            fitcourt.fit_match(config.load(mid), manual=args.manual)
+            fitcourt.fit_match(config.load(mid), manual=args.manual,
+                               net=args.net)
     elif args.cmd == "probe":
         from . import probe
         for mid in _matches(args.match):

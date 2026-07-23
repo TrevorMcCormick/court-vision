@@ -341,7 +341,19 @@ def validate(plate, line_mask, H, fit_pts, out_dir):
     print(f"-> {out_dir}/model_reprojection.png — LOOK AT IT before proceeding")
 
 
-def fit_match(cfg, manual=False):
+def fit_match(cfg, manual=False, net=False):
+    if net:
+        # neural auto-fit + paint referee, straight off the staged plate
+        # (no video re-read); abstains to the hand fit when it can't win
+        from . import courtfit_auto
+        v = courtfit_auto.gated_fit(cfg)
+        print(f"[gate] {cfg.id}: {v['decision']}  "
+              f"(neural {v['neural_score']} vs hand {v['hand_score']} px, "
+              f"kps {v['n_kps']}/14, landmark Δ {v['landmark_delta_px']}px)")
+        print(f"-> {cfg.out_dir}/H_*.npy (chosen: {v['chosen']}); "
+              f"overlay {v['overlay']}")
+        return v
+
     cd = cfg.court_detect
     out_dir = cfg.out_dir
     out_dir.mkdir(parents=True, exist_ok=True)
