@@ -3037,3 +3037,16 @@ denominator lie (aligned-only records); the true bin-derived number is
 66%. Fixed with a comment naming the trap. The page whose job is
 preventing quiet lies almost shipped one.
 - Session cost: $0. Total: ~$16.
+
+## 2026-07-23 — /how-it-got-better: the story of the numbers
+
+Companion page to the scorecard, Trevor's ask: the math of WHY each
+number moved, ELI5, for reference. Framing that makes it teach itself:
+a number only ever moves for one of three reasons — the machine got
+better, the test got harder, or the answer key got fixed — and this
+project keeps all three on the record (endings 30→20 and the
+changeover-parity truth fix sit beside the direction-rebuild jump).
+Nine documented milestones, each with before→after, mechanism, and a
+receipt link. Curated by hand on purpose: the scorecard is machine-
+written so it can't lie; the story page is editorial so it can teach.
+- Session cost: $0. Total: ~$16.
