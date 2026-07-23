@@ -3050,3 +3050,19 @@ Nine documented milestones, each with before→after, mechanism, and a
 receipt link. Curated by hand on purpose: the scorecard is machine-
 written so it can't lie; the story page is editorial so it can teach.
 - Session cost: $0. Total: ~$16.
+
+## 2026-07-23 — /how-it-got-better rebuilt as the technical reference
+
+Trevor's redirect: the reference layer should be genuinely technical —
+an intro to the CV field through this system + a changelog precise
+enough that another engineer knows exactly what changed and why each
+choice was made. Three registers now: scorecard (glance), devlog
+(ELI5), /how-it-got-better (technical). Part 1 teaches the nine core
+techniques as instantiated here; Part 2 is per-component version
+tables with measured moves + decision records (alternatives considered,
+refutations kept — the counterfactual letter experiment, the refuted
+naive fusion, the load-bearing bug); Part 3 codifies the decision
+principles (constraint-first > learned > hand-tuned; prove ceilings
+before rebuilding; abstention is a feature; render everything;
+match-disjoint or it didn't happen).
+- Session cost: $0. Total: ~$16.
