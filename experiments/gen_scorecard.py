@@ -154,12 +154,9 @@ def main():
               f'receipts in <a href="benchmark.md">benchmark.md</a>) — '
               f"numbers cannot drift from the code.")
 
-    tiles = f"""<div class="tiles">
-<div class="tile"><b>{pct(accept, 1)}</b><span>points perfect as-is (at most 1 fix)</span></div>
-<div class="tile"><b>{pct(usable)}</b><span>usable drafts (at most 5 small fixes)</span></div>
-<div class="tile"><b>{pct(hp)}</b><span>trust flag is right when raised (on {pct(hc)} of points)</span></div>
-<div class="tile"><b>{lomo['n']}</b><span>points graded vs humans, {len(mids)} matches</span></div>
-</div>"""
+    tiles = (f'<p class="tested"><b>{lomo["n"]}</b> points graded against '
+             f'human charters, across <b>{len(mids)}</b> matches and five '
+             f'broadcast styles.</p>')
 
     components = "\n".join([
         '<table>',
