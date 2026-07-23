@@ -1,0 +1,90 @@
+{
+ "_comment": "Grading history for the scorecard trend lines; appended by gen_scorecard.py, backfilled only from documented benchmark figures.",
+ "server": [
+  {
+   "date": "2026-07-20",
+   "label": "v2 \u00b7 7 matches",
+   "value": 0.84
+  },
+  {
+   "date": "2026-07-23",
+   "label": "8 matches",
+   "value": 0.832
+  }
+ ],
+ "rally": [
+  {
+   "date": "2026-07-23",
+   "label": "8 matches",
+   "value": 0.716
+  }
+ ],
+ "dirs": [
+  {
+   "date": "2026-07-10",
+   "label": "pre-rebuild \u00b7 4 matches",
+   "value": 0.48
+  },
+  {
+   "date": "2026-07-15",
+   "label": "v1 \u00b7 4 matches",
+   "value": 0.75
+  },
+  {
+   "date": "2026-07-20",
+   "label": "v2 \u00b7 7 matches",
+   "value": 0.72
+  },
+  {
+   "date": "2026-07-23",
+   "label": "8 matches",
+   "value": 0.713
+  }
+ ],
+ "letters": [
+  {
+   "date": "2026-07-15",
+   "label": "v1 \u00b7 4 matches",
+   "value": 0.6
+  },
+  {
+   "date": "2026-07-20",
+   "label": "v2 \u00b7 7 matches",
+   "value": 0.6
+  }
+ ],
+ "zone": [
+  {
+   "date": "2026-07-15",
+   "label": "v1 \u00b7 4 matches",
+   "value": 0.26
+  },
+  {
+   "date": "2026-07-20",
+   "label": "v2 \u00b7 7 matches",
+   "value": 0.4
+  },
+  {
+   "date": "2026-07-23",
+   "label": "8 matches",
+   "value": 0.395
+  }
+ ],
+ "ending": [
+  {
+   "date": "2026-07-15",
+   "label": "v1 \u00b7 4 matches",
+   "value": 0.3
+  },
+  {
+   "date": "2026-07-20",
+   "label": "v2 \u00b7 7 matches",
+   "value": 0.2
+  },
+  {
+   "date": "2026-07-23",
+   "label": "8 matches",
+   "value": 0.195
+  }
+ ]
+}

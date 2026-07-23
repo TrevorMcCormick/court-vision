@@ -3013,3 +3013,27 @@ single-frame geometry was only ever the gate test.
 
 - New: experiments/pose_letters.py; audits in outputs/diag/pose_*.png.
 - Session cost: $0. Project total: ~$16.
+
+## 2026-07-23 — The scorecard becomes the site's front door
+
+Trevor's design, workshopped live: kill the stat tiles (only "how much
+we've tested" survives), every component becomes a CARD — a looping
+clip of what the machine is looking at, a plain question, a grade chip
+(Trust/Verify/Re-key), the number, and a trend line with a dot per
+grading run and date labels. trmccormick.com's homepage now IS this
+grid (hero carousel retired), with the devlog wall below.
+
+Plumbing: gen_scorecard.py now also emits docs/scorecard.json and
+appends each run to data/scorecard_history.json (backfilled ONLY with
+documented benchmark figures — some lines have 4 dots, some 1; uneven
+is honest). The site reads the JSON via scripts/sync-scorecard.sh.
+Three purpose-made card loops rendered (serve ring, direction arrow,
+service-box thirds + landing dot: experiments/render_scorecard_clips.py);
+five more are hero-video cuts pending purpose-made versions. Clips
+live on the site, NOT in this repo (no broadcast video committed).
+
+Caught on the way: the first "usable drafts" tile said 83% — a
+denominator lie (aligned-only records); the true bin-derived number is
+66%. Fixed with a comment naming the trap. The page whose job is
+preventing quiet lies almost shipped one.
+- Session cost: $0. Total: ~$16.

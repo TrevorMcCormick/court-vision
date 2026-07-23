@@ -32,6 +32,8 @@ from courtvision.config import ROOT                # noqa: E402
 
 PAGE = ROOT / "docs" / "scorecard.html"
 LOMO = ROOT / "data" / "confidence_lomo.json"
+HISTORY = ROOT / "data" / "scorecard_history.json"
+JSON_OUT = ROOT / "docs" / "scorecard.json"
 CONTROL = "t2"
 FEED = {"t1": "night hard", "t2": "day control", "t3": "clay RG",
         "t4": "grass WTA", "t5": "AO night", "t6": "USO", "t7": "Turin",
@@ -206,6 +208,62 @@ failed held-out validation at every attempted n.</p>"""
 <tr><td>Anything else (doubles, amateur video)</td>
 <td><strong>unsupported</strong></td><td>never tested</td></tr>
 </table>"""
+
+    # ---- machine-readable feed for the website (+ history append) ----
+    hist = json.loads(HISTORY.read_text())
+    hist.pop("_comment", None)
+    today = date.today().isoformat()
+    values = {"server": srv, "rally": frac("rally_pm1")[2], "dirs": dirs,
+              "letters": let_pool, "zone": zone, "ending": ending}
+    for key, val in values.items():
+        series = hist.setdefault(key, [])
+        rounded = round(val, 3)
+        if not series or abs(series[-1]["value"] - rounded) >= 0.005:
+            series.append({"date": today,
+                           "label": f"{len(mids)} matches", "value": rounded})
+        elif series[-1]["date"] == today:
+            series[-1]["value"] = rounded
+    HISTORY.write_text(json.dumps(
+        {"_comment": "Grading history for the scorecard trend lines; "
+                     "appended by gen_scorecard.py, backfilled only from "
+                     "documented benchmark figures.", **hist}, indent=1) + "\n")
+
+    def comp(cid, question, val, shown=None):
+        grade = ("trust" if val >= 0.80 else
+                 "verify" if val >= 0.45 else "rekey")
+        return {"id": cid, "question": question, "grade": grade,
+                "value": round(val, 3), "shown": shown or pct(val),
+                "history": hist.get(cid, [])}
+
+    feed = {
+        "generated": today, "points": lomo["n"], "matches": len(mids),
+        "components": [
+            comp("server", "Who served, from which end?", srv),
+            comp("rally", "How many shots in the rally?", values["rally"],
+                 f"{pct(min(r_rng))}–{pct(max(r_rng))}"),
+            comp("dirs", "Which way did the shot go?", dirs),
+            comp("letters", "Forehand or backhand?", let_pool),
+            comp("zone", "Where did the serve land?", zone),
+            comp("ending", "How did the point end?", ending),
+        ],
+        "missing": [{"id": "faults", "question": "Faults and second serves",
+                     "note": "not attempted — every draft assumes a first serve"}],
+        "bench": [
+            {"id": "landing", "question": "Out-balls: wide or deep, from flight physics",
+             "shown": "0 → 47%", "note": "was totally blind",
+             "post": "/blog/nobody-sees-the-ball-land"},
+            {"id": "ears", "question": "Hearing every hit in the soundtrack",
+             "shown": "½ confirmed", "note": "196 impacts heard where video was blind",
+             "post": "/blog/the-machine-grows-ears"},
+            {"id": "court", "question": "Court finds itself — no human clicks",
+             "shown": "7 of 8", "note": "within 2–16 px of the human; declines the 8th",
+             "post": "/blog/the-court-that-fits-itself"},
+            {"id": "pose", "question": "Player skeletons for forehand/backhand",
+             "shown": "+13 pts", "note": "on grass, the worst surface",
+             "post": "/blog/stick-figures-beat-smudges"},
+        ],
+    }
+    JSON_OUT.write_text(json.dumps(feed, indent=1) + "\n")
 
     html = PAGE.read_text()
     for name, content in (("header", header), ("tiles", tiles),
