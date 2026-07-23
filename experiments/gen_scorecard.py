@@ -19,7 +19,7 @@ Usage:  uv run python experiments/gen_scorecard.py
 Idempotent: same data + same day -> second run is a zero diff.
 """
 
-import csv
+
 import json
 import sys
 from datetime import date
@@ -93,13 +93,7 @@ def collect(mids):
     for mid in mids:
         cfg = config.load(mid)
         tally, records = evaluate.evaluate(cfg, verbose=False)
-        le5 = [0, 0]
-        for r in records:
-            if r["aligned"]:
-                le5[1] += 1
-                le5[0] += r["d_tok"] <= 5
-        per[mid] = {"tally": tally, "strict": strict_components(records),
-                    "le5": le5}
+        per[mid] = {"tally": tally, "strict": strict_components(records)}
     return per
 
 
@@ -141,9 +135,6 @@ def main():
     zone = strict("zone")[2]
     ending = strict("ending")[2]
     accept = frac("accept")[2]
-    le5_n = sum(per[m]["le5"][0] for m in mids)
-    le5_d = sum(per[m]["le5"][1] for m in mids)
-    usable = le5_n / le5_d
 
     pm = lomo["per_match"]
     hp = lomo["pooled"]["precision_num"] / lomo["pooled"]["precision_den"]
@@ -151,6 +142,10 @@ def main():
     ch, cl = lomo["confusion"]["high"], lomo["confusion"]["low"]
     h_le2 = (ch["0-1"] + ch["2"]) / ch["total"]
     l_6p = cl["6+"] / cl["total"]
+    # usable = <=5 edits over ALL scored points, from the same bins the
+    # trust model reports — a records-based version of this once shipped
+    # 83% by quietly dropping unaligned points from the denominator
+    usable = 1 - (ch["6+"] + cl["6+"]) / (ch["total"] + cl["total"])
     worst = sorted((p["precision_num"] / p["precision_den"], m)
                    for m, p in pm.items() if p["precision_den"])[:2]
 
