@@ -3066,3 +3066,21 @@ principles (constraint-first > learned > hand-tuned; prove ceilings
 before rebuilding; abstention is a feature; render everything;
 match-disjoint or it didn't happen).
 - Session cost: $0. Total: ~$16.
+
+## 2026-07-23 — optic-yellow.com: the project gets its own front door
+
+Trevor bought optic-yellow.com (the official color of the ball) on
+Squarespace. Domain wired to the EXISTING AWS site: Route 53 hosted
+zone (nameservers delegated from Squarespace; DNSSEC deliberately
+skipped during delegation), one ACM cert covering both domains + www,
+CloudFront alternate names added (lesson: the Route 53 alias dropdown
+only lists a distribution once the exact hostname is in its
+alternate-name list — www needed adding). Site rebranded: title/navbar
+"Optic Yellow" with a drawn ball logo + favicon, canonical url →
+optic-yellow.com, social cards regenerated with the new domain stamp.
+Content keeps "Court Vision" as the project name — site rename ≠
+project rename. trmccormick.com still serves during transition;
+Phase 3 (park it as a personal page with redirects) pending. NOTE:
+local ~/.aws credentials are the Disney work role — never used for
+this; all cloud steps were done in Trevor's personal console by hand.
+- Session cost: $0 (domain purchase aside). Total: ~$16.
