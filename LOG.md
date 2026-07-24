@@ -3195,3 +3195,39 @@ a real training/benchmark pipeline instead of 8 hand-staged matches.
   data/video_catalog.json. Subagents: 7-agent court-generalization workflow
   (5/6 real broadcasts fit; ~$0, local models + yt-dlp).
 - Session cost: $0. Total: ~$16.
+
+## 2026-07-23 — A run at knob #2: auto-locating the score bug
+
+Took a run at the last staging blocker — reading the on-screen score bug
+without hand-measuring a crop per broadcast (ingest.py knob #2). Insight: the
+bug is the one large graphic that PERSISTS across shot cuts (court, replay,
+crowd, close-up all change; the overlay stays), so per-pixel temporal variance
+over DIVERSE frames should isolate it with zero config.
+experiments/scorebug_locate.py samples frames, masks the low-variance pixels,
+and picks the wide text-bearing rectangle near an edge.
+
+WORKS on opaque bugs. On AO24 (Sinner-Medvedev) it locates the bottom-left
+score bug precisely, zero config (outputs/diag/scorebug_med24.png) — the
+heatmap shows the bug as a clean low-variance island, and the digit cells fall
+OUTSIDE the mask exactly because the score flickers (which is itself the signal
+for where the numbers live). Cross-shot sampling (3 far-apart 15-s windows, so
+the background differs and only overlays persist) then cleanly isolated Roland
+Garros's opaque corner LOGO — the concept generalizes to persistent opaque
+graphics.
+
+The boundary, found honestly. RG's SCORE bug is SEMI-TRANSPARENT — the clay
+court bleeds through its fill, so its pixels track the background and pure
+variance misses it, even while the opaque RG logo two feet away is caught
+perfectly. Catching translucent bugs needs an edge-persistence / alpha-aware
+signal (the name TEXT edges persist even when the fill doesn't), not just low
+variance. Separately, READ: a single Otsu threshold on a multi-colored bug
+returns garbage; reading needs g1 read_bug.py's per-cell processing (invert the
+points box, threshold the games cell), still somewhat per-broadcast — but the
+sequence-JOIN to the MCP chart is error-tolerant (g1 hit 65/88 from noisy
+reads), so partial reads suffice.
+
+Verdict: LOCATE is proven on opaque bugs and de-risked; the two remaining
+pieces are named and concrete — (a) an edge/alpha signal for translucent bugs,
+(b) per-cell READ feeding the error-tolerant sequence-join. Not solved; the
+path is now clear instead of "measured by eye."
+- New: experiments/scorebug_locate.py. Session cost: $0. Total: ~$16.
