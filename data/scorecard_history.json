@@ -39,6 +39,11 @@
    "date": "2026-07-23",
    "label": "8 matches",
    "value": 0.713
+  },
+  {
+   "date": "2026-07-24",
+   "label": "8 matches",
+   "value": 0.721
   }
  ],
  "letters": [
@@ -51,6 +56,11 @@
    "date": "2026-07-20",
    "label": "v2 \u00b7 7 matches",
    "value": 0.6
+  },
+  {
+   "date": "2026-07-24",
+   "label": "8 matches",
+   "value": 0.605
   }
  ],
  "zone": [
@@ -68,6 +78,11 @@
    "date": "2026-07-23",
    "label": "8 matches",
    "value": 0.395
+  },
+  {
+   "date": "2026-07-24",
+   "label": "8 matches",
+   "value": 0.387
   }
  ],
  "ending": [

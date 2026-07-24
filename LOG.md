@@ -3231,3 +3231,54 @@ pieces are named and concrete — (a) an edge/alpha signal for translucent bugs,
 (b) per-cell READ feeding the error-tolerant sequence-join. Not solved; the
 path is now clear instead of "measured by eye."
 - New: experiments/scorebug_locate.py. Session cost: $0. Total: ~$16.
+
+## 2026-07-24 — The site gets audited like the pipeline does
+
+Trevor's ask: adversarially review everything published for the
+tennis-fluent CV-novice reader, then rebuild the roadmap to the same
+"pointable" standard. Ran it like a benchmark: 25 review agents
+(reader-simulation, concept-accuracy vs this repo's code, number
+consistency, pedagogy, an engineering red-team) with a verification
+stage that tried to REFUTE every checkable finding before anything got
+edited. 87 findings; 12 confirmed factual errors; 2 findings the
+verifiers killed (the system works in both directions).
+
+The embarrassing catches, kept on the record: the series' flagship
+example string `s5b2f1f2f2x@` was never valid MCP — real strings open
+with a bare digit and `s` already means backhand slice (a charting
+volunteer, the exact reader being courted, would wince). cv-10's
+framing device inverted how overrules work. cv-07 said "nobody serves
+from outside their own court" — every serve is struck from outside the
+court. cv-02 counted 180 frozen dead-track frames as "tracked
+cleanly" (98% → the honest 290/480). cv-16 quoted the two-fix bar as
+the one-fix bar. All fixed, with the same verification pass then run
+on MY fixes — which caught 6 more errors in the fixes themselves
+(including generalizing the tiebreak-parity cancellation this LOG
+explicitly warns is match-specific). Checks catch the checker too.
+
+Structural: /project was frozen on day 1 (SAM 3 era, "M0 in
+progress"); rebuilt as the real front door. Primer gained pose +
+audio-onset entries and the corrected notation legend; scorecard
+gained a Trust/Verify/Re-key legend; primer/roadmap/reference joined
+the navbar; every post now opens with an orientation strip.
+
+NEW: optic-yellow.com/roadmap — 31 items, every one written as
+question-in-tennis-terms / today's-number / exact-mechanism /
+done-when. Synthesized from 6 station-specialist drafts + the
+engineering red-team, then agent-verified against this repo (~90
+claims checked; the stale ones fixed pre-publish). The red-team's
+sharpest reframes made it in: decide winner-vs-out by racing the
+flight line's boundary-crossing TIME against the heard bounce time;
+deuce/ad is arithmetic from the score, not vision; detect the serve at
+the toss (the only 1-second vertical ball rise in tennis); type audio
+onsets by cheap spectral physics before any CNN; mint training labels
+via forced alignment with per-surface quotas so clay doesn't get
+filtered out as "hard". Blueprint got a truth-note pointing at the
+public roadmap (its statuses froze on 07-21 and drifted).
+
+Here too: gen_scorecard.py display fixes (rally shows pooled 71% not a
+bare range; pose "53% → 66%" not "+13 pts"; ears "hears ~1 in 2 hits";
+bench cards carry wired/bench status now that two witnesses shipped).
+- Touched: experiments/gen_scorecard.py, docs/blueprint.html (+ regen
+  scorecard.json/html/history). Site: commit ae15f07 (21 posts, 4
+  pages, nav, /roadmap). Session cost: $0. Total: ~$16.

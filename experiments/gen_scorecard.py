@@ -239,8 +239,11 @@ failed held-out validation at every attempted n.</p>"""
         "generated": today, "points": lomo["n"], "matches": len(mids),
         "components": [
             comp("server", "Who served, from which end?", srv),
-            comp("rally", "How many shots in the rally?", values["rally"],
-                 f"{pct(min(r_rng))}–{pct(max(r_rng))}"),
+            # pooled number big (the spread confused the card: a bare
+            # "35%–83%" range half-reads as a trend, and the sparkline dot
+            # matches neither end — review 2026-07-24)
+            comp("rally", "How many shots in the rally (within one)?",
+                 values["rally"]),
             comp("dirs", "Which way did the shot go?", dirs),
             comp("letters", "Forehand or backhand?", let_pool),
             comp("zone", "Where did the serve land?", zone),
@@ -250,16 +253,20 @@ failed held-out validation at every attempted n.</p>"""
                      "note": "not attempted — every draft assumes a first serve"}],
         "bench": [
             {"id": "landing", "question": "Out-balls: wide or deep, from flight physics",
-             "shown": "0 → 47%", "note": "was totally blind",
+             "shown": "0 → 47%", "status": "wired",
+             "note": "wired in, switched off: it needs an out-detector first",
              "post": "/blog/nobody-sees-the-ball-land"},
             {"id": "ears", "question": "Hearing every hit in the soundtrack",
-             "shown": "½ confirmed", "note": "196 impacts heard where video was blind",
+             "shown": "hears ~1 in 2 hits", "status": "bench",
+             "note": "196 impacts heard where video was blind",
              "post": "/blog/the-machine-grows-ears"},
             {"id": "court", "question": "Court finds itself — no human clicks",
-             "shown": "7 of 8", "note": "within 2–16 px of the human; declines the 8th",
+             "shown": "7 of 8", "status": "wired",
+             "note": "a paint referee picks neural or human per match; declines the night feed",
              "post": "/blog/the-court-that-fits-itself"},
             {"id": "pose", "question": "Player skeletons for forehand/backhand",
-             "shown": "+13 pts", "note": "on grass, the worst surface",
+             "shown": "53% → 66%", "status": "bench",
+             "note": "on grass, the surface where the old method fails hardest",
              "post": "/blog/stick-figures-beat-smudges"},
         ],
     }

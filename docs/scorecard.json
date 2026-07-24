@@ -1,5 +1,5 @@
 {
- "generated": "2026-07-23",
+ "generated": "2026-07-24",
  "points": 511,
  "matches": 8,
  "components": [
@@ -24,10 +24,10 @@
   },
   {
    "id": "rally",
-   "question": "How many shots in the rally?",
+   "question": "How many shots in the rally (within one)?",
    "grade": "verify",
-   "value": 0.716,
-   "shown": "35%\u201383%",
+   "value": 0.712,
+   "shown": "71%",
    "history": [
     {
      "date": "2026-07-23",
@@ -40,8 +40,8 @@
    "id": "dirs",
    "question": "Which way did the shot go?",
    "grade": "verify",
-   "value": 0.713,
-   "shown": "71%",
+   "value": 0.721,
+   "shown": "72%",
    "history": [
     {
      "date": "2026-07-10",
@@ -62,6 +62,11 @@
      "date": "2026-07-23",
      "label": "8 matches",
      "value": 0.713
+    },
+    {
+     "date": "2026-07-24",
+     "label": "8 matches",
+     "value": 0.721
     }
    ]
   },
@@ -69,7 +74,7 @@
    "id": "letters",
    "question": "Forehand or backhand?",
    "grade": "verify",
-   "value": 0.601,
+   "value": 0.605,
    "shown": "60%",
    "history": [
     {
@@ -81,6 +86,11 @@
      "date": "2026-07-20",
      "label": "v2 \u00b7 7 matches",
      "value": 0.6
+    },
+    {
+     "date": "2026-07-24",
+     "label": "8 matches",
+     "value": 0.605
     }
    ]
   },
@@ -88,8 +98,8 @@
    "id": "zone",
    "question": "Where did the serve land?",
    "grade": "rekey",
-   "value": 0.395,
-   "shown": "40%",
+   "value": 0.387,
+   "shown": "39%",
    "history": [
     {
      "date": "2026-07-15",
@@ -105,6 +115,11 @@
      "date": "2026-07-23",
      "label": "8 matches",
      "value": 0.395
+    },
+    {
+     "date": "2026-07-24",
+     "label": "8 matches",
+     "value": 0.387
     }
    ]
   },
@@ -112,8 +127,8 @@
    "id": "ending",
    "question": "How did the point end?",
    "grade": "rekey",
-   "value": 0.195,
-   "shown": "20%",
+   "value": 0.194,
+   "shown": "19%",
    "history": [
     {
      "date": "2026-07-15",
@@ -145,13 +160,15 @@
    "id": "landing",
    "question": "Out-balls: wide or deep, from flight physics",
    "shown": "0 \u2192 47%",
-   "note": "was totally blind",
+   "status": "wired",
+   "note": "wired in, switched off: it needs an out-detector first",
    "post": "/blog/nobody-sees-the-ball-land"
   },
   {
    "id": "ears",
    "question": "Hearing every hit in the soundtrack",
-   "shown": "\u00bd confirmed",
+   "shown": "hears ~1 in 2 hits",
+   "status": "bench",
    "note": "196 impacts heard where video was blind",
    "post": "/blog/the-machine-grows-ears"
   },
@@ -159,14 +176,16 @@
    "id": "court",
    "question": "Court finds itself \u2014 no human clicks",
    "shown": "7 of 8",
-   "note": "within 2\u201316 px of the human; declines the 8th",
+   "status": "wired",
+   "note": "a paint referee picks neural or human per match; declines the night feed",
    "post": "/blog/the-court-that-fits-itself"
   },
   {
    "id": "pose",
    "question": "Player skeletons for forehand/backhand",
-   "shown": "+13 pts",
-   "note": "on grass, the worst surface",
+   "shown": "53% \u2192 66%",
+   "status": "bench",
+   "note": "on grass, the surface where the old method fails hardest",
    "post": "/blog/stick-figures-beat-smudges"
   }
  ]
