@@ -3146,3 +3146,52 @@ gitignored under outputs/; the committed change is the code path.
   experiments/wiring_measure.py, tests/test_landing.py. Touched: fitcourt.py,
   cli.py, endings.py, config.py, chart.py, evaluate.py.
 - Session cost: $0. Total: ~$16.
+
+## 2026-07-23 — Scaling turn: 127 full matches found, and the court knob dies on new video
+
+Trevor's redirect: stop polishing 8 matches, start using the resources — the
+11.6k-match corpus and the video actually out there. Two findings reset the
+project's data reality.
+
+**The (chart x full-video) intersection is ~7x bigger than the old survey
+thought.** experiments/video_survey_scan.py searched YouTube for 138 marquee
+corpus matches (Grand Slam + Tour Finals + Olympics finals/SFs, 2019+). 127 of
+138 (92%) have a FULL-MATCH upload — 80 hard, 30 clay, 17 grass, 36 slam
+finals — not the highlights the old 18-match manual survey saw. The Grand Slam
+channels post whole matches (Sinner-Medvedev AO24 F = 10,828 s). Map at
+data/video_catalog.json. Memory's "video is THE constraint" needs softening:
+for the marquee head, full video is abundant. (Caveat below.)
+
+**Staging blocker #1 (the court knob) is dead on new video.** ingest.py names
+the three by-eye knobs that kill scale: (1) court HSV band + fit-window +
+corners, (2) score-bug crop, (3) clip alignment. This morning's neural court
+fit (roadmap #2) collapses ALL of knob #1: experiments/newvideo_courtprobe.py
+downloads a 60-90 s slice of a match we never staged, samples frames, and fits
+the court from the highest-keypoint frame — no band, no corners, no fit-window
+(keypoint count AUTO-finds the court-view frame). Proof on Sinner-Medvedev AO24
+F: 14/14 keypoints, xval 1.6 px, overlay pixel-perfect on the paint
+(outputs/diag/newcourt_med24.png), zero config.
+
+**Generalization (7-agent workflow, one broadcast each):** 5/6 real broadcasts
+FIT zero-config — hard (Osaka-Azarenka 1.7px, Osaka-Brady 3.0px, Medvedev-
+Zverev 1.8px) and clay (Swiatek-Kenin 3.6px, Zheng-Vekic 2.8px), all 14/14.
+Grass is already covered — the t4 Wimbledon benchmark fit at 0.75px this
+morning. The 6th candidate (a Wimbledon "full match") returned 0 court-view
+frames, and the frame check explains why: it's a fan WATCH-ALONG stream
+(talking head + DOWNLOADTENNIS.COM sub-counter), not broadcast footage. So the
+court probe DOUBLES as a footage validator: it fit every real broadcast and
+correctly rejected the one that wasn't. The catalog's "full" count is therefore
+an UPPER BOUND — duration alone mislabels watch-alongs/compilations; the court
+probe is the real (cheap) usability filter.
+
+**Where scale still dies: knob #2, the score bug.** Reading the on-screen score
+(the point ID that joins a clip to its MCP row) is still per-broadcast. It is
+legible in every overlay (AO bottom-left: "SINNER 3 40 / MEDVEDEV 5 40"), so
+it's an OCR-locate problem, not an impossible one — and it's the next thing to
+automate to make staging hands-free. Then the corpus + these 127 videos become
+a real training/benchmark pipeline instead of 8 hand-staged matches.
+
+- New: experiments/video_survey_scan.py, experiments/newvideo_courtprobe.py,
+  data/video_catalog.json. Subagents: 7-agent court-generalization workflow
+  (5/6 real broadcasts fit; ~$0, local models + yt-dlp).
+- Session cost: $0. Total: ~$16.
